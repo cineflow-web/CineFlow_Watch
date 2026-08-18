@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en" class="{{ 'dark' if theme.is_dark else 'light' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Telegram Stremio{% endblock %}</title>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='{{ theme.colors.primary | replace('#','%23') }}'/%3E%3Cpath d='M12.5 9.5l10 6.5-10 6.5z' fill='white'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='{{ theme.colors.primary | replace('#','%23') }}'/%3E%3Cpath d='M12.5 9.5l10 6.5-10 6.5z' fill='white'/%3E%3C/svg%3E">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    color-scheme: {{ 'dark' if theme.is_dark else 'light' }};
+    --primary: {{ theme.colors.primary }};
+    --secondary: {{ theme.colors.secondary }};
+    --accent: {{ theme.colors.accent }};
+    --bg: {{ theme.colors.background }};
+    --card: {{ theme.colors.card }};
+    --border: {{ theme.colors.border }};
+    --text: {{ theme.colors.text }};
+    --text-sec: {{ theme.colors.text_secondary }};
+
+    --surface: color-mix(in srgb, var(--text) 5%, transparent);
+    --surface-2: color-mix(in srgb, var(--text) 9%, transparent);
+    --surface-3: color-mix(in srgb, var(--text) 14%, transparent);
+    --hairline: color-mix(in srgb, var(--text) 12%, transparent);
+    --hairline-strong: color-mix(in srgb, var(--text) 20%, transparent);
+    --muted: color-mix(in srgb, var(--text) 42%, transparent);
+    --ring: color-mix(in srgb, var(--primary) 35%, transparent);
+    --shadow-color: {{ '0,0,0' if theme.is_dark else '15,23,42' }};
+    --shadow-soft: 0 10px 30px rgba(var(--shadow-color), {{ '0.35' if theme.is_dark else '0.10' }});
+    --shadow-strong: 0 24px 60px rgba(var(--shadow-color), {{ '0.45' if theme.is_dark else '0.16' }});
+}
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 40%),
+        radial-gradient(circle at 85% 80%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 40%),
+        radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--card) 40%, transparent), transparent 60%);
+}
+
+.glass-panel {
+    background: color-mix(in srgb, var(--card) 90%, var(--bg));
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-soft);
+}
+
+.glass-nav {
+    background: color-mix(in srgb, var(--card) 78%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-pill { border-radius: 9999px; }
+
+.surface-card {
+    background: color-mix(in srgb, var(--card) 92%, var(--bg));
+    border: 1px solid var(--hairline);
+    border-radius: 1.5rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--bg);
+    font-weight: 700;
+    border-radius: 1rem;
+    transition: filter .2s ease, transform .12s ease, box-shadow .2s ease;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-primary:active { transform: scale(.97); }
+
+.btn-ghost {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--hairline);
+    border-radius: 1rem;
+    font-weight: 700;
+    transition: background .2s ease, border-color .2s ease;
+}
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--hairline-strong); }
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    padding: .25rem .6rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+    color: var(--primary);
+}
+
+.field {
+    width: 100%;
+    background: color-mix(in srgb, var(--card) 88%, var(--bg));
+    color: var(--text);
+    border: 1px solid var(--hairline);
+    border-radius: 1rem;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--ring);
+}
+
+.tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); color: var(--text); }
+
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+* { scrollbar-width: thin; scrollbar-color: var(--hairline-strong) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--hairline-strong); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    
+.nav-link {
+    color: var(--text-sec);
+    border-radius: 9999px;
+    padding: 0.5rem clamp(0.55rem, 0.9vw, 1.25rem);
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.nav-link.pill-active {
+    color: var(--bg) !important; 
+}
+
+#active-pill {
+    position: absolute;
+    inset: auto;
+    background: var(--primary);
+    border-radius: 9999px;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow: 0 0 15px color-mix(in srgb, var(--primary) 40%, transparent);
+    transition:
+        left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast {
+    pointer-events: auto;
+    min-width: 260px;
+    max-width: 360px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    color: var(--text);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.2);
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    backdrop-filter: blur(14px);
+    animation: toast-in 220ms ease-out;
+}
+
+.toast.success { border-color: color-mix(in srgb, #22c55e 35%, var(--border)); }
+.toast.error   { border-color: color-mix(in srgb, #ef4444 35%, var(--border)); }
+.toast.info    { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
+
+.toast-title   { font-weight: 800; font-size: 0.9rem; line-height: 1.2; }
+.toast-message { margin-top: 0.15rem; font-size: 0.82rem; color: var(--text-sec); line-height: 1.35; }
+
+@keyframes toast-in  { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toast-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-8px) scale(0.98); } }
+
+@media (max-width: 640px) {
+    #toast-container { top: 5rem; left: 0.75rem; right: 0.75rem; }
+    .toast { max-width: none; width: 100%; }
+}
+
+.theme-select {
+    appearance: none;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+input, select, textarea, button {
+    font-family: inherit;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+select,
+textarea {
+    color: var(--text);
+}
+input::placeholder,
+textarea::placeholder {
+    color: color-mix(in srgb, var(--text-sec) 78%, transparent);
+    opacity: 1;
+}
+select option,
+select optgroup {
+    background-color: var(--card);
+    color: var(--text);
+}
+/* Autofill no longer paints white-on-white in dark themes */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+    -webkit-text-fill-color: var(--text);
+    -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--card) 92%, transparent) inset;
+    caret-color: var(--text);
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ── Modern theme picker (nav) ──────────────────────────────────────────────*/
+.theme-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+.theme-chip {
+    --sw-bg: var(--bg);
+    --sw-primary: var(--primary);
+    --sw-accent: var(--accent);
+    --sw-text: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--sw-text) 18%, transparent);
+    background: var(--sw-bg);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+.theme-chip:hover {
+    transform: translateY(-1px);
+    border-color: var(--sw-primary);
+}
+.theme-chip.active {
+    border-color: var(--sw-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--sw-primary) 55%, transparent);
+}
+.theme-chip-dots { display: flex; gap: 3px; flex-shrink: 0; }
+.theme-chip-dots .dot {
+    width: 0.7rem; height: 0.7rem; border-radius: 9999px;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--sw-primary) 70%, transparent);
+}
+.theme-chip-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--sw-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+}
+.theme-chip .chip-check {
+    position: absolute;
+    top: 0.3rem; right: 0.4rem;
+    font-size: 0.6rem;
+    color: var(--sw-primary);
+}
+
+#overlay {
+    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.4);
+    transition: opacity 0.3s ease;
+}
+
+.nav-scrolled { 
+    transform: translate(-50%, -5px) scale(0.97); 
+    background: color-mix(in srgb, var(--card) 80%, transparent);
+}
+
+#mobile-menu { will-change: max-height, opacity; }
+</style>
+
+<script>
+tailwind.config = {
+    darkMode: 'class',
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ['Inter', 'system-ui', 'sans-serif'],
+                mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
+            },
+            colors: {
+                primary: 'var(--primary)',
+                secondary: 'var(--secondary)',
+                accent: 'var(--accent)',
+                background: 'var(--bg)',
+                card: 'var(--card)',
+                border: 'var(--border)',
+                text: 'var(--text)',
+                'text-secondary': 'var(--text-sec)',
+                surface: 'var(--surface)',
+                'surface-2': 'var(--surface-2)',
+                'surface-3': 'var(--surface-3)',
+                hairline: 'var(--hairline)',
+                'hairline-strong': 'var(--hairline-strong)',
+                muted: 'var(--muted)'
+            },
+            boxShadow: {
+                soft: 'var(--shadow-soft)',
+                strong: 'var(--shadow-strong)'
+            }
+        }
+    }
+}
+</script>
+</head>
+
+<body class="pt-24 pb-12 antialiased">
+
+<div id="overlay" class="fixed inset-0 z-40 opacity-0 pointer-events-none"></div>
+
+<nav id="navbar"
+  class="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50
+  glass-panel glass-nav glass-pill px-5 py-3
+  grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4
+  transition-all duration-300">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_0_15px_var(--primary)]">
+            <i class="fa-solid fa-play text-white text-xs"></i>
+        </div>
+        <span class="text-lg md:text-xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+            TG Stremio
+        </span>
+    </a>
+
+    {% if current_user %}
+    <div id="nav-container" class="hidden md:flex relative isolate min-w-0 justify-self-center items-center gap-1 p-1 bg-black/10 rounded-full border border-hairline">
+        <div id="active-pill" class="pointer-events-none"></div>
+        <a href="/" class="nav-link">Home</a>
+        <a href="/media/manage" class="nav-link">Media</a>
+        <a href="/catalogs" class="nav-link">Catalogs</a>
+        <a href="/admin/dashboard" class="nav-link">Admin</a>
+        <a href="/admin/subscriptions" class="nav-link">Plans</a>
+        <a href="/admin/access" class="nav-link">Tokens</a>
+        <a href="/admin/requests" class="nav-link">Requests</a>
+        <a href="/admin/tools" class="nav-link">Tools</a>
+        <a href="/admin/settings" class="nav-link">Settings</a>
+    </div>
+    {% endif %}
+
+    <div class="flex items-center gap-3 justify-self-end">
+        {% if current_user %}
+            <button id="menu-btn" class="md:hidden w-10 h-10 flex items-center justify-center text-xl hover:bg-surface-2 rounded-full transition">
+                <i id="menu-icon" class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="relative">
+                <button id="user-btn" class="w-10 h-10 rounded-full bg-primary/20 hover:bg-primary/30 flex items-center justify-center text-primary text-lg transition border border-primary/30">
+                    <i class="fa-solid fa-user"></i>
+                </button>
+
+                <div id="user-dropdown" class="absolute right-0 top-14 w-72 glass-panel rounded-2xl p-4 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-50">
+                    <div class="mb-3 border-b border-hairline pb-3">
+                        <p class="text-sm font-bold text-text">{{ current_user }}</p>
+                        <p class="text-[10px] text-green-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Online
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-[10px] uppercase text-text-secondary font-bold mb-2 block ml-1">App Theme</label>
+                        <div class="theme-grid">
+                            {% for theme_key, theme_data in themes.items() %}
+                            <button type="button"
+                                onclick="selectTheme('{{ theme_key }}')"
+                                class="theme-chip {% if current_theme==theme_key %}active{% endif %}"
+                                title="{{ theme_data.name }}"
+                                style="--sw-bg:{{ theme_data.colors.background }};--sw-primary:{{ theme_data.colors.primary }};--sw-accent:{{ theme_data.colors.accent }};--sw-text:{{ theme_data.colors.text }}">
+                                <span class="theme-chip-dots">
+                                    <span class="dot" style="background:{{ theme_data.colors.primary }}"></span>
+                                    <span class="dot" style="background:{{ theme_data.colors.accent }}"></span>
+                                </span>
+                                <span class="theme-chip-name">{{ theme_data.name }}</span>
+                                {% if current_theme==theme_key %}<i class="fa-solid fa-check chip-check"></i>{% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <form id="theme-form" method="post" action="/set-theme" class="hidden">
+                            <input type="hidden" name="theme" id="theme-input">
+                        </form>
+                    </div>
+
+                    <a href="/admin/settings"
+                       class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold mb-2 transition-all"
+                       style="background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+
+                    <a href="/logout" class="block text-center bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <a href="/login" class="bg-primary hover:bg-primary/80 text-white px-6 py-2 rounded-full text-sm font-bold transition shadow-lg shadow-primary/20">
+                Login
+            </a>
+        {% endif %}
+    </div>
+
+    <div id="mobile-menu" class="absolute top-[calc(100%+12px)] left-0 w-full overflow-hidden max-h-0 opacity-0 transition-all duration-300 ease-in-out md:hidden z-40">
+        <div class="glass-panel mx-2 rounded-3xl p-4 flex flex-col gap-2">
+            <a href="/" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/media/manage" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-clapperboard"></i> Media</a>
+            <a href="/catalogs" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-layer-group"></i> Catalogs</a>
+            <a href="/admin/dashboard" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-chart-line"></i> Admin</a>
+            <a href="/admin/subscriptions" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-credit-card"></i> Plans</a>
+            <a href="/admin/access" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-shield"></i> Tokens</a>
+            <a href="/admin/requests" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-inbox"></i> Requests</a>
+            <a href="/admin/tools" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-screwdriver-wrench"></i> Tools</a>
+            <!-- ↓ NEW -->
+            <a href="/admin/settings" class="px-4 py-3 rounded-xl hover:bg-primary hover:text-background transition flex items-center gap-3 font-semibold"><i class="fa-solid fa-gear"></i> Settings</a>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="mt-auto w-full max-w-5xl mx-auto px-6 py-8">
+    <div class="glass-panel rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-2">
+            <i class="fa-brands fa-telegram text-primary text-xl"></i>
+            <p class="text-text-secondary text-sm">© 2026 Telegram Stremio</p>
+        </div>
+    </div>
+</footer>
+    
+<div id="toast-container" class="fixed top-4 right-4 z-[9999] space-y-3 pointer-events-none"></div>
+    
+<script>
+const btn = document.getElementById('menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+const overlay = document.getElementById('overlay');
+const icon = document.getElementById('menu-icon');
+const navbar = document.getElementById('navbar');
+const userBtn = document.getElementById('user-btn');
+const userDropdown = document.getElementById('user-dropdown');
+const navContainer = document.getElementById('nav-container');
+
+let isMenuOpen = false;
+let isUserOpen = false;
+
+function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+    if(isUserOpen) closeUser();
+    if (isMenuOpen) {
+        mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+        mobileMenu.style.opacity = "1";
+        overlay.style.opacity = "1";
+        overlay.classList.remove("pointer-events-none");
+        icon.classList.replace("fa-bars","fa-xmark");
+    } else closeMenu();
+}
+
+function closeMenu() {
+    mobileMenu.style.maxHeight = "0px";
+    mobileMenu.style.opacity = "0";
+    icon.classList.replace("fa-xmark","fa-bars");
+    isMenuOpen = false;
+    checkOverlay();
+}
+
+function toggleUser(e) {
+    if(e) e.stopPropagation();
+    isUserOpen = !isUserOpen;
+    if(isMenuOpen) closeMenu();
+    if (isUserOpen) {
+        userDropdown.classList.remove("opacity-0", "scale-95", "pointer-events-none");
+        overlay.style.opacity = "1";
+        overlay.classList.remove("pointer-events-none");
+    } else closeUser();
+}
+
+function closeUser() {
+    if(userDropdown) userDropdown.classList.add("opacity-0", "scale-95", "pointer-events-none");
+    isUserOpen = false;
+    checkOverlay();
+}
+
+function checkOverlay() {
+    if (!isMenuOpen && !isUserOpen) {
+        overlay.style.opacity = "0";
+        overlay.classList.add("pointer-events-none");
+    }
+}
+
+function showToast(message, type = 'info', title = '', duration = 2600) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icon = type === 'success'
+        ? 'fa-circle-check'
+        : type === 'error'
+            ? 'fa-triangle-exclamation'
+            : 'fa-circle-info';
+
+    toast.innerHTML = `
+        <i class="fa-solid ${icon} mt-0.5"></i>
+        <div class="min-w-0">
+            ${title ? `<div class="toast-title">${escapeHtml(title)}</div>` : ''}
+            <div class="toast-message">${escapeHtml(message)}</div>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'toast-out 180ms ease-in forwards';
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 200);
+    }, duration);
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function selectTheme(key) {
+    const input = document.getElementById('theme-input');
+    const form = document.getElementById('theme-form');
+    if (!input || !form) return;
+    input.value = key;
+    form.submit();
+}
+
+if(btn) btn.onclick = toggleMenu;
+if(userBtn) userBtn.onclick = toggleUser;
+overlay.onclick = () => { closeMenu(); closeUser(); };
+
+let scrollTicking = false;
+let navScrolled = false;
+window.addEventListener("scroll", () => {
+    if (isMenuOpen) closeMenu();
+    if (isUserOpen) closeUser();
+    if (!scrollTicking) {
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+            const past = window.scrollY > 20;
+            if (past !== navScrolled) {
+                navScrolled = past;
+                navbar.classList.toggle("nav-scrolled", past);
+            }
+            scrollTicking = false;
+        });
+    }
+}, { passive: true });
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") { closeMenu(); closeUser(); }
+});
+
+if (userDropdown) {
+    userDropdown.addEventListener("click", e => e.stopPropagation());
+}
+
+const links = document.querySelectorAll(".nav-link");
+const pill = document.getElementById("active-pill");
+let activeLink = null;
+
+function movePill(el) {
+    if(!pill || !el) return;
+    const r = el.getBoundingClientRect();
+    const pr = el.parentElement.getBoundingClientRect();
+    pill.style.width = r.width + "px";
+    pill.style.height = r.height + "px";
+    pill.style.left = (r.left - pr.left) + "px";
+    pill.style.top = (r.top - pr.top) + "px";
+    links.forEach(l => l.classList.toggle("pill-active", l === el));
+}
+
+window.addEventListener('load', () => {
+    const current = window.location.pathname;
+    activeLink = [...links].find(l => l.getAttribute("href") === current) || links[0];
+    if(activeLink) movePill(activeLink);
+});
+
+links.forEach(l => {
+    l.addEventListener("mouseenter", () => movePill(l));
+});
+
+if(navContainer) {
+    navContainer.addEventListener("mouseleave", () => {
+        if(activeLink) movePill(activeLink);
+    });
+}
+
+{% if current_user %}
+/* Remind the admin that a manual upload session is active (except on Tools) */
+(function manualSessionReminder() {
+    if (window.location.pathname === '/admin/tools') return;
+    async function check() {
+        try {
+            const res = await fetch('/api/admin/tools/manual-session');
+            if (!res.ok) return;
+            const data = await res.json();
+            const s = data.session;
+            if (s && s.tmdb_id !== undefined && s.tmdb_id !== null) {
+                const label = s.title ? `"${s.title}"` : 'a title';
+                showToast(`Uploads are being added to ${label}. Open Tools to stop it if you're done.`,
+                          'error', '⚠ Upload session active', 5000);
+            }
+        } catch (e) { /* ignore */ }
+    }
+    check();
+    setInterval(check, 60000);
+})();
+{% endif %}
+</script>
+
+</body>
+</html>
