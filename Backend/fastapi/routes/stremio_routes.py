@@ -312,7 +312,7 @@ def format_stream_details(filename: str, quality: str, size: str, is_split: bool
     try:
         parsed = PTN.parse(filename)
     except Exception:
-        return (f"Telegram {quality}", f"📁 {filename}\n{size_emoji} {size}")
+        return (f"CineFlow {quality}", f"📁 {filename}\n{size_emoji} {size}")
 
     codec_parts = []
     if parsed.get("codec"):
@@ -328,7 +328,7 @@ def format_stream_details(filename: str, quality: str, size: str, is_split: bool
 
     resolution = parsed.get("resolution", quality)
     quality_type = parsed.get("quality", "")
-    stream_name = f"Telegram {resolution} {quality_type}".strip()
+    stream_name = f"CineFlow {resolution} {quality_type}".strip()
 
     stream_title_parts = [
         f"📁 {filename}",
