@@ -300,15 +300,19 @@
     }
   }
 
-  .edit-tabs {
+  .edit-tabs-wrap {
     position: sticky;
     top: 0.5rem;
     z-index: 20;
+    margin-bottom: 1.5rem;
+  }
+
+  .edit-tabs {
     display: flex;
     gap: 0.4rem;
     overflow-x: auto;
+    scroll-snap-type: x proximity;
     padding: 0.4rem;
-    margin-bottom: 1.5rem;
     border-radius: 1.1rem;
     scrollbar-width: none;
     background: color-mix(in srgb, var(--card) 90%, var(--bg));
@@ -316,11 +320,14 @@
     box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 1.1rem, #000 calc(100% - 1.1rem), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 1.1rem, #000 calc(100% - 1.1rem), transparent 100%);
   }
 
   .edit-tabs::-webkit-scrollbar { display: none; }
 
   .edit-tab {
+    scroll-snap-align: start;
     flex: 1 0 auto;
     display: inline-flex;
     align-items: center;
@@ -360,13 +367,14 @@
   @media (max-width: 640px) {
     .edit-tab {
       flex: 0 0 auto;
-      font-size: 0.82rem;
-      padding: 0.55rem 0.85rem;
+      font-size: 0.78rem;
+      padding: 0.5rem 0.7rem;
+      gap: 0.35rem;
     }
   }
 </style>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+<div>
     <div class="glass-card rounded-2xl p-4 sm:p-5 mb-6 sm:mb-8 relative overflow-hidden">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
         <div class="flex items-center gap-3 min-w-0">
@@ -448,12 +456,14 @@
     {% endif %}
 
     {% if media_details %}
+    <div class="edit-tabs-wrap">
     <div class="edit-tabs" role="tablist" id="edit-tabs">
         <button type="button" class="edit-tab active" data-tab="details" onclick="switchEditTab('details')"><i class="fa-solid fa-file-lines"></i> <span>Details</span></button>
         <button type="button" class="edit-tab" data-tab="content" onclick="switchEditTab('content')"><i class="fa-solid fa-film"></i> <span>Content</span></button>
         <button type="button" class="edit-tab" data-tab="subtitles" onclick="switchEditTab('subtitles')"><i class="fa-solid fa-closed-captioning"></i> <span>Subtitles</span></button>
         <button type="button" class="edit-tab" data-tab="catalog" onclick="switchEditTab('catalog')"><i class="fa-solid fa-layer-group"></i> <span>Catalog</span></button>
         <button type="button" class="edit-tab" data-tab="rescan" onclick="switchEditTab('rescan')"><i class="fa-solid fa-arrows-rotate"></i> <span>Rescan</span></button>
+    </div>
     </div>
     {% endif %}
 
