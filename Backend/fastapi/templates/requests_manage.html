@@ -6,28 +6,36 @@
   .rq-shell { max-width: 1180px; margin: 0 auto; }
 
   /* ── Type tabs (Movies / TV) ─────────────────────────────────────────── */
-  .rq-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .rq-tabs {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      padding: 0.35rem; border-radius: calc(var(--radius-md) + 0.35rem);
+      border: 1px solid var(--hairline-soft); background: var(--surface);
+  }
   .rq-tab {
       padding: 0.5rem 1.1rem; border-radius: var(--radius-md);
-      border: 1px solid var(--hairline); background: var(--surface);
+      border: 1px solid transparent; background: transparent;
       cursor: pointer; font-weight: 700; font-size: 0.85rem; color: var(--text-sec);
       transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
   .rq-tab span { opacity: .7; margin-left: .3rem; }
   .rq-tab i { margin-right: .4rem; opacity: .85; }
-  .rq-tab:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--text); }
+  .rq-tab:hover { background: var(--surface-2); color: var(--text); }
   .rq-tab.active { background: var(--primary); color: var(--bg); border-color: var(--primary); }
 
   /* ── Status filter chips ─────────────────────────────────────────────── */
-  .rq-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .rq-filters {
+      display: flex; gap: 0.3rem; flex-wrap: wrap;
+      padding: 0.35rem; border-radius: calc(var(--radius-md) + 0.35rem);
+      border: 1px solid var(--hairline-soft); background: var(--surface);
+  }
   .rq-chip {
       display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.35rem 0.85rem; border-radius: var(--radius-md);
-      border: 1px solid var(--hairline); background: transparent;
+      border: 1px solid transparent; background: transparent;
       cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--text-sec);
       transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
-  .rq-chip:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--text); }
+  .rq-chip:hover { background: var(--surface-2); color: var(--text); }
   .rq-chip.active {
       background: color-mix(in srgb, var(--primary) 18%, transparent);
       color: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent);
