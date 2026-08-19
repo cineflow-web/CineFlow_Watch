@@ -284,6 +284,22 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--text); }
 
+.pub-nav-signin {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.82rem; font-weight: 700;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.pub-nav-signin:hover {
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--hairline));
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
 #sidebar {
     position: fixed;
     top: var(--topbar-h);
@@ -410,10 +426,15 @@ body.sidebar-compact #collapse-toggle i { transform: rotate(180deg); }
 }
 body.sidebar-compact #app-main { margin-left: var(--sidebar-w-compact); }
 
-/* Sticky footer: fills the real visible viewport (dvh), not the inflated
-   100vh mobile browsers report when the address bar is shown/hidden. */
-#app-main.mh-app  { min-height: 100vh; min-height: calc(100dvh - var(--topbar-h)); }
-#app-main.mh-full { min-height: 100vh; min-height: 100dvh; }
+/* Public pages have no sidebar — don't reserve space for one. */
+#app-main.mh-full { margin-left: 0; }
+
+/* Sticky footer: fills the real visible viewport (dvh) minus the fixed
+   topbar's reserved space, not the inflated 100vh mobile browsers report
+   when the address bar is shown/hidden. Both variants now render a
+   topbar, so both need to subtract --topbar-h from the available height. */
+#app-main.mh-app,
+#app-main.mh-full { min-height: 100vh; min-height: calc(100dvh - var(--topbar-h)); }
 #app-main > .app-content { flex: 1 1 auto; min-width: 0; }
 #app-main > footer { flex-shrink: 0; min-width: 0; }
 
@@ -598,6 +619,24 @@ tailwind.config = {
         <span class="ct-label">Collapse</span>
     </button>
 </aside>
+{% else %}
+<!-- ═══════════════ Public navbar (no sidebar, no menu button) ═══════════════ -->
+<header id="topbar" class="glass-panel glass-nav">
+    <a href="/" class="flex items-center gap-2.5 shrink-0">
+        <img src="https://iili.io/CLM4WKX.md.png" alt="CineFlow" class="h-8 w-auto object-contain">
+    </a>
+
+    <div class="flex-1"></div>
+
+    <span class="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" style="color:var(--primary)">
+        <i class="fa-solid fa-bat"></i> Dracula
+    </span>
+
+    <a href="/login" class="pub-nav-signin">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span class="hidden sm:inline">Sign in</span>
+    </a>
+</header>
 {% endif %}
 
 <main id="app-main" class="{% if current_user %}mh-app{% else %}mh-full{% endif %}">

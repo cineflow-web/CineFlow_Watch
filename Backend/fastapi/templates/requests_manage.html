@@ -20,6 +20,7 @@
   /* ── Status filter chips ─────────────────────────────────────────────── */
   .rq-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
   .rq-chip {
+      display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.35rem 0.85rem; border-radius: var(--radius-md);
       border: 1px solid var(--hairline); background: transparent;
       cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--text-sec);
@@ -118,11 +119,11 @@
                 <button class="rq-tab" data-type="tv" onclick="setType(this,'tv')">📺 TV Shows <span id="cnt-tv">0</span></button>
             </div>
             <div class="rq-filters">
-                <button class="rq-chip active" data-status="" onclick="setStatusFilter(this,'')">All</button>
-                <button class="rq-chip" data-status="pending" onclick="setStatusFilter(this,'pending')">Pending</button>
-                <button class="rq-chip" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')">Uploaded</button>
-                <button class="rq-chip" data-status="denied" onclick="setStatusFilter(this,'denied')">Denied</button>
-                <button class="rq-chip" data-status="banned" onclick="setStatusFilter(this,'banned')">Banned</button>
+                <button class="rq-chip active" data-status="" onclick="setStatusFilter(this,'')"><i class="fa-solid fa-layer-group"></i> All</button>
+                <button class="rq-chip" data-status="pending" onclick="setStatusFilter(this,'pending')"><i class="fa-solid fa-clock"></i> Pending</button>
+                <button class="rq-chip" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')"><i class="fa-solid fa-check"></i> Uploaded</button>
+                <button class="rq-chip" data-status="denied" onclick="setStatusFilter(this,'denied')"><i class="fa-solid fa-xmark"></i> Denied</button>
+                <button class="rq-chip" data-status="banned" onclick="setStatusFilter(this,'banned')"><i class="fa-solid fa-ban"></i> Banned</button>
             </div>
         </div>
     </div>
