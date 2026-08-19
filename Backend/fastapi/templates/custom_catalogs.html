@@ -5,447 +5,381 @@
 {% block content %}
 <style>
   .catalog-page {
-    --soft-bg: color-mix(in srgb, var(--bg) 78%, transparent);
-    --card-bg: color-mix(in srgb, var(--card) 92%, var(--bg));
-    --card-bg-strong: color-mix(in srgb, var(--card) 82%, transparent);
-    --line: color-mix(in srgb, var(--border) 90%, transparent);
-    --primary-soft: color-mix(in srgb, var(--primary) 15%, transparent);
-    --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+    --line: var(--hairline);
   }
 
+  /* ── Compact card (matches Settings / Tools / Tokens / Admin) ─────────── */
   .glass-card {
     position: relative;
-    overflow: hidden;
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+    background: color-mix(in srgb, var(--card) 92%, var(--bg));
+    border: 1px solid var(--hairline);
+    border-radius: 0.85rem;
+    padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow-soft);
+    transition: border-color .2s ease;
   }
-
-  .glass-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 12% 0%, var(--primary-soft), transparent 36%),
-      radial-gradient(circle at 95% 10%, var(--accent-soft), transparent 34%);
-    opacity: .9;
-  }
-
-  .glass-card > * { position: relative; z-index: 1; }
-
-  .hero-card {
-    min-height: 15rem;
-    display: grid;
-    place-items: stretch;
-  }
-
-  .hero-orb {
-    width: 4.25rem;
-    height: 4.25rem;
-    border-radius: 9999px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    box-shadow: 0 0 45px color-mix(in srgb, var(--primary) 45%, transparent);
-    display: grid;
-    place-items: center;
-    color: var(--bg);
-  }
+  .glass-card:hover { border-color: color-mix(in srgb, var(--primary) 22%, var(--hairline)); }
 
   .section-title {
+    font-size: 0.85rem; font-weight: 800;
+    letter-spacing: 0.03em; text-transform: uppercase;
     color: var(--text);
-    font-weight: 900;
-    letter-spacing: -0.035em;
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.25rem;
   }
+  .section-title i:first-child { color: var(--primary); flex-shrink: 0; }
 
   .muted { color: var(--text-sec); }
+  .hint { font-size: 0.78rem; color: var(--text-sec); }
 
   .field-label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 800;
-    margin-bottom: 0.55rem;
-    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+    color: var(--text-sec);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 
   .field-input,
   .field-select {
     width: 100%;
-    border-radius: 1rem;
-    border: 1px solid var(--line);
-    background: color-mix(in srgb, var(--bg) 84%, var(--card) 16%);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--card) 88%, var(--bg));
     color: var(--text);
-    padding: 0.9rem 1rem;
+    padding: 0.7rem 0.9rem;
     outline: none;
-    transition: all .2s ease;
-    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 5%, transparent);
+    transition: border-color .2s ease, box-shadow .2s ease;
   }
 
-  .field-input::placeholder { color: color-mix(in srgb, var(--text-sec) 82%, transparent); }
+  .field-input::placeholder { color: color-mix(in srgb, var(--text-sec) 78%, transparent); }
 
   .field-input:focus,
   .field-select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+    box-shadow: 0 0 0 3px var(--ring);
   }
 
+  /* ── Compact buttons (matches Tools) ───────────────────────────────── */
   .btn-ui {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: .55rem;
-    border-radius: 1rem;
-    padding: .85rem 1.15rem;
-    font-weight: 900;
-    transition: all .2s ease;
+    gap: .5rem;
+    border-radius: 0.6rem;
+    padding: .6rem 1rem;
+    font-size: .82rem;
+    font-weight: 700;
+    transition: all .15s ease;
     border: 1px solid transparent;
     white-space: nowrap;
+    cursor: pointer;
   }
 
   .btn-ui:hover { transform: translateY(-1px); }
-  .btn-ui:active { transform: translateY(0) scale(.99); }
+  .btn-ui:active { transform: translateY(0) scale(.98); }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    color: var(--bg);
-    box-shadow: 0 14px 28px color-mix(in srgb, var(--primary) 24%, transparent);
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 40%, transparent);
   }
 
   .btn-ghost {
-    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    background: var(--surface);
     color: var(--text);
-    border-color: var(--line);
+    border-color: var(--hairline);
   }
+  .btn-ghost:hover { background: var(--surface-2); }
 
   .btn-danger {
-    background: color-mix(in srgb, rgb(239 68 68) 16%, var(--card));
-    color: rgb(248 113 113);
-    border-color: color-mix(in srgb, rgb(239 68 68) 32%, var(--border));
+    background: color-mix(in srgb, var(--d-red) 12%, transparent);
+    color: var(--d-red);
+    border-color: color-mix(in srgb, var(--d-red) 30%, transparent);
   }
+  .btn-danger:hover { background: color-mix(in srgb, var(--d-red) 24%, transparent); }
 
   .pill {
     display: inline-flex;
     align-items: center;
-    gap: .45rem;
-    padding: .42rem .85rem;
+    gap: .4rem;
+    padding: .32rem .7rem;
     border-radius: 9999px;
-    font-size: .78rem;
-    font-weight: 900;
-    border: 1px solid var(--line);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
     background: color-mix(in srgb, var(--bg) 66%, transparent);
-    color: var(--text);
+    color: var(--text-sec);
+    white-space: nowrap;
   }
 
   .stat-card,
   .catalog-card,
   .media-card,
   .empty-state {
-    background: color-mix(in srgb, var(--bg) 72%, var(--card) 28%);
-    border: 1px solid var(--line);
-    border-radius: 1.45rem;
-    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 0.85rem;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
 
   .catalog-card:hover,
   .media-card:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
-    box-shadow: 0 16px 34px rgba(0,0,0,.16);
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary) 38%, var(--hairline));
+    box-shadow: var(--shadow-soft);
   }
 
   .catalog-card.active {
     border-color: var(--primary);
-    background:
-      linear-gradient(135deg, color-mix(in srgb, var(--primary) 13%, transparent), transparent),
-      color-mix(in srgb, var(--bg) 70%, var(--card) 30%);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
+    background: color-mix(in srgb, var(--primary) 9%, var(--surface));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent);
   }
 
   .poster {
-    width: 4.25rem;
-    height: 6.35rem;
+    width: 3.75rem;
+    height: 5.6rem;
     object-fit: cover;
-    border-radius: 1rem;
-    border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+    border-radius: 0.6rem;
+    border: 1px solid var(--hairline);
     background: color-mix(in srgb, var(--bg) 80%, transparent);
     flex-shrink: 0;
   }
 
   .switch {
-    width: 3.1rem;
-    height: 1.7rem;
+    width: 2.85rem;
+    height: 1.55rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--border) 80%, transparent);
+    background: var(--surface-3);
     position: relative;
     cursor: pointer;
-    transition: .2s ease;
-    border: 1px solid var(--line);
+    transition: background .2s ease;
     flex-shrink: 0;
   }
 
-  /* Toggle row (visibility exclusive / search) */
   .toggle-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: .75rem;
-    border-radius: 1rem;
-    padding: .75rem .85rem;
-    background: color-mix(in srgb, var(--bg) 64%, transparent);
-    border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+    border-radius: 0.7rem;
+    padding: .65rem .75rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
     cursor: pointer;
   }
 
   .switch::after {
     content: "";
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.1rem;
+    height: 1.1rem;
     border-radius: 999px;
     background: var(--text);
     position: absolute;
-    left: .18rem;
-    top: .17rem;
-    transition: .2s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,.24);
+    left: .2rem;
+    top: .2rem;
+    transition: left .2s ease, background .2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,.24);
   }
 
-  .switch-input:checked + .switch {
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-  }
-
-  .switch-input:checked + .switch::after {
-    left: 1.55rem;
-    background: var(--bg);
-  }
+  .switch-input:checked + .switch { background: var(--primary); }
+  .switch-input:checked + .switch::after { left: 1.4rem; background: var(--bg); }
 
   .mini-tab {
     border-radius: 999px;
-    padding: .48rem .9rem;
-    border: 1px solid var(--line);
+    padding: .4rem .8rem;
+    border: 1px solid var(--hairline);
     color: var(--text-sec);
-    background: color-mix(in srgb, var(--bg) 56%, transparent);
-    font-weight: 900;
-    font-size: .8rem;
-  }
-
-  .mini-tab.active {
-    color: var(--bg);
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: var(--surface);
+    font-weight: 700;
+    font-size: .74rem;
+    cursor: pointer;
   }
 
   .skeleton {
-    min-height: 5.5rem;
-    border-radius: 1.45rem;
+    min-height: 5rem;
+    border-radius: 0.85rem;
     background: linear-gradient(90deg,
-      color-mix(in srgb, var(--bg) 72%, var(--card) 28%),
+      var(--surface),
       color-mix(in srgb, var(--primary) 9%, var(--card)),
-      color-mix(in srgb, var(--bg) 72%, var(--card) 28%));
+      var(--surface));
     background-size: 220% 100%;
     animation: shimmer 1.2s infinite linear;
-    border: 1px solid var(--line);
+    border: 1px solid var(--hairline);
   }
 
-  @keyframes shimmer {
-    to { background-position: -220% 0; }
-  }
+  @keyframes shimmer { to { background-position: -220% 0; } }
 
   /* ── Collapsible catalog list ── */
-  .catalog-list-wrapper {
-    position: relative;
-    transition: max-height 0.35s ease;
-  }
-  .catalog-list-wrapper.collapsed {
-    max-height: 286px;
-    overflow: hidden;
-  }
+  .catalog-list-wrapper { position: relative; transition: max-height 0.35s ease; }
+  .catalog-list-wrapper.collapsed { max-height: 270px; overflow: hidden; }
   .catalog-list-wrapper.collapsed::after {
     content: "";
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    height: 76px;
-    background: linear-gradient(to bottom,
-      transparent,
-      color-mix(in srgb, var(--bg) 94%, var(--card) 6%));
+    height: 64px;
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--card) 92%, var(--bg)));
     pointer-events: none;
-    border-radius: 0 0 1.45rem 1.45rem;
+    border-radius: 0 0 0.85rem 0.85rem;
   }
 
-  #catalog-expand-btn {
-    font-size: .8rem;
-    letter-spacing: .03em;
-    margin-top: .55rem;
-  }
-
-  /* ── Auto-catalog group toggle ── */
-  .group-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    text-align: left;
-  }
-  .group-card-header:focus { outline: none; }
-
-  .group-chevron {
-    display: inline-flex;
-    color: var(--text-sec);
-    flex-shrink: 0;
-    transition: transform 0.22s ease;
-  }
-  .auto-group-card.expanded .group-chevron {
-    transform: rotate(90deg);
-  }
-
-  /* CSS grid trick for smooth height transition without knowing exact height */
-  .group-items {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.28s ease, opacity 0.22s ease;
-    opacity: 0;
-  }
-  .group-items > .group-items-inner { overflow: hidden; }
-  .auto-group-card.expanded .group-items {
-    grid-template-rows: 1fr;
-    opacity: 1;
-  }
+  #catalog-expand-btn { font-size: .78rem; margin-top: .5rem; }
 
   .token-picker {
-    max-height: 12rem;
+    max-height: 11rem;
     overflow-y: auto;
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    padding: .5rem;
+    border: 1px solid var(--hairline);
+    border-radius: 0.7rem;
+    padding: .4rem;
     display: flex;
     flex-direction: column;
-    gap: .35rem;
-    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    gap: .3rem;
+    background: var(--surface);
   }
   .token-row {
     display: flex;
     align-items: center;
-    gap: .6rem;
-    padding: .5rem .65rem;
-    border-radius: .75rem;
+    gap: .55rem;
+    padding: .45rem .6rem;
+    border-radius: .6rem;
     cursor: pointer;
-    border: 1px solid transparent;
     transition: background .15s ease;
   }
   .token-row:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
-  .token-row input { width: 1.05rem; height: 1.05rem; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+  .token-row input { width: 1rem; height: 1rem; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+
   .vis-chip {
-    display: inline-flex; align-items: center; gap: .4rem;
-    padding: .3rem .7rem; border-radius: 9999px; font-size: .72rem; font-weight: 900;
-    border: 1px solid var(--line);
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .28rem .65rem; border-radius: 9999px; font-size: .68rem; font-weight: 800;
+    border: 1px solid var(--hairline);
   }
-  .vis-public { color: rgb(52 211 153); background: color-mix(in srgb, rgb(16 185 129) 14%, transparent); border-color: color-mix(in srgb, rgb(16 185 129) 30%, transparent); }
-  .vis-tokens { color: rgb(96 165 250); background: color-mix(in srgb, rgb(59 130 246) 14%, transparent); border-color: color-mix(in srgb, rgb(59 130 246) 30%, transparent); }
-  .vis-owner  { color: rgb(248 113 113); background: color-mix(in srgb, rgb(239 68 68) 14%, transparent); border-color: color-mix(in srgb, rgb(239 68 68) 30%, transparent); }
+  .vis-public { color: var(--d-green); background: color-mix(in srgb, var(--d-green) 14%, transparent); border-color: color-mix(in srgb, var(--d-green) 30%, transparent); }
+  .vis-tokens { color: var(--d-cyan);  background: color-mix(in srgb, var(--d-cyan) 14%, transparent);  border-color: color-mix(in srgb, var(--d-cyan) 30%, transparent); }
+  .vis-owner  { color: var(--d-red);   background: color-mix(in srgb, var(--d-red) 14%, transparent);   border-color: color-mix(in srgb, var(--d-red) 30%, transparent); }
 
   .auto-chip {
-    display: inline-flex; align-items: center; gap: .45rem;
-    padding: .5rem .85rem; border-radius: 9999px; font-weight: 800; font-size: .82rem;
-    border: 1px solid var(--line); color: var(--text-sec);
-    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .45rem .8rem; border-radius: 9999px; font-weight: 700; font-size: .78rem;
+    border: 1px solid var(--hairline); color: var(--text-sec);
+    background: var(--surface);
     cursor: pointer; transition: all .15s ease;
   }
-  .auto-chip .dot { width: .6rem; height: .6rem; border-radius: 9999px; background: var(--border); transition: all .15s ease; }
-  .auto-chip:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); }
+  .auto-chip .dot { width: .55rem; height: .55rem; border-radius: 9999px; background: var(--border); transition: all .15s ease; }
+  .auto-chip:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--hairline)); }
   .auto-chip.on {
     color: var(--bg); border-color: transparent;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: var(--primary);
   }
   .auto-chip.on .dot { background: var(--bg); box-shadow: 0 0 8px color-mix(in srgb, var(--bg) 60%, transparent); }
 
   .order-row {
-    display: flex; align-items: center; gap: .85rem;
-    border-radius: 1rem; padding: .7rem .9rem;
-    background: color-mix(in srgb, var(--bg) 66%, transparent);
-    border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+    display: flex; align-items: center; gap: .75rem;
+    border-radius: 0.7rem; padding: .6rem .75rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
   }
   .drag-idx {
-    width: 1.9rem; height: 1.9rem; flex-shrink: 0;
+    width: 1.7rem; height: 1.7rem; flex-shrink: 0;
     display: grid; place-items: center; border-radius: 9999px;
-    font-weight: 900; font-size: .8rem; color: var(--text-sec);
+    font-weight: 800; font-size: .74rem; color: var(--text-sec);
     background: color-mix(in srgb, var(--primary) 12%, transparent);
   }
   .order-arrow {
-    width: 1.9rem; height: 1.5rem; border-radius: .55rem; font-size: .7rem; font-weight: 900;
-    border: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 60%, transparent);
+    width: 1.7rem; height: 1.4rem; border-radius: .5rem; font-size: .68rem; font-weight: 800;
+    border: 1px solid var(--hairline); background: var(--surface);
     color: var(--text); cursor: pointer; transition: all .15s ease;
   }
   .order-arrow:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
   .order-arrow:disabled { opacity: .35; cursor: not-allowed; }
 
+  .empty-state { color: var(--text-sec); }
+
   @media (max-width: 640px) {
-    .hero-card { min-height: 13rem; }
     .btn-ui { width: 100%; }
   }
 </style>
 
-<div class="catalog-page max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6">
-  <div class="glass-card hero-card rounded-3xl p-5 sm:p-7 lg:p-8">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-5">
-        <div class="hero-orb text-3xl"><i class="fa-solid fa-clapperboard"></i></div>
+<div class="catalog-page pb-4">
+
+  <!-- ══════════════ Header ══════════════ -->
+  <header class="mb-4 surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3">
+    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+        <i class="fa-solid fa-clapperboard text-base" style="color:var(--primary)"></i>
+      </div>
+      <div class="min-w-0">
+        <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
+          Catalogs
+        </h1>
+        <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Custom Stremio sections — curated, auto-synced or hidden</p>
+      </div>
+    </div>
+    <button onclick="loadCatalogs()" title="Refresh" class="icon-btn shrink-0">
+      <i class="fa-solid fa-arrows-rotate"></i>
+    </button>
+  </header>
+
+  <!-- ══════════════ Compact stat strip ══════════════ -->
+  <div class="grid grid-cols-3 gap-2 mb-4">
+    <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+      <i class="fa-solid fa-layer-group text-base sm:text-lg" style="color:var(--primary)"></i>
+      <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Catalogs</p>
+      <p id="stat-total" class="text-xs sm:text-sm font-extrabold text-text truncate w-full tabular">0</p>
+    </div>
+    <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+      <i class="fa-solid fa-eye text-base sm:text-lg" style="color:var(--d-green)"></i>
+      <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Visible</p>
+      <p id="stat-visible" class="text-xs sm:text-sm font-extrabold text-text truncate w-full tabular">0</p>
+    </div>
+    <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+      <i class="fa-solid fa-film text-base sm:text-lg" style="color:var(--d-pink)"></i>
+      <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Titles</p>
+      <p id="stat-items" class="text-xs sm:text-sm font-extrabold text-text truncate w-full tabular">0</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ Chart row ══════════════ -->
+  <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-3 mb-4">
+    <div class="surface-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="flex items-center gap-2 text-sm font-bold">
+          <i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> Catalogs by Visibility
+        </h3>
+      </div>
+      <div class="relative" style="height:180px">
+        <canvas id="chart-visibility"></canvas>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <div class="flex flex-wrap items-center gap-2 mb-3">
-            <span class="pill">Custom Stremio sections</span>
+          <h2 class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto Catalogs</h2>
+          <p class="hint mt-1">Toggles save instantly. Sync rebuilds them across your library.</p>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <span id="auto-sync-status" class="pill">Checking status...</span>
           </div>
-          <h1 class="section-title text-2xl sm:text-4xl lg:text-5xl">Catalogs</h1>
         </div>
+        <button id="auto-sync-btn" onclick="runAutoSync()" class="btn-ui btn-primary lg:w-auto shrink-0"><i class="fa-solid fa-bolt"></i> Sync</button>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 min-w-full sm:min-w-[26rem] lg:min-w-[30rem]">
-        <div class="stat-card p-4 text-center">
-          <p id="stat-total" class="section-title text-2xl">0</p>
-          <p class="muted text-xs font-bold mt-1">Catalogs</p>
-        </div>
-        <div class="stat-card p-4 text-center">
-          <p id="stat-visible" class="section-title text-2xl">0</p>
-          <p class="muted text-xs font-bold mt-1">Visible</p>
-        </div>
-        <div class="stat-card p-4 text-center">
-          <p id="stat-items" class="section-title text-2xl">0</p>
-          <p class="muted text-xs font-bold mt-1">Titles</p>
-        </div>
+      <div id="auto-settings-list" class="mt-4 pt-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3" style="border-color: var(--hairline);">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
       </div>
     </div>
   </div>
 
-
-
-  <div class="glass-card rounded-3xl p-5 sm:p-6">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div>
-        <div class="flex flex-wrap gap-2 mb-3">
-          <span class="pill"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto catalogs</span>
-          <span id="auto-sync-status" class="pill">Checking status...</span>
-        </div>
-        <h2 class="section-title text-xl sm:text-3xl">Auto Catalogs</h2>
-        <p class="muted text-sm mt-2">Toggles save instantly. Sync rebuilds them across your library.</p>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-3">
-        <button id="auto-sync-btn" onclick="runAutoSync()" class="btn-ui btn-primary lg:w-auto"><i class="fa-solid fa-bolt"></i> Sync</button>
-      </div>
-    </div>
-
-    <div id="auto-settings-list" class="mt-5 pt-5 border-t grid grid-cols-1 lg:grid-cols-3 gap-4" style="border-color: color-mix(in srgb, var(--border) 80%, transparent);">
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-    </div>
-  </div>
-
-  <div class="glass-card rounded-3xl p-5 sm:p-6">
+  <div class="glass-card">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
       <div>
         <div class="flex flex-wrap gap-2 mb-2"><span class="pill">↕ Ordering</span></div>
-        <h2 class="section-title text-xl sm:text-2xl">Catalog Order</h2>
+        <h2 class="section-title"><i class="fa-solid fa-arrow-down-short-wide"></i> Catalog Order</h2>
         <p class="muted text-sm mt-1">Arrange how catalogs appear in Stremio.</p>
       </div>
       <button id="save-order-btn" onclick="saveCatalogOrder()" class="btn-ui btn-primary sm:w-auto hidden"><i class="fa-solid fa-floppy-disk"></i> Save Order</button>
@@ -458,10 +392,10 @@
 
   <div class="grid grid-cols-1 xl:grid-cols-[0.88fr_1.12fr] gap-6">
     <div class="space-y-6">
-      <div class="glass-card rounded-3xl p-5 sm:p-6">
+      <div class="glass-card">
         <div class="flex items-start justify-between gap-3 mb-5">
           <div>
-            <h2 class="section-title text-2xl">Create Catalog</h2>
+            <h2 class="section-title"><i class="fa-solid fa-plus"></i> Create Catalog</h2>
             <p class="muted text-sm mt-1">Visibility decides who sees it in Stremio.</p>
           </div>
           <span class="pill">New</span>
@@ -492,10 +426,10 @@
         </form>
       </div>
 
-      <div class="glass-card rounded-3xl p-5 sm:p-6">
+      <div class="glass-card">
         <div class="flex items-center justify-between gap-3 mb-5">
           <div>
-            <h2 class="section-title text-2xl">Your Catalogs</h2>
+            <h2 class="section-title"><i class="fa-solid fa-list"></i> Your Catalogs</h2>
             <p class="muted text-sm mt-1">Select one to manage titles.</p>
           </div>
           <button onclick="loadCatalogs()" class="btn-ui btn-ghost px-3 py-2 text-sm">↻</button>
@@ -510,14 +444,14 @@
       </div>
     </div>
 
-    <div class="glass-card rounded-3xl p-5 sm:p-6">
+    <div class="glass-card">
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-5">
         <div>
           <div class="flex flex-wrap gap-2 mb-3">
             <span id="selected-visibility-pill" class="pill hidden"></span>
             <span id="selected-count-pill" class="pill hidden"></span>
           </div>
-          <h2 id="selected-title" class="section-title text-2xl">Select a catalog</h2>
+          <h2 id="selected-title" class="section-title"><i class="fa-solid fa-sliders"></i> Select a catalog</h2>
           <p id="selected-subtitle" class="muted text-sm mt-1">Choose a catalog from the left side to add or remove titles.</p>
         </div>
         <button id="delete-catalog-btn" onclick="deleteSelectedCatalog()" class="btn-ui btn-danger hidden md:w-auto">Delete Catalog</button>
@@ -525,7 +459,7 @@
 
       <div id="catalog-empty-guide" class="empty-state p-6 sm:p-8 text-center">
         <div class="text-4xl mb-3"><i class="fa-solid fa-layer-group"></i></div>
-        <h3 class="section-title text-xl">No catalog selected</h3>
+        <h3 class="section-title"><i class="fa-solid fa-layer-group"></i> No catalog selected</h3>
         <p class="muted mt-2 text-sm leading-6">Create a catalog or select an existing one. Then search from your existing media library and add titles instantly.</p>
       </div>
 
@@ -590,7 +524,7 @@
 
         <div id="search-results-wrap" class="hidden">
           <div class="flex items-center justify-between gap-3 mb-3">
-            <h3 class="section-title text-lg">Search Results</h3>
+            <h3 class="section-title"><i class="fa-solid fa-magnifying-glass"></i> Search Results</h3>
             <button onclick="clearSearchResults()" class="mini-tab">Clear</button>
           </div>
           <div id="search-results" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
@@ -599,7 +533,7 @@
         <div class="border-t pt-5" style="border-color: var(--line);">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <div>
-              <h3 class="section-title text-lg">Titles in this catalog</h3>
+              <h3 class="section-title"><i class="fa-solid fa-film"></i> Titles in this catalog</h3>
               <p class="muted text-xs mt-1">These are shown in Stremio when the catalog is visible.</p>
             </div>
             <button onclick="loadCatalogItems()" class="btn-ui btn-ghost px-3 py-2 text-sm sm:w-auto">Refresh</button>
@@ -611,6 +545,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 let catalogs = [];
 let selectedCatalogId = null;
@@ -737,6 +672,39 @@ function updateStats() {
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-visible').textContent = visible;
   document.getElementById('stat-items').textContent = items;
+  updateVisibilityChart();
+}
+
+/* ── Catalogs by Visibility chart ───────────────────────────────────── */
+let visibilityChart;
+function themeVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function updateVisibilityChart() {
+  if (typeof Chart === 'undefined') return;
+  const ctx = document.getElementById('chart-visibility');
+  if (!ctx) return;
+
+  const counts = { public: 0, tokens: 0, owner: 0 };
+  catalogs.forEach(c => { const m = c.visibility || 'public'; counts[m] = (counts[m] || 0) + 1; });
+  const labels = ['Everyone', 'Specific users', 'Owner only'];
+  const data = [counts.public, counts.tokens, counts.owner];
+  const colors = [themeVar('--d-green'), themeVar('--d-cyan'), themeVar('--d-red')];
+
+  if (!visibilityChart) {
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = themeVar('--text-sec');
+    visibilityChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderColor: themeVar('--card'), borderWidth: 3, hoverOffset: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { weight: 700, size: 11 } } } }
+      }
+    });
+  } else {
+    visibilityChart.data.datasets[0].data = data;
+    visibilityChart.update();
+  }
 }
 
 function mediaCard(item, actionHtml) {
@@ -761,7 +729,7 @@ function mediaCard(item, actionHtml) {
 function emptyState(icon, title, message) {
   return `<div class="empty-state p-6 text-center col-span-full">
     <div class="text-3xl mb-2">${icon}</div>
-    <h4 class="section-title text-lg">${escapeHtml(title)}</h4>
+    <h4 class="section-title">${escapeHtml(title)}</h4>
     <p class="muted text-sm mt-1">${escapeHtml(message)}</p>
   </div>`;
 }
@@ -987,7 +955,10 @@ async function removeItem(tmdbId, dbIndex, mediaType) {
 
 async function deleteSelectedCatalog() {
   if (!selectedCatalogId) return;
-  if (!confirm('Delete this custom catalog? Titles will not be deleted from your media library.')) return;
+  const ok = await showConfirm('Titles will not be deleted from your media library.', {
+      title: 'Delete this catalog?', okText: 'Delete', cancelText: 'Cancel', danger: true,
+  });
+  if (!ok) return;
   const res = await fetch(`/api/custom-catalogs/${selectedCatalogId}`, { method: 'DELETE' });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return showToast(data.detail || 'Failed to delete catalog', 'error', 'Error');
@@ -1017,7 +988,7 @@ async function loadAutoCatalogSettings() {
     box.innerHTML = Object.entries(groups).map(([group, items]) => `
       <div class="catalog-card p-4">
         <div class="flex items-center gap-2 mb-3">
-          <h4 class="section-title text-base">${escapeHtml(group)}</h4>
+          <h4 class="section-title">${escapeHtml(group)}</h4>
           <span class="pill text-[0.65rem] px-2 py-0.5">${items.length}</span>
         </div>
         <div class="flex flex-wrap gap-2">
