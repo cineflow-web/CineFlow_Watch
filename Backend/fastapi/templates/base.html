@@ -42,6 +42,7 @@
     --surface-3: color-mix(in srgb, var(--text) 14%, transparent);
     --hairline: color-mix(in srgb, var(--text) 12%, transparent);
     --hairline-strong: color-mix(in srgb, var(--text) 20%, transparent);
+    --hairline-soft: color-mix(in srgb, var(--text) 6%, transparent);
     --muted: color-mix(in srgb, var(--text) 42%, transparent);
     --ring: color-mix(in srgb, var(--primary) 35%, transparent);
     --shadow-color: 0,0,0;
@@ -164,6 +165,11 @@ body::before {
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+/* Softer row/section dividers — used instead of divide-hairline where the
+   default 12% line reads too bright against dark surfaces (tables, lists). */
+.divide-hairline-soft > :not([hidden]) ~ :not([hidden]) { border-color: var(--hairline-soft); }
+.border-hairline-soft { border-color: var(--hairline-soft); }
 
 ::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); color: var(--text); }
 
