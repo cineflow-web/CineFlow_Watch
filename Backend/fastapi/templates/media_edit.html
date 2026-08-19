@@ -64,6 +64,9 @@
     animation: ui-select-pop 140ms cubic-bezier(.2,1,.3,1);
   }
   .ui-select-panel.hidden { display: none; }
+  /* Flipped upward when there isn't enough room below the trigger before the
+     modal footer — set by positionPanel() in the dropdown engine JS. */
+  .ui-select-panel.drop-up { top: auto; bottom: calc(100% + .5rem); }
   @keyframes ui-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
   .ui-select-option {
@@ -2336,11 +2339,35 @@
             });
         }
 
+        function positionPanel() {
+            // Keep the panel from ever overlapping the modal footer (or the
+            // top of the modal) by measuring real available space each time
+            // it opens, flipping direction and clamping height as needed.
+            panel.classList.remove('drop-up');
+            panel.style.maxHeight = '';
+            const scrollBody = wrap.closest('.overflow-y-auto');
+            const footer = scrollBody ? scrollBody.nextElementSibling : null;
+            const triggerRect = trigger.getBoundingClientRect();
+            const bottomBoundary = footer ? footer.getBoundingClientRect().top : window.innerHeight;
+            const topBoundary = scrollBody ? scrollBody.getBoundingClientRect().top : 0;
+            const gap = 8;
+            const spaceBelow = bottomBoundary - triggerRect.bottom - gap;
+            const spaceAbove = triggerRect.top - topBoundary - gap;
+            const preferred = 224; // 14rem
+            const minUsable = 90;
+            if (spaceBelow < minUsable && spaceAbove > spaceBelow) {
+                panel.classList.add('drop-up');
+                panel.style.maxHeight = Math.max(minUsable, Math.min(preferred, spaceAbove)) + 'px';
+            } else {
+                panel.style.maxHeight = Math.max(minUsable, Math.min(preferred, spaceBelow)) + 'px';
+            }
+        }
         function openPanel() {
             document.querySelectorAll('.ui-select.open').forEach(o => { if (o !== wrap) closeOther(o); });
             buildPanel();
             panel.classList.remove('hidden');
             wrap.classList.add('open');
+            positionPanel();
         }
         function closePanel() {
             panel.classList.add('hidden');
@@ -2358,9 +2385,16 @@
 
         syncLabel();
         wrap._closeUiSelect = closePanel;
+        wrap._positionUiSelect = positionPanel;
     }
 
     document.querySelectorAll('.ui-select-native').forEach(enhanceSelect);
+
+    window.addEventListener('resize', () => {
+        document.querySelectorAll('.ui-select.open').forEach(wrap => {
+            if (wrap._positionUiSelect) wrap._positionUiSelect();
+        });
+    });
 
     document.addEventListener('click', (e) => {
         document.querySelectorAll('.ui-select.open').forEach(wrap => {
