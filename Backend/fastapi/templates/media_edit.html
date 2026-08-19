@@ -139,22 +139,37 @@
   }
 
   .btn-danger {
-    background: color-mix(in srgb, rgb(239 68 68) 16%, transparent);
-    color: rgb(248 113 113);
-    border-color: color-mix(in srgb, rgb(239 68 68) 26%, transparent);
+    background: color-mix(in srgb, var(--d-red) 16%, transparent);
+    color: var(--d-red);
+    border-color: color-mix(in srgb, var(--d-red) 26%, transparent);
   }
 
   .btn-success {
-    background: color-mix(in srgb, rgb(34 197 94) 16%, transparent);
-    color: rgb(74 222 128);
-    border-color: color-mix(in srgb, rgb(34 197 94) 26%, transparent);
+    background: color-mix(in srgb, var(--d-green) 16%, transparent);
+    color: var(--d-green);
+    border-color: color-mix(in srgb, var(--d-green) 26%, transparent);
   }
 
   .btn-info {
-    background: color-mix(in srgb, rgb(59 130 246) 16%, transparent);
-    color: rgb(96 165 250);
-    border-color: color-mix(in srgb, rgb(59 130 246) 26%, transparent);
+    background: color-mix(in srgb, var(--d-cyan) 16%, transparent);
+    color: var(--d-cyan);
+    border-color: color-mix(in srgb, var(--d-cyan) 26%, transparent);
   }
+
+  /* ── Dracula-accented badges / status colors (replace stray Tailwind palette) ── */
+  .badge-cyan   { background: color-mix(in srgb, var(--d-cyan) 15%, transparent); color: var(--d-cyan); border-color: color-mix(in srgb, var(--d-cyan) 20%, transparent); }
+  .badge-green  { background: color-mix(in srgb, var(--d-green) 15%, transparent); color: var(--d-green); border-color: color-mix(in srgb, var(--d-green) 20%, transparent); }
+  .badge-red    { background: color-mix(in srgb, var(--d-red) 15%, transparent); color: var(--d-red); border-color: color-mix(in srgb, var(--d-red) 20%, transparent); }
+  .badge-purple { background: color-mix(in srgb, var(--d-purple) 15%, transparent); color: var(--d-purple); border-color: color-mix(in srgb, var(--d-purple) 20%, transparent); }
+  .badge-amber  { background: color-mix(in srgb, var(--d-orange) 15%, transparent); color: var(--d-orange); border-color: color-mix(in srgb, var(--d-orange) 20%, transparent); }
+
+  .rating-badge { background: var(--d-yellow); color: var(--bg); }
+
+  .status-ok   { color: var(--d-green); }
+  .status-err  { color: var(--d-red); }
+  .status-warn { color: var(--d-orange); }
+
+  .alert-box { border: 1px solid color-mix(in srgb, var(--d-red) 25%, transparent); background: color-mix(in srgb, var(--d-red) 10%, transparent); color: color-mix(in srgb, var(--d-red) 80%, var(--text)); }
 
   .season-content {
     transition: max-height 0.32s ease, opacity 0.25s ease, transform 0.25s ease;
@@ -417,7 +432,7 @@
 
                         <div class="flex flex-wrap justify-center md:justify-start items-center gap-2 sm:gap-3 mt-4">
                             {% if media_details.rating %}
-                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-yellow-400 text-black text-sm font-extrabold shadow-sm">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg rating-badge text-sm font-extrabold shadow-sm">
                                 <i class="fa-solid fa-star"></i> {{ media_details.rating }}
                             </span>
                             {% endif %}
@@ -674,7 +689,7 @@
                 <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <span class="quality-badge bg-blue-500/15 text-blue-300 border border-blue-500/20">
+                            <span class="quality-badge badge-cyan border">
                                 {{ quality.quality }}
                             </span>
                             <span class="pill">{{ quality.size }}</span>
@@ -751,7 +766,7 @@
                                             <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                                                 <div class="min-w-0 flex-1">
                                                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                                                        <span class="quality-badge bg-green-500/15 text-green-300 border border-green-500/20">{{ quality.quality }}</span>
+                                                        <span class="quality-badge badge-green border">{{ quality.quality }}</span>
                                                         <span class="pill">{{ quality.size }}</span>
                                                     </div>
                                                     <p class="muted text-xs sm:text-sm mt-2 break-all">{{ quality.name }}</p>
@@ -859,7 +874,7 @@
                     <p id="st-summary" class="text-xs text-text-secondary mt-3 text-right"></p>
                 </div>
 
-                <div id="st-error" class="hidden mt-2 rounded-2xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-200"></div>
+                <div id="st-error" class="hidden mt-2 rounded-2xl alert-box px-4 py-3 text-sm"></div>
             </div>
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 px-4 sm:px-6 py-4 border-t border-hairline bg-surface">
@@ -1143,7 +1158,7 @@
             return;
         }
 
-        if (!confirm(`Replace current metadata with "${selectedRescanMatch.title}"?\n\nExisting Telegram files will stay safe.`)) {
+        if (!(await showConfirm(`Replace current metadata with "${selectedRescanMatch.title}"?\n\nExisting Telegram files will stay safe.`, { title: 'Rescan metadata', okText: 'Replace' }))) {
             return;
         }
 
@@ -1258,7 +1273,7 @@
     }
 
     async function deleteQuality(id, btn) {
-        if (!confirm(`Are you sure you want to delete ${id}?`)) return;
+        if (!(await showConfirm(`Are you sure you want to delete ${id}?`, { title: 'Delete quality', okText: 'Delete', danger: true }))) return;
 
         try {
             const response = await fetch(`/api/media/delete-quality?tmdb_id=${tmdbId}&db_index=${dbIndex}&id=${encodeURIComponent(id)}`, {
@@ -1280,7 +1295,7 @@
     }
 
     async function deleteTVQuality(season, episode, id, btn) {
-        if (!confirm(`Are you sure you want to delete ${id} from Season ${season} Episode ${episode}?`)) return;
+        if (!(await showConfirm(`Are you sure you want to delete ${id} from Season ${season} Episode ${episode}?`, { title: 'Delete quality', okText: 'Delete', danger: true }))) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-quality?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}&episode=${episode}&id=${encodeURIComponent(id)}`, {
@@ -1309,7 +1324,7 @@
     }
 
     async function deleteTVEpisode(season, episode, btn) {
-        if (!confirm(`Delete Season ${season} Episode ${episode}? This removes the episode and all its qualities.`)) return;
+        if (!(await showConfirm(`Delete Season ${season} Episode ${episode}? This removes the episode and all its qualities.`, { title: 'Delete episode', okText: 'Delete', danger: true }))) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-episode?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}&episode=${episode}`, {
@@ -1339,7 +1354,7 @@
     }
 
     async function deleteTVSeason(season, btn) {
-        if (!confirm(`Delete the entire Season ${season}? This action cannot be undone.`)) return;
+        if (!(await showConfirm(`Delete the entire Season ${season}? This action cannot be undone.`, { title: 'Delete season', okText: 'Delete', danger: true }))) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-season?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}`, {
@@ -1497,10 +1512,10 @@
         const status = document.getElementById('custom-catalog-status');
         if (!status) return;
         status.textContent = message;
-        status.classList.remove('text-emerald-300', 'text-rose-300', 'text-amber-300');
-        if (type === 'success') status.classList.add('text-emerald-300');
-        if (type === 'error') status.classList.add('text-rose-300');
-        if (type === 'warn') status.classList.add('text-amber-300');
+        status.classList.remove('status-ok', 'status-err', 'status-warn');
+        if (type === 'success') status.classList.add('status-ok');
+        if (type === 'error') status.classList.add('status-err');
+        if (type === 'warn') status.classList.add('status-warn');
     }
 
     //----- Rank a catalog for default selection: hidden (3) > custom (2) > auto (1)
@@ -1728,23 +1743,23 @@
 
     function _pingClass(ms) {
         if (ms === null) return 'text-text-secondary';
-        if (ms < 100) return 'text-emerald-300 font-semibold';
-        if (ms < 300) return 'text-amber-300 font-semibold';
-        return 'text-rose-300 font-semibold';
+        if (ms < 100) return 'status-ok font-semibold';
+        if (ms < 300) return 'status-warn font-semibold';
+        return 'status-err font-semibold';
     }
 
     function _speedClass(mbps) {
         if (mbps === null) return 'text-text-secondary';
-        if (mbps >= 20) return 'text-emerald-300 font-bold';
-        if (mbps >= 5) return 'text-amber-300 font-bold';
-        return 'text-rose-300 font-bold';
+        if (mbps >= 20) return 'status-ok font-bold';
+        if (mbps >= 5) return 'status-warn font-bold';
+        return 'status-err font-bold';
     }
 
     function _miniBar(value, max, color) {
         if (!value || !max) return '';
         const pct = Math.min(100, (value / max) * 100).toFixed(1);
         return `<div class="w-full bg-surface-2 rounded-lg h-1.5 mt-1 overflow-hidden">
-            <div class="${color} h-1.5 rounded-lg transition-all" style="width:${pct}%"></div>
+            <div class="h-1.5 rounded-lg transition-all" style="width:${pct}%; background:${color}"></div>
         </div>`;
     }
 
@@ -1834,20 +1849,20 @@
                     const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
                     const speed = r.speed_mbps !== null
                         ? `<span class="${_speedClass(r.speed_mbps)}">${r.speed_mbps.toFixed(2)} MB/s</span>
-                           ${_miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'bg-emerald-400' : r.speed_mbps >= 5 ? 'bg-amber-300' : 'bg-rose-300')}`
+                           ${_miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'var(--d-green)' : r.speed_mbps >= 5 ? 'var(--d-orange)' : 'var(--d-red)')}`
                         : '<span class="text-text-secondary">—</span>';
                     const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
                     const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
                     const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
+                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-red border">Error</span>`
+                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-green border">✓ OK</span>`;
 
                     const newTr = document.createElement('tr');
                     newTr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
                     newTr.innerHTML = `
                         <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
                         <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
+                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs status-err mt-1">${r.error}</div>` : ''}</td>
                         <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
                         <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
                         <td class="px-4 py-3">${badge}</td>`;
@@ -1881,20 +1896,20 @@
                     const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
                     const speed = r.speed_mbps !== null
                         ? `<span class="${_speedClass(r.speed_mbps)}">${r.speed_mbps.toFixed(2)} MB/s</span>
-                           ${_miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'bg-emerald-400' : r.speed_mbps >= 5 ? 'bg-amber-300' : 'bg-rose-300')}`
+                           ${_miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'var(--d-green)' : r.speed_mbps >= 5 ? 'var(--d-orange)' : 'var(--d-red)')}`
                         : '<span class="text-text-secondary">—</span>';
                     const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
                     const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
                     const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
+                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-red border">Error</span>`
+                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-green border">✓ OK</span>`;
 
                     const tr = document.createElement('tr');
                     tr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
                     tr.innerHTML = `
                         <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
                         <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
+                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs status-err mt-1">${r.error}</div>` : ''}</td>
                         <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
                         <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
                         <td class="px-4 py-3">${badge}</td>`;
@@ -2099,7 +2114,7 @@
                 return `<div class="quality-row rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="quality-badge bg-purple-500/15 text-purple-300 border border-purple-500/20">${s.lang_label || s.lang_code || 'Unknown'}</span>
+                            <span class="quality-badge badge-purple border">${s.lang_label || s.lang_code || 'Unknown'}</span>
                             <span class="pill">${where}${s.source || 'auto'}</span>
                         </div>
                         <p class="muted mt-2 text-sm break-all">${s.name || ''}</p>
