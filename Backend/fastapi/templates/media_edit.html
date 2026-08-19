@@ -28,12 +28,8 @@
   }
 
   .section-title .st-ic {
-    width: 1.9rem; height: 1.9rem;
-    flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 0.55rem;
-    font-size: 0.85rem;
-    background: color-mix(in srgb, var(--sic, var(--primary)) 15%, transparent);
+    font-size: 1rem;
     color: var(--sic, var(--primary));
   }
 
@@ -647,7 +643,7 @@
                 <div class="px-4 sm:px-5 py-3 sm:py-3.5 border-b border-hairline bg-surface">
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0">
-                            <h4 class="section-title text-sm sm:text-base lg:text-lg"><span class="st-ic" style="--sic:var(--d-cyan); width:1.6rem; height:1.6rem; font-size:0.72rem"><i class="fa-solid fa-layer-group"></i></span>Season {{ season.season_number }}</h4>
+                            <h4 class="section-title text-sm sm:text-base lg:text-lg"><span class="st-ic" style="--sic:var(--d-cyan); font-size:0.85rem"><i class="fa-solid fa-layer-group"></i></span>Season {{ season.season_number }}</h4>
                             <p class="muted text-xs sm:text-sm mt-1" data-ep-count>{{ season.episodes|length }} episode{{ 's' if season.episodes|length != 1 else '' }}</p>
                         </div>
 
