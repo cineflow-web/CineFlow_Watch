@@ -590,12 +590,12 @@ tailwind.config = {
 </aside>
 {% endif %}
 
-<main id="app-main" class="{% if not current_user %}min-h-screen{% endif %}">
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
+<main id="app-main" class="flex flex-col {% if current_user %}min-h-[calc(100vh-var(--topbar-h))]{% else %}min-h-screen{% endif %}">
+    <div class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="w-full border-t border-hairline mt-4">
+    <footer class="w-full border-t border-hairline mt-4 shrink-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3">
             <div class="flex items-center gap-2 min-w-0">
                 <img src="https://iili.io/CLM4WKX.md.png" alt="CineFlow" class="h-5 w-auto object-contain opacity-90 shrink-0">
