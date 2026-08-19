@@ -79,15 +79,16 @@
     width: 2.15rem; height: 2.15rem; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 0.6rem;
-    background: transparent; border: none;
+    background: var(--surface); border: 1px solid var(--hairline);
     color: var(--text-sec); font-size: 0.85rem;
-    cursor: pointer; transition: background .15s ease, color .15s ease, transform .12s ease;
+    cursor: pointer; transition: background .15s ease, color .15s ease, transform .12s ease, border-color .15s ease;
 }
-.icon-action:hover { background: var(--surface-2); color: var(--primary); }
+.icon-action:hover { background: var(--surface-2); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); }
 .icon-action:active { transform: scale(.92); }
 .icon-action.danger {
     background: color-mix(in srgb, var(--d-red) 12%, transparent);
     color: var(--d-red);
+    border-color: color-mix(in srgb, var(--d-red) 30%, transparent);
     box-shadow: 0 6px 16px color-mix(in srgb, var(--d-red) 22%, transparent);
 }
 .icon-action.danger:hover { background: color-mix(in srgb, var(--d-red) 24%, transparent); color: var(--d-red); }
