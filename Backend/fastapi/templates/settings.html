@@ -59,7 +59,7 @@
     background: color-mix(in srgb, var(--card) 92%, var(--bg));
     border: 1px solid var(--hairline);
     border-radius: var(--radius-lg);
-    padding: 1.5rem 1.75rem;
+    padding: 1.15rem 1.35rem;
     box-shadow: var(--shadow-soft);
     transition: border-color .2s ease;
 }
@@ -73,20 +73,38 @@
 }
 .settings-card:hover { border-color: color-mix(in srgb, var(--primary) 22%, var(--hairline)); }
 .settings-card h2 {
-    font-size: 0.92rem; font-weight: 800;
+    font-size: 0.85rem; font-weight: 800;
     letter-spacing: 0.04em; text-transform: uppercase;
-    color: var(--text); margin-bottom: 1.25rem;
-    display: flex; align-items: center; gap: 0.65rem;
+    color: var(--text); margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.6rem;
 }
 .settings-card h2 i:first-child {
-    width: 2.1rem; height: 2.1rem;
+    width: 1.85rem; height: 1.85rem;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--primary) 15%, transparent);
     color: var(--primary);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     flex-shrink: 0;
 }
+
+/* ── Compact icon-only action buttons (refresh / download / etc.) ──────────── */
+.icon-action {
+    width: 2.15rem; height: 2.15rem; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-md);
+    background: transparent; border: none;
+    color: var(--text-sec); font-size: 0.85rem;
+    cursor: pointer; transition: background .15s ease, color .15s ease, transform .12s ease;
+}
+.icon-action:hover { background: var(--surface-2); color: var(--primary); }
+.icon-action:active { transform: scale(.92); }
+.icon-action.danger {
+    background: color-mix(in srgb, var(--d-red) 12%, transparent);
+    color: var(--d-red);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--d-red) 22%, transparent);
+}
+.icon-action.danger:hover { background: color-mix(in srgb, var(--d-red) 24%, transparent); color: var(--d-red); }
 
 /* ── Inputs ──────────────────────────────────────────────────────────────── */
 .s-input {
@@ -174,19 +192,21 @@
 /* ── Grid helpers ────────────────────────────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
-.divider { border: none; border-top: 1px solid var(--hairline); margin: 1.25rem 0; }
+.divider { border: none; border-top: 1px solid var(--hairline); margin: 0.9rem 0; }
 
-/* ── Stats grid ──────────────────────────────────────────────────────────── */
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 0.6rem; }
+/* ── Stats grid (compact, home-page style tiles) ────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px,1fr)); gap: 0.5rem; }
 .stat-box {
     background: var(--surface);
     border: 1px solid var(--hairline); border-radius: var(--radius-lg);
-    padding: 0.8rem 0.9rem;
+    padding: 0.7rem 0.5rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 0.15rem; aspect-ratio: 1 / 1;
     transition: border-color .15s ease, transform .15s ease;
 }
 .stat-box:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); transform: translateY(-1px); }
-.stat-box .v { font-size: 1.3rem; font-weight: 800; }
-.stat-box .l { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-sec); font-weight: 700; }
+.stat-box .v { font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
+.stat-box .l { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sec); font-weight: 700; }
 .hint { font-size: 0.78rem; color: var(--text-sec); }
 </style>
 
@@ -212,17 +232,17 @@
     </button>
 </header>
 
-<div class="space-y-6" id="settings-root">
+<div class="space-y-4" id="settings-root">
 
     <!-- ── System & Maintenance ─────────────────────────────────────────── -->
     <div class="settings-card">
         <h2><i class="fa-solid fa-server"></i> System &amp; Maintenance</h2>
 
         <!-- DB & system stats -->
-        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
             <label class="s-label" style="margin-bottom:0">Database &amp; System Stats</label>
-            <button class="add-btn" type="button" onclick="loadDbStats(this)">
-                <i class="fa-solid fa-rotate"></i> Refresh
+            <button class="icon-action" type="button" onclick="loadDbStats(this)" title="Refresh stats">
+                <i class="fa-solid fa-rotate"></i>
             </button>
         </div>
         <div class="stat-grid" id="stats-grid">
@@ -232,41 +252,41 @@
         <hr class="divider">
 
         <!-- Live logs -->
-        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
             <label class="s-label" style="margin-bottom:0">Logs</label>
-            <div class="flex items-center gap-3 flex-wrap">
-                <label class="anime-check" title="Auto-refresh the log every 2s">
+            <div class="flex items-center gap-1 flex-wrap">
+                <label class="anime-check" title="Auto-refresh the log every 2s" style="margin-right:0.25rem">
                     <input type="checkbox" id="log-live-toggle" onchange="toggleLiveLogs()">
                     <span>Live</span>
                 </label>
-                <button class="add-btn" type="button" onclick="loadLogs(this)">
-                    <i class="fa-solid fa-rotate"></i> Refresh
+                <button class="icon-action" type="button" onclick="loadLogs(this)" title="Refresh logs">
+                    <i class="fa-solid fa-rotate"></i>
                 </button>
-                <button class="add-btn" type="button" onclick="window.open('/api/admin/logs/download','_blank')">
-                    <i class="fa-solid fa-download"></i> Download
+                <button class="icon-action" type="button" onclick="window.open('/api/admin/logs/download','_blank')" title="Download log">
+                    <i class="fa-solid fa-download"></i>
                 </button>
             </div>
         </div>
         <pre id="log-view" style="background:color-mix(in srgb,var(--bg) 80%,#000);border:1px solid var(--hairline);
-            border-radius:var(--radius-lg);padding:1rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;
-            line-height:1.5;color:var(--text);max-height:340px;overflow:auto;white-space:pre-wrap;
+            border-radius:var(--radius-lg);padding:0.85rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+            line-height:1.5;color:var(--text);max-height:260px;overflow:auto;white-space:pre-wrap;
             word-break:break-word;margin:0">Loading logs…</pre>
 
         <hr class="divider">
 
         <!-- Restart -->
-        <label class="s-label">Restart App</label>
-        <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
-            Pulls the latest code from the upstream repo/branch above and restarts the server.
-            The web app becomes unreachable for a few seconds — this page will reconnect
-            automatically once it's back online.
-        </p>
-        <button id="restart-btn" onclick="restartApp()"
-            class="flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-white active:scale-95 transition-all"
-            style="background:var(--d-red);border-radius:var(--radius-md);box-shadow:0 8px 22px color-mix(in srgb, var(--d-red) 35%, transparent)">
-            <i class="fa-solid fa-power-off"></i>
-            <span>Restart Now</span>
-        </button>
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div class="min-w-0">
+                <label class="s-label" style="margin-bottom:0.2rem">Restart App</label>
+                <p style="font-size:0.78rem;color:var(--text-sec);max-width:34rem">
+                    Pulls the latest code and restarts the server. The app is briefly unreachable, then reconnects automatically.
+                </p>
+            </div>
+            <button id="restart-btn" onclick="restartApp()" title="Restart Now"
+                class="icon-action danger shrink-0" style="width:2.6rem;height:2.6rem;font-size:1rem">
+                <i class="fa-solid fa-power-off"></i>
+            </button>
+        </div>
     </div>
 
     <!-- ── General ─────────────────────────────────────────────────────── -->
