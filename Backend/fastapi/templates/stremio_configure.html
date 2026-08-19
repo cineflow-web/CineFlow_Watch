@@ -62,15 +62,10 @@ body {
     -webkit-backdrop-filter: blur(14px);
 }
 #topbar .brand-link {
-    display: flex; align-items: center; gap: 0.6rem;
+    display: flex; align-items: center;
     text-decoration: none; flex-shrink: 0;
 }
-#topbar .brand-link img { height: 2rem; width: auto; object-fit: contain; }
-#topbar .brand-link span {
-    font-size: 1.05rem; font-weight: 800; letter-spacing: 0.01em;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-}
+#topbar .brand-link img { height: 2rem; width: auto; object-fit: contain; display: block; }
 
 .wrap { width: 100%; max-width: 960px; margin: auto; }
 .layout { display: grid; gap: 16px; grid-template-columns: 1fr; align-items: start; }
@@ -95,21 +90,6 @@ body::before {
     padding: clamp(24px, 4vw, 36px);
     width: 100%;
     text-align: center;
-}
-
-.brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; }
-.brand-logo {
-    width: 44px; height: 44px; border-radius: 9999px;
-    background: var(--primary); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 55%, transparent);
-    overflow: hidden; flex-shrink: 0;
-}
-.brand-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.brand-name {
-    font-size: 1.6rem; font-weight: 800; letter-spacing: 0.02em;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
 h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
@@ -176,23 +156,11 @@ h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 6p
 <header id="topbar">
     <a href="/" class="brand-link">
         <img src="https://iili.io/CLM4WKX.md.png" alt="CineFlow">
-        <span>CineFlow</span>
     </a>
 </header>
 <div class="wrap">
 <div class="layout">
 <div class="card">
-    <div class="brand">
-        <div class="brand-logo">
-            {% if addon_logo %}
-            <img src="{{ addon_logo }}" alt="CineFlow logo" onerror="this.remove(); this.parentElement.innerHTML='&lt;i class=&quot;fa-solid fa-play&quot;&gt;&lt;/i&gt;';">
-            {% else %}
-            <i class="fa-solid fa-play"></i>
-            {% endif %}
-        </div>
-        <span class="brand-name">CineFlow</span>
-    </div>
-
     <h1>Install / Update Addon</h1>
     <p class="sub-title">Add or refresh your personal Telegram library inside Stremio.</p>
 
