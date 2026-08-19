@@ -64,6 +64,47 @@
     box-shadow: 0 0 0 3px var(--ring);
   }
 
+  /* ── Themed dropdown — replaces native <select> popovers everywhere ──── */
+  .ui-select { position: relative; }
+  .ui-select-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .ui-select-trigger {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+    cursor: pointer; user-select: none; text-align: left;
+  }
+  .ui-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ui-select-chevron { font-size: 0.7rem; color: var(--text-sec); transition: transform .18s ease; flex-shrink: 0; }
+  .ui-select.open .ui-select-chevron { transform: rotate(180deg); color: var(--primary); }
+  .ui-select.open .ui-select-trigger { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+  .ui-select-panel {
+    position: absolute; left: 0; right: 0; top: calc(100% + 0.4rem); z-index: 60;
+    background: color-mix(in srgb, var(--card) 97%, var(--bg));
+    border: 1px solid var(--hairline-strong);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-strong);
+    padding: 0.35rem;
+    max-height: 14rem;
+    overflow-y: auto;
+    animation: ui-select-pop 140ms cubic-bezier(.2,1,.3,1);
+  }
+  .ui-select-panel.hidden { display: none; }
+  @keyframes ui-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .ui-select-option {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+    white-space: nowrap;
+  }
+  .ui-select-option:hover { background: var(--surface-2); }
+  .ui-select-option.selected { color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); }
+  .ui-select-option .fa-check { font-size: 0.68rem; opacity: 0; flex-shrink: 0; }
+  .ui-select-option.selected .fa-check { opacity: 1; }
+
   .hero-wrap {
     position: relative;
     overflow: hidden;
@@ -538,9 +579,16 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3">
-            <select id="custom-catalog-select" class="field-input">
-                <option value="">Loading catalogs...</option>
-            </select>
+            <div class="ui-select">
+                <select id="custom-catalog-select" class="ui-select-native">
+                    <option value="">Loading catalogs...</option>
+                </select>
+                <button type="button" class="field-input ui-select-trigger">
+                    <span class="ui-select-label">Loading catalogs...</span>
+                    <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <button type="button" onclick="addCurrentMediaToCatalog()" class="btn-ui btn-primary">
                 <i class="fa-solid fa-plus"></i> Add to Catalog
             </button>
@@ -555,11 +603,18 @@
         <div>
             <label class="field-label">Who can see this title</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                <select id="media-visibility" class="field-input" onchange="onMediaVisibilityChange()">
-                    <option value="public">Everyone</option>
-                    <option value="tokens">Specific users</option>
-                    <option value="owner">Owner only (hidden)</option>
-                </select>
+                <div class="ui-select flex-1">
+                    <select id="media-visibility" class="ui-select-native" onchange="onMediaVisibilityChange()">
+                        <option value="public">Everyone</option>
+                        <option value="tokens">Specific users</option>
+                        <option value="owner">Owner only (hidden)</option>
+                    </select>
+                    <button type="button" class="field-input ui-select-trigger">
+                        <span class="ui-select-label">Everyone</span>
+                        <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                    </button>
+                    <div class="ui-select-panel hidden" role="listbox"></div>
+                </div>
                 <button type="button" onclick="applyMediaVisibility()" class="btn-ui btn-primary sm:w-auto shrink-0">Apply</button>
             </div>
             <div id="media-token-picker-wrap" class="hidden mt-3">
@@ -942,11 +997,18 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                         <label class="as-label">Quality *</label>
-                        <select id="as-quality" class="as-input" onchange="document.getElementById('as-quality-custom').classList.toggle('hidden', this.value !== '__custom')">
-                            <option value="">Select</option>
-                            <option>480p</option><option>720p</option><option selected>1080p</option>
-                            <option>2160p</option><option value="__custom">Custom…</option>
-                        </select>
+                        <div class="ui-select">
+                            <select id="as-quality" class="ui-select-native" onchange="document.getElementById('as-quality-custom').classList.toggle('hidden', this.value !== '__custom')">
+                                <option value="">Select</option>
+                                <option>480p</option><option>720p</option><option selected>1080p</option>
+                                <option>2160p</option><option value="__custom">Custom…</option>
+                            </select>
+                            <button type="button" class="as-input ui-select-trigger">
+                                <span class="ui-select-label">1080p</span>
+                                <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                            </button>
+                            <div class="ui-select-panel hidden" role="listbox"></div>
+                        </div>
                     </div>
                     <div class="sm:col-span-2">
                         <label class="as-label">File name</label>
@@ -2076,9 +2138,17 @@
         div.className = 'flex flex-col sm:flex-row gap-2';
         div.setAttribute('data-sub-row', '');
         div.innerHTML = `<input class="field-input flex-1 sub-url" placeholder="Telegram message link" value="${url}">
-            <select class="field-input sm:w-44 sub-lang">${subtitleLangOptions()}</select>
+            <div class="ui-select sm:w-44">
+                <select class="ui-select-native sub-lang">${subtitleLangOptions()}</select>
+                <button type="button" class="field-input ui-select-trigger">
+                    <span class="ui-select-label">Auto-detect</span>
+                    <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <button type="button" onclick="this.closest('[data-sub-row]').remove()" class="btn-ui btn-ghost w-full sm:w-auto">Remove</button>`;
         document.getElementById('subtitle-rows').appendChild(div);
+        enhanceSelect(div.querySelector('.ui-select-native'));
     }
 
     async function loadSubtitleLanguages() {
@@ -2237,6 +2307,85 @@
         if (document.getElementById('subtitle-list')) {
             loadSubtitleLanguages().then(loadSubtitles);
         }
+    });
+
+    /* ── Themed dropdown engine (replaces native <select> popovers) ──────── */
+    function enhanceSelect(select) {
+        if (select._uiSelectEnhanced) return;
+        select._uiSelectEnhanced = true;
+
+        const wrap = select.closest('.ui-select');
+        const trigger = wrap.querySelector('.ui-select-trigger');
+        const label = trigger.querySelector('.ui-select-label');
+        const panel = wrap.querySelector('.ui-select-panel');
+
+        function syncLabel() {
+            const opt = select.options[select.selectedIndex];
+            label.textContent = opt ? opt.textContent : '';
+            trigger.disabled = select.disabled;
+            trigger.classList.toggle('opacity-60', select.disabled);
+            trigger.style.cursor = select.disabled ? 'not-allowed' : 'pointer';
+        }
+
+        const nativeDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        Object.defineProperty(select, 'value', {
+            configurable: true,
+            get() { return nativeDesc.get.call(select); },
+            set(v) { nativeDesc.set.call(select, v); syncLabel(); },
+        });
+
+        new MutationObserver(syncLabel).observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+
+        function buildPanel() {
+            panel.innerHTML = '';
+            Array.from(select.options).forEach(opt => {
+                const row = document.createElement('div');
+                row.className = 'ui-select-option' + (opt.value === select.value ? ' selected' : '');
+                row.setAttribute('role', 'option');
+                row.innerHTML = `<span>${opt.textContent}</span><i class="fa-solid fa-check"></i>`;
+                row.addEventListener('click', () => {
+                    select.value = opt.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePanel();
+                });
+                panel.appendChild(row);
+            });
+        }
+
+        function openPanel() {
+            document.querySelectorAll('.ui-select.open').forEach(o => { if (o !== wrap) closeOther(o); });
+            buildPanel();
+            panel.classList.remove('hidden');
+            wrap.classList.add('open');
+        }
+        function closePanel() {
+            panel.classList.add('hidden');
+            wrap.classList.remove('open');
+        }
+        function closeOther(otherWrap) {
+            otherWrap.querySelector('.ui-select-panel').classList.add('hidden');
+            otherWrap.classList.remove('open');
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (select.disabled) return;
+            wrap.classList.contains('open') ? closePanel() : openPanel();
+        });
+
+        syncLabel();
+        wrap._closeUiSelect = closePanel;
+    }
+
+    document.querySelectorAll('.ui-select-native').forEach(enhanceSelect);
+
+    document.addEventListener('click', (e) => {
+        document.querySelectorAll('.ui-select.open').forEach(wrap => {
+            if (!wrap.contains(e.target) && wrap._closeUiSelect) wrap._closeUiSelect();
+        });
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') document.querySelectorAll('.ui-select.open').forEach(wrap => wrap._closeUiSelect && wrap._closeUiSelect());
     });
 </script>
 {% endblock %}
