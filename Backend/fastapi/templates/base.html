@@ -152,6 +152,18 @@ body::before {
 
 .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 
+/* Robust gradient text — Tailwind's text-transparent + bg-clip-text alone
+   fails to render on some Android Chrome builds (Data Saver / Lite mode
+   strips unprefixed background-clip). -webkit-text-fill-color plus a
+   solid-color fallback fixes that. */
+.gradient-text {
+    color: var(--primary);
+    background: linear-gradient(90deg, var(--grad-from, var(--primary)), var(--grad-to, var(--accent)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 ::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); color: var(--text); }
 
 :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -347,9 +359,6 @@ body.sidebar-compact #collapse-toggle i { transform: rotate(180deg); }
 #app-main {
     margin-left: var(--sidebar-w);
     margin-top: var(--topbar-h);
-    min-height: calc(100vh - var(--topbar-h));
-    display: flex;
-    flex-direction: column;
     transition: margin-left 0.22s cubic-bezier(.4,0,.2,1);
 }
 body.sidebar-compact #app-main { margin-left: var(--sidebar-w-compact); }
@@ -424,7 +433,7 @@ tailwind.config = {
 </script>
 </head>
 
-<body class="antialiased {% if current_user %}pb-10{% endif %}"
+<body class="antialiased"
       {% if current_user %}
       onload="if(document.documentElement.dataset.sidebarCompact==='1'){document.body.classList.add('sidebar-compact')}"
       {% endif %}>
@@ -442,7 +451,7 @@ tailwind.config = {
     </button>
 
     <a href="/" class="flex items-center gap-2.5 shrink-0">
-        <span class="text-lg font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+        <span class="gradient-text text-lg font-extrabold tracking-wide" style="--grad-from:var(--primary); --grad-to:var(--secondary)">
             CineFlow
         </span>
     </a>
@@ -540,25 +549,18 @@ tailwind.config = {
 {% endif %}
 
 <main id="app-main" class="{% if not current_user %}min-h-screen{% endif %}">
-    <div class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-8{% else %}py-8{% endif %}">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="mt-auto w-full max-w-5xl mx-auto px-6 py-10">
-        <div class="glass-panel rounded-2xl p-6 relative overflow-hidden">
-            <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"></div>
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
-                        <i class="fa-brands fa-telegram text-base" style="color:var(--primary)"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">CineFlow</p>
-                        <p class="text-[11px] text-text-secondary">Self-hosted streaming, done right</p>
-                    </div>
-                </div>
-                <p class="text-text-secondary text-xs">© 2026 CineFlow — All rights reserved</p>
+    <footer class="w-full border-t border-hairline mt-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <div class="flex items-center gap-2">
+                <i class="fa-brands fa-telegram text-sm" style="color:var(--primary)"></i>
+                <span class="gradient-text text-sm font-extrabold" style="--grad-from:var(--primary); --grad-to:var(--secondary)">CineFlow</span>
+                <span class="hidden sm:inline text-text-secondary text-xs">— Self-hosted streaming, done right</span>
             </div>
+            <p class="text-text-secondary text-xs">© 2026 CineFlow — All rights reserved</p>
         </div>
     </footer>
 </main>
