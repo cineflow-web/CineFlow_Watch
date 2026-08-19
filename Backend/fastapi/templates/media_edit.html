@@ -318,6 +318,32 @@
     animation: spin 1s linear infinite;
   }
 
+  /* ── Speed test rows — compact cards, no horizontal scroll needed ────── */
+  .st-row {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    transition: border-color .15s ease, opacity .15s ease;
+  }
+
+  .st-row-pending { opacity: 0.75; }
+
+  .st-stat-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-sec);
+    margin-bottom: 0.15rem;
+  }
+
+  .st-stat-value {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
   .speed-modal-shell {
     width: min(100%, 56rem);
     max-height: calc(100dvh - 1rem);
@@ -365,8 +391,6 @@
     box-shadow: var(--shadow-soft);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 1.1rem, #000 calc(100% - 1.1rem), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 1.1rem, #000 calc(100% - 1.1rem), transparent 100%);
   }
 
   .edit-tabs::-webkit-scrollbar { display: none; }
@@ -902,21 +926,7 @@
                 </div>
 
                 <div id="st-results" class="hidden">
-                    <div class="overflow-x-auto border border-hairline" style="border-radius:0.75rem">
-                        <table class="w-full min-w-[760px] text-sm">
-                            <thead class="bg-surface text-left">
-                                <tr class="text-text-secondary">
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Bot / DC</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Ping</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Speed</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Time</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Downloaded</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="st-tbody" class="divide-y divide-hairline bg-surface"></tbody>
-                        </table>
-                    </div>
+                    <div id="st-tbody" class="space-y-2"></div>
                     <p id="st-summary" class="text-xs text-text-secondary mt-3 text-right"></p>
                 </div>
 
@@ -1812,8 +1822,54 @@
     function _miniBar(value, max, color) {
         if (!value || !max) return '';
         const pct = Math.min(100, (value / max) * 100).toFixed(1);
-        return `<div class="w-full bg-surface-2 rounded-lg h-1.5 mt-1 overflow-hidden">
+        return `<div class="w-full bg-surface-2 rounded-lg h-1.5 mt-2 overflow-hidden">
             <div class="h-1.5 rounded-lg transition-all" style="width:${pct}%; background:${color}"></div>
+        </div>`;
+    }
+
+    function _pendingRowHtml(i) {
+        return `<div class="st-row st-row-pending" data-bot-row="${i}">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-text-secondary min-w-0 truncate"><i class="fa-solid fa-arrows-rotate st-spin"></i> Bot ${i + 1}</span>
+                <span class="px-2 py-0.5 rounded-lg text-xs bg-surface-2 text-text-secondary shrink-0">Pending</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+                <div><p class="st-stat-label">Ping</p><p class="st-stat-value text-text-secondary">testing…</p></div>
+                <div><p class="st-stat-label">Speed</p><p class="st-stat-value text-text-secondary">testing…</p></div>
+                <div><p class="st-stat-label">Time</p><p class="st-stat-value text-text-secondary">—</p></div>
+            </div>
+        </div>`;
+    }
+
+    function _resultRowHtml(r, maxSpeed, showMedal) {
+        const isErr = !!r.error && !r.speed_mbps;
+        const medal = showMedal && !isErr ? '<i class="fa-solid fa-medal" style="color:var(--d-yellow)"></i> ' : '';
+        const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
+        const speedVal = r.speed_mbps !== null ? `<span class="${_speedClass(r.speed_mbps)}">${r.speed_mbps.toFixed(2)} MB/s</span>` : '<span class="text-text-secondary">—</span>';
+        const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
+        const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
+        const badge = isErr
+            ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-red border shrink-0">Error</span>`
+            : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-green border shrink-0">✓ OK</span>`;
+        const bar = r.speed_mbps !== null
+            ? _miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'var(--d-green)' : r.speed_mbps >= 5 ? 'var(--d-orange)' : 'var(--d-red)')
+            : '';
+
+        return `<div class="st-row${isErr ? ' opacity-70' : ''}" data-bot-row="${r.client_index}">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-bold text-white min-w-0 truncate">${medal}Bot ${r.client_index + 1} <span class="text-xs font-normal text-text-secondary">(DC ${r.dc_id})</span></span>
+                ${badge}
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+                <div><p class="st-stat-label">Ping</p><p class="st-stat-value">${ping}</p></div>
+                <div><p class="st-stat-label">Speed</p><p class="st-stat-value">${speedVal}</p></div>
+                <div><p class="st-stat-label">Time</p><p class="st-stat-value text-text-secondary">${taken}</p></div>
+            </div>
+            ${bar}
+            <div class="flex items-center justify-between gap-2 mt-2">
+                <p class="text-[11px] text-text-secondary">${bytes} downloaded</p>
+                ${isErr ? `<p class="text-[11px] status-err text-right">${r.error}</p>` : ''}
+            </div>
         </div>`;
     }
 
@@ -1877,17 +1933,8 @@
                 const tbody = document.getElementById('st-tbody');
                 tbody.innerHTML = '';
                 for (let i = 0; i < totalCount; i++) {
-                    const tr = document.createElement('tr');
-                    tr.className = 'animate-pulse';
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-text-secondary"><i class="fa-solid fa-arrows-rotate"></i> Bot ${i + 1}</td>
-                        <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
-                        <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
-                        <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-lg text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
-                    tbody.appendChild(tr);
-                    pendingRows[i] = tr;
+                    tbody.insertAdjacentHTML('beforeend', _pendingRowHtml(i));
+                    pendingRows[i] = tbody.lastElementChild;
                 }
                 updateSummary();
             }
@@ -1897,35 +1944,15 @@
                 const tr = pendingRows[r.client_index];
                 if (tr) {
                     maxSpeed = Math.max(maxSpeed, r.speed_mbps || 0, 1);
-                    const isErr = !!r.error && !r.speed_mbps;
-                    const medal = '';
-                    const dc = `Bot ${r.client_index + 1} <span class="text-xs text-text-secondary">(DC ${r.dc_id})</span>`;
-                    const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
-                    const speed = r.speed_mbps !== null
-                        ? `<span class="${_speedClass(r.speed_mbps)}">${r.speed_mbps.toFixed(2)} MB/s</span>
-                           ${_miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'var(--d-green)' : r.speed_mbps >= 5 ? 'var(--d-orange)' : 'var(--d-red)')}`
-                        : '<span class="text-text-secondary">—</span>';
-                    const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
-                    const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
-                    const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-red border">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-green border">✓ OK</span>`;
-
-                    const newTr = document.createElement('tr');
-                    newTr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
-                    newTr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
-                        <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs status-err mt-1">${r.error}</div>` : ''}</td>
-                        <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
-                        <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
-                        <td class="px-4 py-3">${badge}</td>`;
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = _resultRowHtml(r, maxSpeed, false);
+                    const newRow = wrapper.firstElementChild;
 
                     if (pendingRows[r.client_index]) {
-                        pendingRows[r.client_index].replaceWith(newTr);
+                        pendingRows[r.client_index].replaceWith(newRow);
                         delete pendingRows[r.client_index];
                     } else {
-                        document.getElementById('st-tbody').appendChild(newTr);
+                        document.getElementById('st-tbody').appendChild(newRow);
                     }
 
                     allResults.push(r);
@@ -1940,35 +1967,10 @@
 
                 allResults.sort((a, b) => (b.speed_mbps || 0) - (a.speed_mbps || 0));
                 const tbody = document.getElementById('st-tbody');
-                tbody.innerHTML = '';
-
-                for (let i = 0; i < allResults.length; i++) {
-                    const r = allResults[i];
+                tbody.innerHTML = allResults.map((r, i) => {
                     const isErr = !!r.error && !r.speed_mbps;
-                    const medal = i === 0 && !isErr ? '<i class="fa-solid fa-medal" style="color:var(--d-yellow)"></i> ' : '';
-                    const dc = `Bot ${r.client_index + 1} <span class="text-xs text-text-secondary">(DC ${r.dc_id})</span>`;
-                    const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
-                    const speed = r.speed_mbps !== null
-                        ? `<span class="${_speedClass(r.speed_mbps)}">${r.speed_mbps.toFixed(2)} MB/s</span>
-                           ${_miniBar(r.speed_mbps, maxSpeed, r.speed_mbps >= 20 ? 'var(--d-green)' : r.speed_mbps >= 5 ? 'var(--d-orange)' : 'var(--d-red)')}`
-                        : '<span class="text-text-secondary">—</span>';
-                    const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
-                    const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
-                    const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-red border">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium badge-green border">✓ OK</span>`;
-
-                    const tr = document.createElement('tr');
-                    tr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
-                        <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs status-err mt-1">${r.error}</div>` : ''}</td>
-                        <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
-                        <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
-                        <td class="px-4 py-3">${badge}</td>`;
-                    tbody.appendChild(tr);
-                }
+                    return _resultRowHtml(r, maxSpeed, i === 0 && !isErr);
+                }).join('');
 
                 document.getElementById('st-rerun-btn').classList.remove('hidden');
                 updateSummary();
