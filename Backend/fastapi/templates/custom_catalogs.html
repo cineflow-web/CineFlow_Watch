@@ -62,6 +62,45 @@
     box-shadow: 0 0 0 3px var(--ring);
   }
 
+  /* ── Custom themed dropdown (replaces native <select> popovers) ───────
+     Mobile browsers (Android Chrome especially) render native <select>
+     option lists with their own OS/forced-dark-mode palette — that's the
+     off-theme brown/orange popup instead of Dracula colors. This wraps
+     each select in a `.ui-select` container: the native <select> stays
+     fully functional (value / onchange keep working untouched) but is
+     visually hidden, while a themed trigger + panel mirror it. */
+  .ui-select { position: relative; }
+  .ui-select-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .ui-select-trigger {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    cursor: pointer; user-select: none; text-align: left;
+  }
+  .ui-select-trigger .ui-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ui-select-chevron { font-size: .72rem; color: var(--text-sec); transition: transform .2s ease; flex-shrink: 0; }
+  .ui-select.open .ui-select-chevron { transform: rotate(180deg); color: var(--primary); }
+  .ui-select.open .ui-select-trigger { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+  .ui-select-panel {
+    position: absolute; left: 0; right: 0; top: calc(100% + .5rem); z-index: 60;
+    background: color-mix(in srgb, var(--card) 97%, var(--bg));
+    border: 1px solid var(--hairline-strong);
+    border-radius: .85rem; box-shadow: var(--shadow-strong); padding: .35rem;
+    max-height: 14rem; overflow-y: auto;
+    animation: ui-select-pop 140ms cubic-bezier(.2,1,.3,1);
+  }
+  .ui-select-panel.hidden { display: none; }
+  @keyframes ui-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .ui-select-option {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    padding: .6rem .7rem; border-radius: .6rem; font-size: .85rem; font-weight: 700;
+    color: var(--text); cursor: pointer; transition: background .15s ease; white-space: nowrap;
+  }
+  .ui-select-option:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+  .ui-select-option.selected { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+  .ui-select-option .fa-check { font-size: .68rem; opacity: 0; }
+  .ui-select-option.selected .fa-check { opacity: 1; }
+
   /* ── Compact buttons (matches Tools) ───────────────────────────────── */
   .btn-ui {
     display: inline-flex;
@@ -409,11 +448,18 @@
 
           <div>
             <label class="field-label">Who can see it</label>
-            <select id="catalog-visibility" class="field-select" onchange="onVisibilityModeChange('catalog')">
-              <option value="public">Everyone</option>
-              <option value="tokens">Specific users</option>
-              <option value="owner">Owner only (hidden)</option>
-            </select>
+            <div class="ui-select">
+              <select id="catalog-visibility" class="ui-select-native" onchange="onVisibilityModeChange('catalog')">
+                <option value="public">Everyone</option>
+                <option value="tokens">Specific users</option>
+                <option value="owner">Owner only (hidden)</option>
+              </select>
+              <button type="button" class="field-select ui-select-trigger">
+                <span class="ui-select-label">Everyone</span>
+                <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+              </button>
+              <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <p class="muted text-xs mt-2" id="catalog-visibility-hint">Shown to everyone who installed the addon.</p>
           </div>
 
@@ -454,7 +500,10 @@
           <h2 id="selected-title" class="section-title"><i class="fa-solid fa-sliders"></i> Select a catalog</h2>
           <p id="selected-subtitle" class="muted text-sm mt-1">Choose a catalog from the left side to add or remove titles.</p>
         </div>
-        <button id="delete-catalog-btn" onclick="deleteSelectedCatalog()" class="btn-ui btn-danger hidden md:w-auto">Delete Catalog</button>
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="refresh-catalog-btn" onclick="refreshSelectedCatalog()" title="Refresh" class="icon-btn hidden"><i class="fa-solid fa-arrows-rotate"></i></button>
+          <button id="delete-catalog-btn" onclick="deleteSelectedCatalog()" class="btn-ui btn-danger hidden md:w-auto">Delete Catalog</button>
+        </div>
       </div>
 
       <div id="catalog-empty-guide" class="empty-state p-6 sm:p-8 text-center">
@@ -468,11 +517,18 @@
           <div class="flex flex-col md:flex-row md:items-end gap-3">
             <div class="flex-1">
               <label class="field-label">Catalog visibility</label>
-              <select id="ws-visibility" class="field-select" onchange="onVisibilityModeChange('ws')">
-                <option value="public">Everyone</option>
-                <option value="tokens">Specific users</option>
-                <option value="owner">Owner only (hidden)</option>
-              </select>
+              <div class="ui-select">
+                <select id="ws-visibility" class="ui-select-native" onchange="onVisibilityModeChange('ws')">
+                  <option value="public">Everyone</option>
+                  <option value="tokens">Specific users</option>
+                  <option value="owner">Owner only (hidden)</option>
+                </select>
+                <button type="button" class="field-select ui-select-trigger">
+                  <span class="ui-select-label">Everyone</span>
+                  <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+              </div>
             </div>
             <button onclick="applyCatalogVisibility()" class="btn-ui btn-primary md:w-auto">Apply to all titles</button>
           </div>
@@ -513,10 +569,17 @@
             </div>
             <div class="sm:w-44">
               <label class="field-label">Type</label>
-              <select id="search-media-type" class="field-select">
-                <option value="movie">Movie</option>
-                <option value="tv">Series</option>
-              </select>
+              <div class="ui-select">
+                <select id="search-media-type" class="ui-select-native">
+                  <option value="movie">Movie</option>
+                  <option value="tv">Series</option>
+                </select>
+                <button type="button" class="field-select ui-select-trigger">
+                  <span class="ui-select-label">Movie</span>
+                  <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+              </div>
             </div>
             <button onclick="searchMedia()" class="btn-ui btn-primary sm:w-auto"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
           </div>
@@ -803,6 +866,7 @@ function updateSelectedHeader() {
   const workspace = document.getElementById('catalog-workspace');
   const guide = document.getElementById('catalog-empty-guide');
   const deleteBtn = document.getElementById('delete-catalog-btn');
+  const refreshBtn = document.getElementById('refresh-catalog-btn');
   const visibilityPill = document.getElementById('selected-visibility-pill');
   const countPill = document.getElementById('selected-count-pill');
 
@@ -810,6 +874,7 @@ function updateSelectedHeader() {
     workspace.classList.add('hidden');
     guide.classList.remove('hidden');
     deleteBtn.classList.add('hidden');
+    refreshBtn.classList.add('hidden');
     visibilityPill.classList.add('hidden');
     countPill.classList.add('hidden');
     document.getElementById('selected-title').textContent = 'Select a catalog';
@@ -820,13 +885,14 @@ function updateSelectedHeader() {
   workspace.classList.remove('hidden');
   guide.classList.add('hidden');
   deleteBtn.classList.remove('hidden');
+  refreshBtn.classList.remove('hidden');
   visibilityPill.classList.remove('hidden');
   countPill.classList.remove('hidden');
 
   const mode = catalog.visibility || 'public';
   const meta = VIS_META[mode] || VIS_META.public;
   visibilityPill.className = `pill vis-chip ${meta.chip}`;
-  visibilityPill.textContent = `${meta.icon} ${visibilityLabel(mode)}`;
+  visibilityPill.innerHTML = `${meta.icon} ${escapeHtml(visibilityLabel(mode))}`;
   countPill.textContent = `${(catalog.items || []).length} title${(catalog.items || []).length === 1 ? '' : 's'}`;
   document.getElementById('selected-title').textContent = catalog.name || 'Selected Catalog';
   document.getElementById('selected-subtitle').textContent = 'Manage titles and choose who can see this catalog in Stremio.';
@@ -886,6 +952,20 @@ async function selectCatalog(id) {
   renderCatalogs();
   updateSelectedHeader();
   await loadCatalogItems();
+}
+
+async function refreshSelectedCatalog() {
+  if (!selectedCatalogId) return;
+  const btn = document.getElementById('refresh-catalog-btn');
+  const icon = btn?.querySelector('i');
+  icon?.classList.add('fa-spin');
+  try {
+    await loadCatalogs();
+    updateSelectedHeader();
+    await loadCatalogItems();
+  } finally {
+    icon?.classList.remove('fa-spin');
+  }
 }
 
 async function searchMedia() {
@@ -1165,6 +1245,84 @@ function toggleCatalogExpand() {
   wrapper.classList.toggle('collapsed', !catalogListExpanded);
   if (btn) btn.textContent = catalogListExpanded ? '▴ Collapse list' : '▾ Show all catalogs';
 }
+
+/* ── Themed dropdown engine (replaces native <select> popovers on mobile) ──
+   Wraps a <select class="ui-select-native"> inside a `.ui-select` container.
+   The native select stays fully functional (value / onchange / .innerHTML
+   rebuilds all keep working untouched) — it's just visually hidden while a
+   custom trigger + panel mirror it, so every dropdown on this page renders
+   in Dracula colors instead of the OS's native picker. */
+function enhanceSelect(select) {
+  const wrap = select.closest('.ui-select');
+  const trigger = wrap.querySelector('.ui-select-trigger');
+  const label = trigger.querySelector('.ui-select-label');
+  const panel = wrap.querySelector('.ui-select-panel');
+
+  function syncLabel() {
+    const opt = select.options[select.selectedIndex];
+    label.textContent = opt ? opt.textContent : '';
+  }
+
+  // Intercept every programmatic `.value = …` set anywhere in the app
+  // so the visible label never goes stale.
+  const nativeDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+  Object.defineProperty(select, 'value', {
+    configurable: true,
+    get() { return nativeDesc.get.call(select); },
+    set(v) { nativeDesc.set.call(select, v); syncLabel(); },
+  });
+
+  // Options can be rebuilt or relabeled dynamically (e.g. applyPublicLabels
+  // swaps "Everyone" <-> "Active subscribers") — catch that too.
+  new MutationObserver(syncLabel).observe(select, { childList: true, subtree: true, characterData: true });
+
+  function buildPanel() {
+    panel.innerHTML = '';
+    Array.from(select.options).forEach(opt => {
+      const row = document.createElement('div');
+      row.className = 'ui-select-option' + (opt.value === select.value ? ' selected' : '');
+      row.setAttribute('role', 'option');
+      row.innerHTML = `<span>${escapeHtml(opt.textContent)}</span><i class="fa-solid fa-check"></i>`;
+      row.addEventListener('click', () => {
+        select.value = opt.value;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        closePanel();
+      });
+      panel.appendChild(row);
+    });
+  }
+
+  function openPanel() {
+    document.querySelectorAll('.ui-select.open').forEach(o => { if (o !== wrap) closeOther(o); });
+    buildPanel();
+    panel.classList.remove('hidden');
+    wrap.classList.add('open');
+  }
+  function closePanel() {
+    panel.classList.add('hidden');
+    wrap.classList.remove('open');
+  }
+  function closeOther(otherWrap) {
+    otherWrap.querySelector('.ui-select-panel').classList.add('hidden');
+    otherWrap.classList.remove('open');
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.contains('open') ? closePanel() : openPanel();
+  });
+
+  syncLabel();
+  wrap._closeUiSelect = closePanel;
+}
+
+document.querySelectorAll('.ui-select-native').forEach(enhanceSelect);
+
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.ui-select.open').forEach(wrap => {
+    if (!wrap.contains(e.target) && wrap._closeUiSelect) wrap._closeUiSelect();
+  });
+});
 
 document.addEventListener('DOMContentLoaded', async () => {
   await Promise.all([loadSettings(), loadTokens()]);
