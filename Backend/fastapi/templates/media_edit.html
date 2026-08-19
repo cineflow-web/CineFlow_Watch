@@ -200,7 +200,25 @@
     flex-shrink: 0;
   }
 
-  .section-icon {
+  .back-icon-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  .back-icon-btn:hover {
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+    color: var(--primary);
+  }
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 0.85rem;
@@ -352,17 +370,12 @@
     <div class="glass-card rounded-2xl p-5 sm:p-6 mb-6 sm:mb-8 relative overflow-hidden">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
         <div class="flex flex-col gap-4">
-            <a id="back-to-list" href="/media/manage?media_type={{ media_type }}"
-               class="inline-flex items-center gap-2 text-primary font-semibold hover:opacity-90 w-fit">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Back to {{ media_type|title }}s
-            </a>
-
             <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
+                    <a id="back-to-list" href="/media/manage?media_type={{ media_type }}"
+                       class="back-icon-btn" title="Back to {{ media_type|title }}s">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
                     <div class="section-icon">
                         <i class="fa-solid {{ 'fa-tv' if media_type == 'tv' else 'fa-film' }}"></i>
                     </div>
@@ -389,7 +402,7 @@
                     <div class="mx-auto md:mx-0 flex-shrink-0">
                         <img src="{{ cover_url(media_details.poster) or '/static/placeholder.jpg' }}"
                              alt="{{ media_details.title }}"
-                             class="w-36 sm:w-40 md:w-48 h-54 sm:h-60 md:h-72 object-cover rounded-2xl shadow-2xl border border-hairline-strong"
+                             class="w-32 sm:w-36 md:w-44 h-48 sm:h-[13.5rem] md:h-[16.5rem] object-cover rounded-2xl shadow-2xl border border-hairline-strong"
                              onerror="this.src='https://via.placeholder.com/300x450/e5e7eb/9ca3af?text=No+Image'">
                     </div>
 
