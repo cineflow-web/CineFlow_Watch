@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Settings — TG Stremio{% endblock %}
+{% block title %}Settings — CineFlow{% endblock %}
 
 {% block content %}
 
@@ -165,7 +165,7 @@
         </p>
     </div>
     <button id="save-btn" onclick="saveSettings()"
-        class="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm text-white shadow-lg transition-all"
+        class="flex items-center gap-2 px-6 py-2.5 rounded-lg font-bold text-sm text-white shadow-lg transition-all"
         style="background:var(--primary); box-shadow:0 0 18px color-mix(in srgb,var(--primary) 40%,transparent)">
         <i class="fa-solid fa-floppy-disk"></i>
         <span id="save-label">Save Settings</span>
@@ -222,7 +222,7 @@
             automatically once it's back online.
         </p>
         <button id="restart-btn" onclick="restartApp()"
-            class="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm text-white shadow-lg transition-all"
+            class="flex items-center gap-2 px-6 py-2.5 rounded-lg font-bold text-sm text-white shadow-lg transition-all"
             style="background:#ef4444;box-shadow:0 0 18px rgba(239,68,68,0.4)">
             <i class="fa-solid fa-power-off"></i>
             <span>Restart Now</span>
@@ -1189,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 <!-- Floating save (mobile) -->
 <div class="fixed bottom-6 right-6 md:hidden z-50">
     <button onclick="saveSettings()"
-        class="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl"
+        class="w-14 h-14 rounded-lg flex items-center justify-center text-white shadow-xl"
         style="background:var(--primary)">
         <i class="fa-solid fa-floppy-disk text-lg"></i>
     </button>

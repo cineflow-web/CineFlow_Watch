@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Media Management - Telegram Stremio{% endblock %}
+{% block title %}Media Management - CineFlow{% endblock %}
 
 {% block content %}
 <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -30,21 +30,21 @@
 
             <div class="flex flex-wrap items-center gap-2">
                 <a href="/media/manage?media_type=movie{% if custom %}&custom=1{% endif %}"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border {% if media_type == 'movie' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
+                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-sm font-bold transition border {% if media_type == 'movie' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
                     <i class="fa-solid fa-film"></i> Movies
                 </a>
                 <a href="/media/manage?media_type=tv{% if custom %}&custom=1{% endif %}"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border {% if media_type == 'tv' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
+                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-sm font-bold transition border {% if media_type == 'tv' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
                     <i class="fa-solid fa-tv"></i> TV
                 </a>
-                <label class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border cursor-pointer select-none {% if custom %}bg-amber-500/15 text-amber-300 border-amber-500/40{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
+                <label class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-sm font-bold transition border cursor-pointer select-none {% if custom %}bg-amber-500/15 text-amber-300 border-amber-500/40{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
                     <input type="checkbox" {% if custom %}checked{% endif %}
                            onchange="window.location.href='/media/manage?media_type={{ media_type }}' + (this.checked ? '&custom=1' : '')"
                            class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
                     <i class="fa-solid fa-star"></i> Custom
                 </label>
                 <button type="button" onclick="openManualAdd()"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500/90">
+                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-sm font-bold transition border bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500/90">
                     <i class="fa-solid fa-plus"></i> Add
                 </button>
             </div>
@@ -53,7 +53,7 @@
 
     <!-- Loading Indicator -->
     <div id="loading" class="hidden text-center py-16">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full border border-hairline glass-panel mb-4">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-lg border border-hairline glass-panel mb-4">
             <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-primary"></div>
         </div>
         <p class="text-text-secondary">Loading {{ media_type }}s...</p>
@@ -293,13 +293,13 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div class="absolute top-3 left-3">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-bold border border-hairline">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-black/60 text-white text-[11px] font-bold border border-hairline">
                         <i class="fa-solid fa-calendar-days"></i> ${year}
                     </span>
                 </div>
                 ${Number(item.tmdb_id) < 0 ? `
                 <div class="absolute top-3 right-3">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 text-white text-[11px] font-bold border border-amber-400/40">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/90 text-white text-[11px] font-bold border border-amber-400/40">
                         <i class="fa-solid fa-star"></i> Custom
                     </span>
                 </div>` : ''}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Telegram Stremio{% endblock %}
+{% block title %}Dashboard - CineFlow{% endblock %}
 
 {% block content %}
 <div class="min-h-screen pb-12">
@@ -182,7 +182,7 @@
                                     <span class="text-text-secondary">Disk Usage</span>
                                     <span class="text-primary">{{ "%.1f"|format(db_stat.storageSize / 1024 / 1024) }} MB</span>
                                 </div>
-                                <div class="w-full h-1.5 bg-surface rounded-full overflow-hidden">
+                                <div class="w-full h-1.5 bg-surface rounded-lg overflow-hidden">
                                     {% set storage_percent = (db_stat.storageSize / (500 * 1024 * 1024) * 100) | round %}
                                     <div class="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000" style="width: {{ storage_percent }}%"></div>
                                 </div>
@@ -237,7 +237,7 @@
                     <div class="flex items-center justify-between gap-3 mb-2">
                         <h3 class="flex items-center gap-2 text-lg font-bold">
                             <i class="fa-solid fa-users text-primary"></i> User Activity
-                            <span id="ua-online" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-3 py-1 rounded-full">0 online</span>
+                            <span id="ua-online" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-3 py-1 rounded-lg">0 online</span>
                         </h3>
                         <button onclick="loadUserActivity()" class="text-sm font-semibold text-text-secondary hover:text-primary transition">
                             <i class="fa-solid fa-rotate"></i> Refresh
@@ -261,7 +261,7 @@
                         <h3 class="flex items-center gap-2 text-lg font-bold">
                             <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> Live Network
                         </h3>
-                        <span id="live-stream-count" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-3 py-1 rounded-full">
+                        <span id="live-stream-count" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary bg-primary/10 px-3 py-1 rounded-lg">
                             {{ system_stats.total_active_streams or 0 }} Active
                         </span>
                     </div>
@@ -603,7 +603,7 @@
 
             const rows = checks.map(c => `
                 <a href="/admin/settings" class="flex items-start gap-3 p-3 rounded-2xl transition hover:bg-primary/5 ${c.done ? 'opacity-60' : ''}">
-                    <span class="mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${c.done ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}">
+                    <span class="mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${c.done ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}">
                         <i class="fa-solid ${c.done ? 'fa-check' : 'fa-arrow-right'} text-xs"></i>
                     </span>
                     <span>
@@ -622,7 +622,7 @@
                         </div>
                         <div class="text-2xl font-black text-primary">${pct}%</div>
                     </div>
-                    <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden mb-4"><div class="h-full bg-primary" style="width:${pct}%"></div></div>
+                    <div class="w-full h-2 rounded-lg bg-white/10 overflow-hidden mb-4"><div class="h-full bg-primary" style="width:${pct}%"></div></div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${rows}</div>
                 </div>`;
         } catch (e) { /* ignore */ }

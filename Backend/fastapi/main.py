@@ -141,8 +141,8 @@ from Backend.pyrofork.bot import work_loads_summary
 templates = Jinja2Templates(directory="Backend/fastapi/templates")
 
 app = FastAPI(
-    title="Telegram Stremio Media Server",
-    description="A powerful, self-hosted Telegram Stremio Media Server built with FastAPI, MongoDB, and PyroFork seamlessly integrated with Stremio for automated media streaming and discovery.",
+    title="CineFlow Media Server",
+    description="A powerful, self-hosted CineFlow Media Server built with FastAPI, MongoDB, and PyroFork seamlessly integrated with Stremio for automated media streaming and discovery.",
     version=__version__
 )
 

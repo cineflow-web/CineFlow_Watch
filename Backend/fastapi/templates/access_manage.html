@@ -135,7 +135,7 @@
     <section class="page-hero hero-glow p-5 sm:p-6 lg:p-8">
         <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <div class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tracking-[0.18em] uppercase mb-3"
+                <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-1 text-xs font-bold tracking-[0.18em] uppercase mb-3"
                      style="border-color: color-mix(in srgb, var(--primary) 28%, var(--border)); color: var(--text-sec); background: color-mix(in srgb, var(--primary) 10%, transparent);">
                     <i class="fas fa-shield-halved text-[11px]" style="color: var(--primary);"></i>
                     Access Control Hub
@@ -237,7 +237,7 @@
                 <h3 class="text-xl font-bold section-title">Create Token</h3>
                 <p class="text-sm text-soft mt-1">Generate a new Stremio addon token.</p>
             </div>
-            <button onclick="closeModal('create-modal')" class="glass-btn rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('create-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
         </div>
 
         <div class="space-y-4">
@@ -276,7 +276,7 @@
                 <h3 class="text-xl font-bold section-title">Edit Data Limits</h3>
                 <p class="text-sm text-soft mt-1">Set 0 for unlimited.</p>
             </div>
-            <button onclick="closeModal('limits-modal')" class="glass-btn rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('limits-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
         </div>
         <input type="hidden" id="limits-token">
         <div class="grid grid-cols-2 gap-3">
@@ -304,7 +304,7 @@
                 <h3 class="text-xl font-bold section-title" id="assign-modal-title">Assign Subscription Plan</h3>
                 <p class="text-sm text-soft mt-1" id="assign-user-label">User: –</p>
             </div>
-            <button onclick="closeModal('assign-modal')" class="glass-btn rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('assign-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
         </div>
         <input type="hidden" id="assign-user-id">
         <input type="hidden" id="assign-token">
@@ -339,7 +339,7 @@
                 <h3 class="text-xl font-bold section-title" id="sub-action-title">Manage Subscription</h3>
                 <p class="text-sm text-soft mt-1" id="sub-action-desc"></p>
             </div>
-            <button onclick="closeModal('sub-action-modal')" class="glass-btn rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('sub-action-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
         </div>
         <input type="hidden" id="sub-action-user-id">
         <input type="hidden" id="sub-action-token">

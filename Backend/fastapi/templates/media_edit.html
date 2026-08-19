@@ -345,15 +345,15 @@
 
                         <div class="flex flex-wrap justify-center md:justify-start items-center gap-2 sm:gap-3 mt-4">
                             {% if media_details.rating %}
-                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-400 text-black text-sm font-extrabold shadow-sm">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-yellow-400 text-black text-sm font-extrabold shadow-sm">
                                 ⭐ {{ media_details.rating }}
                             </span>
                             {% endif %}
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
                                 {{ media_details.release_year }}
                             </span>
                             {% if media_details.genres %}
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
                                 {{ media_details.genres|length }} genre{{ 's' if media_details.genres|length != 1 else '' }}
                             </span>
                             {% endif %}
@@ -1636,8 +1636,8 @@
     function _miniBar(value, max, color) {
         if (!value || !max) return '';
         const pct = Math.min(100, (value / max) * 100).toFixed(1);
-        return `<div class="w-full bg-surface-2 rounded-full h-1.5 mt-1 overflow-hidden">
-            <div class="${color} h-1.5 rounded-full transition-all" style="width:${pct}%"></div>
+        return `<div class="w-full bg-surface-2 rounded-lg h-1.5 mt-1 overflow-hidden">
+            <div class="${color} h-1.5 rounded-lg transition-all" style="width:${pct}%"></div>
         </div>`;
     }
 
@@ -1709,7 +1709,7 @@
                         <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
                         <td class="px-4 py-3 text-muted">—</td>
                         <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-lg text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
                     tbody.appendChild(tr);
                     pendingRows[i] = tr;
                 }
@@ -1732,8 +1732,8 @@
                     const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
                     const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
                     const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
+                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
+                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
 
                     const newTr = document.createElement('tr');
                     newTr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
@@ -1779,8 +1779,8 @@
                     const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
                     const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
                     const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
+                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
+                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
 
                     const tr = document.createElement('tr');
                     tr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
