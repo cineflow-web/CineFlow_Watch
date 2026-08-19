@@ -522,7 +522,9 @@
     const dbIndex = buttonElement.getAttribute('data-db-index');
     const title = buttonElement.getAttribute('data-title');
 
-    if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`)) return;
+    if (!(await showConfirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`, {
+        title: 'Delete this title?', okText: 'Delete', cancelText: 'Cancel', danger: true,
+    }))) return;
 
     try {
         const response = await fetch(`/api/media/delete?tmdb_id=${encodeURIComponent(tmdbId)}&db_index=${encodeURIComponent(dbIndex)}&media_type=${encodeURIComponent(mediaType)}`, {
