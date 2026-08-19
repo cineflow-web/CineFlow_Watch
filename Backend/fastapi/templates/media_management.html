@@ -447,27 +447,15 @@
         loadMedia(currentPage, currentSearch);
     }
 
-    let dcResolve = null;
-    function dcCancel() {
-        document.getElementById('delete-confirm-modal').classList.add('hidden');
-        if (dcResolve) { dcResolve(false); dcResolve = null; }
-    }
-    function dcConfirm() {
-        document.getElementById('delete-confirm-modal').classList.add('hidden');
-        if (dcResolve) { dcResolve(true); dcResolve = null; }
-    }
-    function confirmDelete(title) {
-        document.getElementById('dc-title').textContent = `"${title}"`;
-        document.getElementById('delete-confirm-modal').classList.remove('hidden');
-        return new Promise(resolve => { dcResolve = resolve; });
-    }
-
     async function deleteMedia(buttonElement) {
     const tmdbId = buttonElement.getAttribute('data-tmdb-id');
     const dbIndex = buttonElement.getAttribute('data-db-index');
     const title = buttonElement.getAttribute('data-title');
 
-    if (!await confirmDelete(title)) return;
+    const ok = await showConfirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`, {
+        title: 'Delete this title?', okText: 'Delete', cancelText: 'Cancel', danger: true
+    });
+    if (!ok) return;
 
     try {
         const response = await fetch(`/api/media/delete?tmdb_id=${encodeURIComponent(tmdbId)}&db_index=${encodeURIComponent(dbIndex)}&media_type=${encodeURIComponent(mediaType)}`, {
@@ -708,28 +696,6 @@
             <div class="flex flex-col sm:flex-row justify-end gap-2.5 px-4 sm:px-5 py-3.5 border-t border-hairline">
                 <button onclick="closeManualAdd()" class="px-4 py-2 rounded-lg glass-panel border border-hairline text-text font-bold text-sm">Cancel</button>
                 <button id="ma-submit" onclick="submitManualAdd()" class="px-4 py-2 rounded-lg font-bold text-sm" style="background:var(--d-green); color:var(--bg)">Add Content</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete confirm modal -->
-<div id="delete-confirm-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="dcCancel()"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="glass-panel rounded-xl w-full max-w-sm overflow-hidden">
-            <div class="flex items-center gap-2.5 px-4 py-3.5 border-b border-hairline">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--d-red) 15%, transparent)">
-                    <i class="fa-solid fa-trash text-xs" style="color:var(--d-red)"></i>
-                </div>
-                <h2 class="text-sm sm:text-base font-extrabold text-text">Delete title?</h2>
-            </div>
-            <div class="px-4 py-3.5">
-                <p class="text-sm text-text-secondary">Are you sure you want to delete <span id="dc-title" class="text-text font-bold"></span>? This action cannot be undone.</p>
-            </div>
-            <div class="flex justify-end gap-2 px-4 py-3.5 border-t border-hairline">
-                <button onclick="dcCancel()" class="px-3.5 py-2 rounded-lg glass-panel border border-hairline text-text font-bold text-sm">Cancel</button>
-                <button onclick="dcConfirm()" class="px-3.5 py-2 rounded-lg font-bold text-sm" style="background:var(--d-red); color:#fff">Delete</button>
             </div>
         </div>
     </div>
