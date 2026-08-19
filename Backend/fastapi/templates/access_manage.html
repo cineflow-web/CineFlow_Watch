@@ -3,7 +3,7 @@
 
 {% block content %}
 <style>
-    .access-shell { display: flex; flex-direction: column; gap: 1.5rem; }
+    .access-shell { display: flex; flex-direction: column; gap: 1rem; }
 
     .section-panel, .table-shell, .mobile-token-card, .empty-state {
         background: color-mix(in srgb, var(--card) 92%, var(--bg));
@@ -55,19 +55,18 @@
 
     .stat-card {
         background: color-mix(in srgb, var(--card) 92%, var(--bg));
-        border: 1px solid var(--hairline); border-radius: 1.25rem;
-        padding: 1.1rem; display: flex; flex-direction: column; align-items: center;
-        justify-content: center; text-align: center; gap: 0.4rem;
+        border: 1px solid var(--hairline); border-radius: 1rem;
+        padding: 0.75rem 0.9rem; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; text-align: center; gap: 0.2rem;
         transition: border-color 0.2s ease;
     }
     .stat-card:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); }
     .stat-icon {
-        width: 2.4rem; height: 2.4rem; border-radius: 0.85rem;
-        display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
     }
-    .stat-value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+    .stat-value { font-size: 1.4rem; font-weight: 800; line-height: 1; }
     .stat-label {
-        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+        font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
         text-transform: uppercase; color: var(--text-sec);
     }
 
@@ -100,8 +99,8 @@
     .addon-box { padding: 0.8rem; border-radius: 1rem; background: color-mix(in srgb, var(--bg) 56%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); }
     .usage-box { font-size: 0.72rem; line-height: 1.5; }
 
-    .mobile-token-card { padding: 1rem; }
-    .mobile-token-card + .mobile-token-card { margin-top: 0.9rem; }
+    .mobile-token-card { padding: 0.75rem; }
+    .mobile-token-card + .mobile-token-card { margin-top: 0.6rem; }
     .mobile-grid { display: none; }
 
     .pagination-shell { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
@@ -109,8 +108,8 @@
     .pagination-btn { min-width: 92px; }
 
     .modal-backdrop { background: rgba(4, 8, 18, 0.58); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .modal-glass { border-radius: 1.6rem; padding: 1.4rem; border: 1px solid color-mix(in srgb, var(--border) 95%, transparent); width: min(92vw, 32rem); }
-    .modal-field label { color: var(--text-sec); font-size: 0.82rem; font-weight: 700; margin-bottom: 0.55rem; display: block; }
+    .modal-glass { border-radius: 1.25rem; padding: 1.1rem; border: 1px solid color-mix(in srgb, var(--border) 95%, transparent); width: min(92vw, 30rem); }
+    .modal-field label { color: var(--text-sec); font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; display: block; }
 
     .text-soft { color: var(--text-sec); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -127,15 +126,9 @@
     }
 
     /* ── Visual polish pass ─────────────────────────────────────────────── */
-    .stat-card { position: relative; overflow: hidden; }
-    .stat-card::before {
-        content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
-        background: linear-gradient(90deg, transparent, var(--stat-accent, var(--primary)), transparent);
-        opacity: 0.85;
-    }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+    .stat-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
     .stat-icon { transition: transform 0.25s ease; }
-    .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+    .stat-card:hover .stat-icon { transform: scale(1.08); }
 
     .status-active .status-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
     @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
@@ -186,28 +179,18 @@
     .ui-select-option.selected .fa-check { opacity: 1; }
 
     .modal-icon-badge {
-        width: 2.75rem; height: 2.75rem; border-radius: 0.9rem; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
-        background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary);
+        display: flex; align-items: center; justify-content: center; font-size: 1.35rem;
+        color: var(--primary); flex-shrink: 0;
     }
-    .modal-icon-badge.danger { background: color-mix(in srgb, var(--d-red) 15%, transparent); color: var(--d-red); }
-    .modal-glass { position: relative; overflow: hidden; }
-    .modal-glass::before {
-        content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-    }
+    .modal-icon-badge.danger { color: var(--d-red); }
 </style>
 
-<div class="access-shell py-2 sm:py-4">
-    <header class="surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3 flex-wrap">
-        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
-
+<div class="access-shell py-2 sm:py-3">
+    <header class="surface-card relative overflow-hidden p-3 sm:p-4 flex items-center justify-between gap-3 flex-wrap">
         <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
-                <i class="fa-solid fa-key text-base" style="color:var(--primary)"></i>
-            </div>
+            <i class="fa-solid fa-key text-xl shrink-0" style="color:var(--primary)"></i>
             <div class="min-w-0">
-                <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
+                <h1 class="gradient-text text-base sm:text-xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
                     Tokens &amp; Access
                 </h1>
                 <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Create addon tokens, set data limits, link users and manage subscriptions</p>
@@ -225,32 +208,26 @@
         </div>
     </header>
 
-    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="stat-card" style="--stat-accent: var(--primary)">
-            <div class="stat-icon" style="background:color-mix(in srgb, var(--primary) 15%, transparent); color:var(--primary)">
-                <i class="fa-solid fa-key"></i>
-            </div>
+    <section class="grid grid-cols-3 gap-3">
+        <div class="stat-card">
+            <i class="fa-solid fa-key stat-icon" style="color:var(--primary)"></i>
             <div class="stat-value" style="color: var(--primary);" id="stat-total">–</div>
-            <div class="stat-label">Total Tokens</div>
+            <div class="stat-label">Total</div>
         </div>
-        <div class="stat-card" style="--stat-accent: var(--d-green)">
-            <div class="stat-icon" style="background:color-mix(in srgb, var(--d-green) 15%, transparent); color:var(--d-green)">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-circle-check stat-icon" style="color:var(--d-green)"></i>
             <div class="stat-value" style="color: var(--d-green);" id="stat-active">–</div>
             <div class="stat-label">Active</div>
         </div>
-        <div class="stat-card" style="--stat-accent: var(--d-red)">
-            <div class="stat-icon" style="background:color-mix(in srgb, var(--d-red) 15%, transparent); color:var(--d-red)">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-triangle-exclamation stat-icon" style="color:var(--d-red)"></i>
             <div class="stat-value" style="color: var(--d-red);" id="stat-expired">–</div>
-            <div class="stat-label">Expired / No Sub</div>
+            <div class="stat-label">Expired</div>
         </div>
     </section>
 
-    <section class="section-panel p-4 sm:p-5 lg:p-6">
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+    <section class="section-panel p-3 sm:p-4 lg:p-5">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-3">
             <div>
                 <h2 style="margin-bottom:0.25rem"><i class="fa-solid fa-list-ul"></i> Access Tokens</h2>
                 <p class="text-sm section-muted mt-1">Search, filter, and manage every token and its access.</p>
@@ -293,12 +270,12 @@
                 <table class="access-table min-w-[1180px] text-sm">
                     <thead>
                         <tr>
-                            <th class="px-4 py-4 text-left font-semibold">Status</th>
-                            <th class="px-4 py-4 text-left font-semibold">User</th>
-                            <th class="px-4 py-4 text-left font-semibold">Addon Link</th>
-                            <th class="px-4 py-4 text-left font-semibold">Usage / Limits</th>
-                            <th class="px-4 py-4 text-left font-semibold">Expires</th>
-                            <th class="px-4 py-4 text-center font-semibold">Actions</th>
+                            <th class="px-3 py-2.5 text-left font-semibold">Status</th>
+                            <th class="px-3 py-2.5 text-left font-semibold">User</th>
+                            <th class="px-3 py-2.5 text-left font-semibold">Addon Link</th>
+                            <th class="px-3 py-2.5 text-left font-semibold">Usage / Limits</th>
+                            <th class="px-3 py-2.5 text-left font-semibold">Expires</th>
+                            <th class="px-3 py-2.5 text-center font-semibold">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="token-table-body">
@@ -312,7 +289,7 @@
             <div class="empty-state text-center px-4 py-8 text-soft">Loading tokens…</div>
         </div>
 
-        <div class="pagination-shell mt-5" id="pagination-bar">
+        <div class="pagination-shell mt-3" id="pagination-bar">
             <div id="page-info" class="pagination-text text-sm"></div>
             <div class="controls">
                 <button id="btn-prev" onclick="changePage(-1)" class="glass-btn pagination-btn rounded-xl px-4 py-2.5 text-sm font-semibold">‹ Prev</button>
@@ -326,7 +303,7 @@
 <!-- Create Token Modal -->
 <div id="create-modal" class="fixed inset-0 hidden z-50 modal-backdrop items-center justify-center p-4">
     <div class="modal-glass">
-        <div class="flex items-start justify-between gap-4 mb-5">
+        <div class="flex items-start justify-between gap-2.5 mb-2.5">
             <div class="flex items-start gap-3 min-w-0">
                 <div class="modal-icon-badge"><i class="fa-solid fa-key"></i></div>
                 <div class="min-w-0">
@@ -337,7 +314,7 @@
             <button onclick="closeModal('create-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center shrink-0"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3">
             <div class="modal-field">
                 <label>Token Name</label>
                 <input type="text" id="create-name" placeholder="e.g. Living Room TV" class="glass-input">
@@ -358,7 +335,7 @@
             </label>
         </div>
 
-        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6">
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-4">
             <button onclick="closeModal('create-modal')" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold">Cancel</button>
             <button onclick="createToken()" class="glass-btn glass-btn-primary rounded-2xl px-5 py-3 text-sm font-bold">Create Token</button>
         </div>
@@ -368,7 +345,7 @@
 <!-- Edit Limits Modal -->
 <div id="limits-modal" class="fixed inset-0 hidden z-50 modal-backdrop items-center justify-center p-4">
     <div class="modal-glass">
-        <div class="flex items-start justify-between gap-4 mb-5">
+        <div class="flex items-start justify-between gap-2.5 mb-2.5">
             <div class="flex items-start gap-3 min-w-0">
                 <div class="modal-icon-badge"><i class="fa-solid fa-gauge-high"></i></div>
                 <div class="min-w-0">
@@ -389,7 +366,7 @@
                 <input type="number" id="limits-monthly" min="0" step="0.1" class="glass-input">
             </div>
         </div>
-        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6">
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-4">
             <button onclick="closeModal('limits-modal')" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold">Cancel</button>
             <button onclick="saveLimits()" class="glass-btn glass-btn-primary rounded-2xl px-5 py-3 text-sm font-bold">Save</button>
         </div>
@@ -399,7 +376,7 @@
 <!-- Assign Plan Modal -->
 <div id="assign-modal" class="fixed inset-0 hidden z-50 modal-backdrop items-center justify-center p-4">
     <div class="modal-glass">
-        <div class="flex items-start justify-between gap-4 mb-5">
+        <div class="flex items-start justify-between gap-2.5 mb-2.5">
             <div class="flex items-start gap-3 min-w-0">
                 <div class="modal-icon-badge"><i class="fa-solid fa-user-check"></i></div>
                 <div class="min-w-0">
@@ -411,7 +388,7 @@
         </div>
         <input type="hidden" id="assign-user-id">
         <input type="hidden" id="assign-token">
-        <div class="space-y-4">
+        <div class="space-y-3">
             <div class="modal-field" id="assign-plan-field">
                 <label>Select a Plan</label>
                 <div class="ui-select">
@@ -434,7 +411,7 @@
                 <p class="text-xs text-soft mt-2">Attaches this token to a user so it's reused when they press /start.</p>
             </div>
         </div>
-        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6">
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-4">
             <button onclick="closeModal('assign-modal')" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold">Cancel</button>
             <button onclick="assignPlan()" class="glass-btn glass-btn-primary rounded-2xl px-5 py-3 text-sm font-bold">Assign &amp; Activate</button>
         </div>
@@ -444,7 +421,7 @@
 <!-- Sub Action Modal -->
 <div id="sub-action-modal" class="fixed inset-0 hidden z-50 modal-backdrop items-center justify-center p-4">
     <div class="modal-glass">
-        <div class="flex items-start justify-between gap-4 mb-5">
+        <div class="flex items-start justify-between gap-2.5 mb-2.5">
             <div class="flex items-start gap-3 min-w-0">
                 <div class="modal-icon-badge" id="sub-action-icon-badge"><i class="fa-solid fa-clock-rotate-left" id="sub-action-icon"></i></div>
                 <div class="min-w-0">
@@ -461,7 +438,7 @@
             <label>Number of Days</label>
             <input type="number" id="sub-action-days" value="30" min="1" class="glass-input">
         </div>
-        <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6">
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-4">
             <button onclick="closeModal('sub-action-modal')" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold">Cancel</button>
             <button id="sub-action-btn" onclick="submitSubAction()" class="glass-btn glass-btn-success rounded-2xl px-5 py-3 text-sm font-bold">Confirm</button>
         </div>
@@ -576,12 +553,12 @@
             const idHtml = t.user_id ? `<div class="text-xs text-soft mt-1">ID: ${t.user_id}</div>` : `<div class="text-xs text-soft mt-1">No linked user</div>`;
             return `
                 <tr class="${t.is_expired ? 'row-expired' : ''}">
-                    <td class="px-4 py-4">${statusBadge(t)}</td>
-                    <td class="px-4 py-4"><div class="font-semibold section-title">${escHtml(displayName)}</div>${idHtml}</td>
-                    <td class="px-4 py-4">${addonHtml(t)}</td>
-                    <td class="px-4 py-4">${usageHtml(t)}</td>
+                    <td class="px-3 py-2.5">${statusBadge(t)}</td>
+                    <td class="px-3 py-2.5"><div class="font-semibold section-title">${escHtml(displayName)}</div>${idHtml}</td>
+                    <td class="px-3 py-2.5">${addonHtml(t)}</td>
+                    <td class="px-3 py-2.5">${usageHtml(t)}</td>
                     <td class="px-4 py-4 text-xs">${expiryHtml(t)}</td>
-                    <td class="px-4 py-4"><div class="flex flex-wrap gap-2 justify-center">${buildActions(t)}</div></td>
+                    <td class="px-3 py-2.5"><div class="flex flex-wrap gap-2 justify-center">${buildActions(t)}</div></td>
                 </tr>`;
         }).join('');
     }
@@ -594,22 +571,22 @@
             const displayName = t.user_name || (t.user_id ? 'Telegram User' : 'Web Token');
             return `
                 <div class="mobile-token-card ${t.is_expired ? 'row-expired' : ''}">
-                    <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex items-start justify-between gap-2.5 mb-2.5">
                         <div class="min-w-0">
                             <div class="font-semibold section-title break-words">${escHtml(displayName)}</div>
                             <div class="text-xs text-soft mt-1 break-all">${t.user_id ? 'ID: ' + t.user_id : 'No linked user'}</div>
                         </div>
                         <div class="shrink-0">${statusBadge(t)}</div>
                     </div>
-                    <div class="grid grid-cols-1 gap-3 mb-3">
-                        <div class="rounded-2xl px-4 py-3" style="background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);">
+                    <div class="grid grid-cols-1 gap-2.5 mb-2.5">
+                        <div class="rounded-xl px-3 py-2.5" style="background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);">
                             <div class="text-[11px] uppercase tracking-[0.14em] text-soft font-bold mb-1">Addon Access</div>${addonHtml(t)}
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="rounded-2xl px-4 py-3" style="background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);">
+                            <div class="rounded-xl px-3 py-2.5" style="background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);">
                                 <div class="text-[11px] uppercase tracking-[0.14em] text-soft font-bold mb-1">Usage / Limits</div>${usageHtml(t)}
                             </div>
-                            <div class="rounded-2xl px-4 py-3" style="background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);">
+                            <div class="rounded-xl px-3 py-2.5" style="background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);">
                                 <div class="text-[11px] uppercase tracking-[0.14em] text-soft font-bold mb-1">Expires</div>
                                 <div class="text-sm font-semibold ${t.is_expired ? 'text-red-300' : 'section-title'} break-words">
                                     ${t.never_expires ? 'Never expires' : (t.expires_at ? fmtDate(t.expires_at) : '—')}
