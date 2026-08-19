@@ -8,14 +8,14 @@
 .bk-desc { color: var(--text-sec); font-size: 0.85rem; margin-bottom: 1rem; }
 .bk-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 @media (max-width: 520px) { .bk-actions { grid-template-columns: 1fr; } }
-.bk-btn { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.1rem; border-radius: var(--radius-lg); cursor: pointer;
+.bk-btn { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.1rem; border-radius: 0.75rem; cursor: pointer;
           text-decoration: none; text-align: left; transition: all .18s ease;
           border: 1px solid var(--hairline); background: var(--surface); }
 .bk-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 45%, var(--hairline)); box-shadow: var(--shadow-soft); }
 .bk-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-.bk-ic { width: 2.6rem; height: 2.6rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; }
-.bk-export .bk-ic { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--primary); }
-.bk-import .bk-ic { background: color-mix(in srgb, var(--d-green) 18%, transparent); color: var(--d-green); }
+.bk-ic { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; }
+.bk-export .bk-ic { color: var(--d-cyan); }
+.bk-import .bk-ic { color: var(--d-green); }
 .bk-txt { display: flex; flex-direction: column; line-height: 1.25; }
 .bk-txt b { font-size: 0.95rem; color: var(--text); }
 .bk-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
@@ -29,7 +29,7 @@
 .toggle-wrap {
     display: flex; align-items: center; gap: 0.75rem; cursor: pointer;
     padding: 0.65rem 0.75rem; margin: 0 -0.75rem;
-    border-radius: var(--radius-md);
+    border-radius: 0.6rem;
     transition: background .15s ease;
 }
 .toggle-wrap:hover { background: var(--surface); }
@@ -54,37 +54,23 @@
 /* ── Section cards ───────────────────────────────────────────────────────── */
 .settings-card {
     position: relative;
-    overflow: hidden;
-    background: var(--card);
     background: color-mix(in srgb, var(--card) 92%, var(--bg));
     border: 1px solid var(--hairline);
-    border-radius: var(--radius-lg);
-    padding: 1.15rem 1.35rem;
+    border-radius: 0.85rem;
+    padding: 1.1rem 1.25rem;
     box-shadow: var(--shadow-soft);
     transition: border-color .2s ease;
-}
-.settings-card::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    opacity: 0.9;
 }
 .settings-card:hover { border-color: color-mix(in srgb, var(--primary) 22%, var(--hairline)); }
 .settings-card h2 {
     font-size: 0.85rem; font-weight: 800;
     letter-spacing: 0.04em; text-transform: uppercase;
     color: var(--text); margin-bottom: 0.9rem;
-    display: flex; align-items: center; gap: 0.6rem;
+    display: flex; align-items: center; gap: 0.55rem;
 }
 .settings-card h2 i:first-child {
-    width: 1.85rem; height: 1.85rem;
-    display: inline-flex; align-items: center; justify-content: center;
-    border-radius: var(--radius-md);
-    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    font-size: 0.95rem;
     color: var(--primary);
-    font-size: 0.78rem;
     flex-shrink: 0;
 }
 
@@ -92,7 +78,7 @@
 .icon-action {
     width: 2.15rem; height: 2.15rem; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
-    border-radius: var(--radius-md);
+    border-radius: 0.6rem;
     background: transparent; border: none;
     color: var(--text-sec); font-size: 0.85rem;
     cursor: pointer; transition: background .15s ease, color .15s ease, transform .12s ease;
@@ -112,7 +98,7 @@
     background: color-mix(in srgb, var(--bg) 65%, transparent);
     border: 1px solid var(--hairline);
     color: var(--text);
-    border-radius: var(--radius-md);
+    border-radius: 0.6rem;
     padding: 0.62rem 1rem;
     font-size: 0.88rem;
     outline: none;
@@ -136,7 +122,7 @@
     padding: 0.55rem 0.85rem;
     background: color-mix(in srgb, var(--primary) 10%, transparent);
     border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
-    border-radius: var(--radius-md);
+    border-radius: 0.6rem;
     font-size: 0.875rem; font-weight: 600;
     color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -151,7 +137,7 @@
     width: 2.1rem; height: 2.1rem; flex-shrink: 0;
     background: color-mix(in srgb, var(--d-red) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--d-red) 28%, transparent);
-    color: var(--d-red); border-radius: var(--radius-md);
+    color: var(--d-red); border-radius: 0.6rem;
     font-size: 1rem; line-height: 1;
     cursor: pointer; transition: background 0.15s ease, transform 0.12s ease;
     display: flex; align-items: center; justify-content: center;
@@ -163,7 +149,7 @@
     flex-shrink: 0; padding: 0.6rem 1.1rem;
     background: color-mix(in srgb, var(--primary) 14%, transparent);
     border: 1px solid color-mix(in srgb, var(--primary) 38%, transparent);
-    color: var(--primary); border-radius: var(--radius-md);
+    color: var(--primary); border-radius: 0.6rem;
     font-size: 0.8rem; font-weight: 800; cursor: pointer;
     transition: background 0.15s ease, transform 0.12s ease; white-space: nowrap;
     display: inline-flex; align-items: center; gap: 0.4rem;
@@ -176,7 +162,7 @@
 .anime-check {
     display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0;
     cursor: pointer; user-select: none; white-space: nowrap;
-    padding: 0.4rem 0.65rem; border-radius: var(--radius-md);
+    padding: 0.4rem 0.65rem; border-radius: 0.6rem;
     border: 1px solid var(--hairline); background: transparent;
     font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.03em; color: var(--text-sec); transition: all 0.15s ease;
@@ -198,7 +184,7 @@
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px,1fr)); gap: 0.5rem; }
 .stat-box {
     background: var(--surface);
-    border: 1px solid var(--hairline); border-radius: var(--radius-lg);
+    border: 1px solid var(--hairline); border-radius: 0.75rem;
     padding: 0.7rem 0.5rem;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; gap: 0.15rem; aspect-ratio: 1 / 1;
@@ -236,7 +222,7 @@
 
     <!-- ── System & Maintenance ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-server"></i> System &amp; Maintenance</h2>
+        <h2><i class="fa-solid fa-server" style="color:var(--d-cyan)"></i> System &amp; Maintenance</h2>
 
         <!-- DB & system stats -->
         <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
@@ -291,7 +277,7 @@
 
     <!-- ── General ─────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-sliders"></i> General</h2>
+        <h2><i class="fa-solid fa-sliders" style="color:var(--d-purple)"></i> General</h2>
         <div class="space-y-4">
             <label class="toggle-wrap">
                 <input type="checkbox" class="toggle-input" id="replace_mode"
@@ -331,7 +317,7 @@
 
     <!-- ── Authentication ──────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-shield-halved"></i> Admin Authentication</h2>
+        <h2><i class="fa-solid fa-shield-halved" style="color:var(--d-red)"></i> Admin Authentication</h2>
         <div class="grid-2">
             <div>
                 <label class="s-label" for="admin_username">Admin Username</label>
@@ -414,7 +400,7 @@
 
     <!-- ── Media & Content ─────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-film"></i> Media &amp; Content</h2>
+        <h2><i class="fa-solid fa-film" style="color:var(--d-green)"></i> Media &amp; Content</h2>
         <div class="grid-2">
             <div>
                 <label class="s-label" for="tmdb_api">TMDB API Key</label>
@@ -454,7 +440,7 @@
 
     <!-- ── Poster Provider ─────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-image"></i> Poster Provider</h2>
+        <h2><i class="fa-solid fa-image" style="color:var(--d-pink)"></i> Poster Provider</h2>
         <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
             Replace catalog posters with textless artwork. Only one provider can be active at a time.
         </p>
@@ -551,7 +537,7 @@
 
     <!-- ── Manual Add Channels ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-hand-pointer"></i> Manual Add Channels</h2>
+        <h2><i class="fa-solid fa-hand-pointer" style="color:var(--d-orange)"></i> Manual Add Channels</h2>
         <label class="s-label">MANUAL_CHANNELS
             <span style="font-weight:400;text-transform:none;letter-spacing:0">
                 — files sent here are <strong>not</strong> auto-indexed with TMDb/IMDb.
@@ -579,7 +565,7 @@
 
     <!-- ── Subscription ────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-credit-card"></i> Subscription</h2>
+        <h2><i class="fa-solid fa-credit-card" style="color:var(--d-yellow)"></i> Subscription</h2>
         <label class="toggle-wrap" style="margin-bottom:1.25rem">
             <input type="checkbox" class="toggle-input" id="subscription"
                 {% if settings.subscription %}checked{% endif %}
@@ -652,7 +638,7 @@
 
 <!-- ── Telegram User Session ──────────────────────────────────────── -->
 <div class="settings-card">
-    <h2><i class="fa-solid fa-user-lock"></i> Telegram User Session</h2>
+    <h2><i class="fa-solid fa-user-lock" style="color:var(--d-cyan)"></i> Telegram User Session</h2>
     <p class="bk-desc">
         Log in with your phone number to generate the User Session automatically — no manual
         session string needed. It's encrypted and stored securely, and powers Global Search.
@@ -849,7 +835,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
 <!-- ── Global Search (Userbot) ────────────────────────────────────── -->
 <div class="settings-card">
-    <h2><i class="fa-solid fa-globe"></i> Global Search</h2>
+    <h2><i class="fa-solid fa-globe" style="color:var(--d-purple)"></i> Global Search</h2>
 
     <label class="toggle-wrap" style="{% if not userbot_configured %}opacity:0.5{% endif %}">
         <input type="checkbox" class="toggle-input" id="global_search"
@@ -932,7 +918,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
 <!-- ── New Content Announcements ──────────────────────────────────── -->
 <div class="settings-card">
-    <h2><i class="fa-solid fa-bullhorn"></i> New Content Announcements</h2>
+    <h2><i class="fa-solid fa-bullhorn" style="color:var(--d-pink)"></i> New Content Announcements</h2>
 
     <label class="toggle-wrap">
         <input type="checkbox" class="toggle-input" id="announce_new_content"
@@ -977,7 +963,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Skip Channel (metadata failures) ────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-inbox"></i> Skip Channel</h2>
+        <h2><i class="fa-solid fa-inbox" style="color:var(--d-orange)"></i> Skip Channel</h2>
         <label class="s-label" for="skip_channel">SKIP CHANNEL
             <span style="font-weight:400;text-transform:none;letter-spacing:0">
                 — when a file forwarded to an auth channel fails to index (title, quality or a
@@ -1015,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Proxy ───────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-network-wired"></i> Proxy Settings</h2>
+        <h2><i class="fa-solid fa-network-wired" style="color:var(--d-cyan)"></i> Proxy Settings</h2>
         <div style="margin-bottom:1rem">
             <label class="s-label" for="http_proxy_url">HTTP Proxy URL</label>
             <input type="url" id="http_proxy_url" class="s-input"
@@ -1070,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
     
     <!-- ── WebDAV ──────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-hard-drive"></i> WebDAV</h2>
+        <h2><i class="fa-solid fa-hard-drive" style="color:var(--d-green)"></i> WebDAV</h2>
         <p style="font-size:0.82rem;color:var(--text-sec);margin-bottom:1rem">
             Expose your library as a virtual filesystem.
             URL: <code id="webdav-url-hint">/webdav/&lt;API_TOKEN&gt;/</code>
@@ -1110,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
 <!-- ── Databases ────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-database"></i> Databases</h2>
+        <h2><i class="fa-solid fa-database" style="color:var(--d-yellow)"></i> Databases</h2>
         <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
             Tracking and Storage 1 are required to boot the app and can't be edited
             here. Additional storage databases connect/disconnect instantly when
@@ -1171,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Multi-Token Clients ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-brands fa-telegram"></i> Multi-Token Clients</h2>
+        <h2><i class="fa-brands fa-telegram" style="color:var(--d-purple)"></i> Multi-Token Clients</h2>
         <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
             Additional bot tokens used for parallel streaming. Changes reinitialise
             the client pool immediately (no restart needed).
@@ -1197,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Backup & Restore ───────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-box-archive"></i> Backup &amp; Restore</h2>
+        <h2><i class="fa-solid fa-box-archive" style="color:var(--d-orange)"></i> Backup &amp; Restore</h2>
         <p class="bk-desc">
             Export everything — settings, custom catalogs, subscription plans and access tokens — to a JSON file,
             or restore from one. Passwords and the session secret are never exported, but the file can hold bot
