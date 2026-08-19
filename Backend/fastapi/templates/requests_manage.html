@@ -5,125 +5,64 @@
 <style>
   .rq-shell { max-width: 1180px; margin: 0 auto; }
 
-  /* ── Tile row layout: 2 / 3 / 2, centered, per sketch ─────────────────── */
-  .rq-tilepanel { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
-  .rq-tilerow { display: flex; justify-content: center; gap: 0.7rem; flex-wrap: wrap; }
+  /* ── Type tabs (Movies / TV) ─────────────────────────────────────────── */
+  .rq-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .rq-tab {
+      padding: 0.5rem 1.1rem; border-radius: var(--radius-md);
+      border: 1px solid var(--hairline); background: var(--surface);
+      cursor: pointer; font-weight: 700; font-size: 0.85rem; color: var(--text-sec);
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .rq-tab span { opacity: .7; margin-left: .3rem; }
+  .rq-tab i { margin-right: .4rem; opacity: .85; }
+  .rq-count { display: inline-flex; align-items: center; gap: .3rem; }
+  .rq-tab:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--text); }
+  .rq-tab.active { background: var(--primary); color: var(--bg); border-color: var(--primary); }
 
-  .rq-tile {
-      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 0.3rem; width: 5.2rem; height: 5.2rem; border-radius: 1.15rem;
-      border: 1px solid var(--hairline); background: var(--surface); color: var(--text-sec);
-      cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+  /* ── Status filter chips ─────────────────────────────────────────────── */
+  .rq-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .rq-chip {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.35rem 0.85rem; border-radius: var(--radius-md);
+      border: 1px solid var(--hairline); background: transparent;
+      cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--text-sec);
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
-  .rq-tile i { font-size: 1.15rem; }
-  .rq-tile .lbl { font-size: 0.66rem; font-weight: 800; line-height: 1; text-align: center; }
-  .rq-tile .cnt {
-      position: absolute; top: 0.35rem; right: 0.35rem; min-width: 1.15rem; text-align: center;
-      font-size: 0.6rem; font-weight: 800; line-height: 1.3; padding: 0 0.3rem;
-      background: rgba(0,0,0,0.18); border-radius: 9999px;
-  }
-  .rq-tile:hover {
-      border-color: color-mix(in srgb, var(--primary) 40%, var(--hairline));
-      color: var(--text); transform: translateY(-2px);
-  }
-
-  .rq-tile.active {
-      color: #fff; border-color: transparent;
-      box-shadow: 0 10px 24px -8px var(--tile-glow, color-mix(in srgb, var(--primary) 50%, transparent));
-      transform: translateY(-2px);
-  }
-  .tile-movie.active, .tile-tv.active {
-      background: linear-gradient(145deg, var(--primary), var(--accent, var(--primary)));
-      --tile-glow: color-mix(in srgb, var(--primary) 45%, transparent);
-  }
-  .tile-all.active {
-      background: linear-gradient(145deg, var(--text-sec), color-mix(in srgb, var(--text-sec) 70%, var(--bg)));
-      --tile-glow: color-mix(in srgb, var(--text-sec) 40%, transparent);
-  }
-  .tile-pending.active {
-      background: linear-gradient(145deg, var(--d-yellow), color-mix(in srgb, var(--d-yellow) 70%, #a15c00));
-      color: #1a1a1a; --tile-glow: color-mix(in srgb, var(--d-yellow) 45%, transparent);
-  }
-  .tile-uploaded.active {
-      background: linear-gradient(145deg, var(--d-green), color-mix(in srgb, var(--d-green) 70%, #064e3b));
-      --tile-glow: color-mix(in srgb, var(--d-green) 45%, transparent);
-  }
-  .tile-denied.active {
-      background: linear-gradient(145deg, var(--text-sec), color-mix(in srgb, var(--text-sec) 60%, var(--bg)));
-      --tile-glow: color-mix(in srgb, var(--text-sec) 40%, transparent);
-  }
-  .tile-banned.active {
-      background: linear-gradient(145deg, var(--d-red), color-mix(in srgb, var(--d-red) 70%, #450a0a));
-      --tile-glow: color-mix(in srgb, var(--d-red) 45%, transparent);
-  }
-  .rq-tile.active .cnt { background: rgba(255,255,255,0.28); }
-
-  @media (max-width: 420px) {
-      .rq-tile { width: 4.35rem; height: 4.35rem; border-radius: 0.95rem; }
-      .rq-tile i { font-size: 1rem; }
-      .rq-tile .lbl { font-size: 0.6rem; }
+  .rq-chip:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--text); }
+  .rq-chip.active {
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      color: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent);
   }
 
-  /* ── Request cards (matches Media Library card design) ──────────────── */
-  .rq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-  @media (min-width: 640px)  { .rq-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
-  @media (min-width: 1024px) { .rq-grid { grid-template-columns: repeat(4, 1fr); } }
-  @media (min-width: 1280px) { .rq-grid { grid-template-columns: repeat(5, 1fr); } }
-  @media (min-width: 1536px) { .rq-grid { grid-template-columns: repeat(6, 1fr); } }
-
+  /* ── Request cards ────────────────────────────────────────────────────── */
+  .rq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
   .rq-card {
-      overflow: hidden; border-radius: 0.75rem;
       background: color-mix(in srgb, var(--card) 92%, var(--bg));
-      border: 1px solid var(--hairline);
-      transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease;
+      border: 1px solid var(--hairline); border-radius: 1.15rem;
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: border-color .15s ease, transform .15s ease;
   }
-  .rq-card:hover {
-      border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline));
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.4);
-  }
-  .rq-poster-wrap { position: relative; overflow: hidden; }
+  .rq-card:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); transform: translateY(-2px); }
   .rq-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, color-mix(in srgb, var(--text) 8%, var(--bg)), var(--bg)); }
-  .rq-poster img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
-  .rq-card:hover .rq-poster img { transform: scale(1.05); }
+  .rq-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .rq-poster .noimg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--text-sec); }
-  .rq-scrim {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.1) 45%, transparent 70%);
-      opacity: 0; transition: opacity .3s ease; pointer-events: none;
-  }
-  .rq-card:hover .rq-scrim { opacity: 1; }
-
-  .rq-count {
-      position: absolute; top: 0.6rem; left: 0.6rem;
-      display: inline-flex; align-items: center; gap: .3rem;
-      background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--hairline);
-      padding: 0.2rem 0.55rem; border-radius: 0.5rem; font-size: 0.68rem; font-weight: 800;
-  }
-  .rq-badge {
-      position: absolute; top: 0.6rem; right: 0.6rem; padding: 0.2rem 0.55rem; border-radius: 0.5rem;
-      font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;
-      border: 1px solid rgba(255,255,255,0.15);
-  }
+  .rq-count { position: absolute; top: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.65); color: #fff;
+              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; }
+  .rq-badge { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px;
+              font-size: 0.63rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
   .b-pending  { background: color-mix(in srgb, var(--d-yellow) 88%, transparent); color: #1a1a1a; }
   .b-uploaded { background: color-mix(in srgb, var(--d-green) 88%, transparent); color: #052e16; }
   .b-denied   { background: color-mix(in srgb, var(--text-sec) 55%, var(--card)); color: #fff; }
   .b-banned   { background: color-mix(in srgb, var(--d-red) 88%, transparent); color: #fff; }
-
-  .rq-body { padding: 0.7rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }
-  .rq-title {
-      font-weight: 700; font-size: 0.88rem; line-height: 1.35;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      min-height: 2.4rem;
-  }
-  .rq-id { font-size: 0.7rem; color: var(--text-sec); word-break: break-all; }
-
-  .rq-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.35rem; padding: 0 0.75rem 0.75rem; }
+  .rq-body { padding: 0.7rem 0.8rem; flex: 1; display: flex; flex-direction: column; gap: 0.35rem; }
+  .rq-title { font-weight: 700; font-size: 0.92rem; line-height: 1.25; }
+  .rq-id { font-size: 0.72rem; color: var(--text-sec); word-break: break-all; }
+  .rq-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.35rem; padding: 0 0.8rem 0.8rem; }
   .rq-btn {
-      border: none; border-radius: 0.5rem; padding: 0.4rem 0.3rem;
-      font-size: 0.72rem; font-weight: 700; cursor: pointer;
+      border: none; border-radius: 0.6rem; padding: 0.45rem 0.3rem;
+      font-size: 0.76rem; font-weight: 700; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 0.3rem;
-      transition: filter .15s ease, background .15s ease, color .15s ease;
+      transition: filter .15s ease;
   }
   .rq-btn.wide { grid-column: 1 / -1; }
   .btn-up     { background: color-mix(in srgb, var(--d-green) 16%, transparent); color: var(--d-green); }
@@ -174,39 +113,19 @@
         </div>
     </header>
 
-    <!-- ══════════════ Tabs + filters panel (2 / 3 / 2 tile grid) ══════════════ -->
+    <!-- ══════════════ Tabs + filters panel ══════════════ -->
     <div class="settings-card mb-4">
-        <div class="rq-tilepanel" id="rq-tilepanel">
-            <div class="rq-tilerow">
-                <button class="rq-tile tile-movie active" data-type="movie" onclick="setType(this,'movie')">
-                    <span class="cnt" id="cnt-movie">0</span>
-                    <i class="fa-solid fa-film"></i>
-                    <span class="lbl">Movies</span>
-                </button>
-                <button class="rq-tile tile-tv" data-type="tv" onclick="setType(this,'tv')">
-                    <span class="cnt" id="cnt-tv">0</span>
-                    <i class="fa-solid fa-tv"></i>
-                    <span class="lbl">TV Shows</span>
-                </button>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="rq-tabs">
+                <button class="rq-tab active" data-type="movie" onclick="setType(this,'movie')"><i class="fa-solid fa-film"></i>Movies <span id="cnt-movie">0</span></button>
+                <button class="rq-tab" data-type="tv" onclick="setType(this,'tv')"><i class="fa-solid fa-tv"></i>TV Shows <span id="cnt-tv">0</span></button>
             </div>
-            <div class="rq-tilerow">
-                <button class="rq-tile tile-all active" data-status="" onclick="setStatusFilter(this,'')">
-                    <i class="fa-solid fa-layer-group"></i><span class="lbl">All</span>
-                </button>
-                <button class="rq-tile tile-pending" data-status="pending" onclick="setStatusFilter(this,'pending')">
-                    <i class="fa-solid fa-clock"></i><span class="lbl">Pending</span>
-                </button>
-                <button class="rq-tile tile-uploaded" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')">
-                    <i class="fa-solid fa-check"></i><span class="lbl">Uploaded</span>
-                </button>
-            </div>
-            <div class="rq-tilerow">
-                <button class="rq-tile tile-denied" data-status="denied" onclick="setStatusFilter(this,'denied')">
-                    <i class="fa-solid fa-xmark"></i><span class="lbl">Denied</span>
-                </button>
-                <button class="rq-tile tile-banned" data-status="banned" onclick="setStatusFilter(this,'banned')">
-                    <i class="fa-solid fa-ban"></i><span class="lbl">Banned</span>
-                </button>
+            <div class="rq-filters">
+                <button class="rq-chip active" data-status="" onclick="setStatusFilter(this,'')"><i class="fa-solid fa-layer-group"></i> All</button>
+                <button class="rq-chip" data-status="pending" onclick="setStatusFilter(this,'pending')"><i class="fa-solid fa-clock"></i> Pending</button>
+                <button class="rq-chip" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')"><i class="fa-solid fa-check"></i> Uploaded</button>
+                <button class="rq-chip" data-status="denied" onclick="setStatusFilter(this,'denied')"><i class="fa-solid fa-xmark"></i> Denied</button>
+                <button class="rq-chip" data-status="banned" onclick="setStatusFilter(this,'banned')"><i class="fa-solid fa-ban"></i> Banned</button>
             </div>
         </div>
     </div>
@@ -230,14 +149,14 @@ function esc(s) {
 function setType(btn, type) {
   curType = type;
   curPage = 1;
-  document.querySelectorAll('.rq-tile[data-type]').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rq-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
 function setStatusFilter(btn, status) {
   curStatus = status;
   curPage = 1;
-  document.querySelectorAll('.rq-tile[data-status]').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rq-chip').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
@@ -271,16 +190,13 @@ function cardHtml(r) {
   actions += `<button class="rq-btn btn-del wide" onclick="removeRequest('${r._id}')"><i class="fa-solid fa-trash"></i> Delete</button>`;
 
   return `<div class="rq-card">
-    <div class="rq-poster-wrap">
-      <div class="rq-poster">
-        ${poster}
-        <div class="rq-scrim"></div>
-        <span class="rq-count"><i class="fa-solid fa-users"></i> ${esc(r.request_count || 0)}</span>
-        <span class="rq-badge b-${esc(r.status)}">${esc(r.status)}</span>
-      </div>
+    <div class="rq-poster">
+      ${poster}
+      <span class="rq-count"><i class="fa-solid fa-users"></i> ${esc(r.request_count || 0)}</span>
+      <span class="rq-badge b-${esc(r.status)}">${esc(r.status)}</span>
     </div>
     <div class="rq-body">
-      <div class="rq-title" title="${esc(r.title)}${yr}">${esc(r.title)}${yr}</div>
+      <div class="rq-title">${esc(r.title)}${yr}</div>
       <div class="rq-id">${idLine(r)}</div>
     </div>
     <div class="rq-actions">${actions}</div>
