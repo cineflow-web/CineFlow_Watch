@@ -77,6 +77,18 @@ body {
     overflow-x: hidden;
 }
 
+/* Locks the page in place behind the sidebar/menus/modals. Using position:fixed
+   (not just overflow:hidden) is required so touch/wheel scroll can't leak
+   through to the page on mobile (iOS/Android) while an overlay is open. */
+body.scroll-locked {
+    position: fixed;
+    top: var(--scroll-lock-top, 0);
+    left: 0;
+    right: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
 body::before {
     content: "";
     position: fixed;
@@ -699,11 +711,13 @@ function openMobileSidebar() {
     document.body.classList.add('sidebar-mobile-open');
     overlay.style.opacity = '1';
     overlay.classList.remove('pointer-events-none');
+    updateScrollLock();
 }
 function closeMobileSidebar() {
     isSidebarMobileOpen = false;
     document.body.classList.remove('sidebar-mobile-open');
     checkOverlay();
+    updateScrollLock();
 }
 function toggleMobileSidebar() { isSidebarMobileOpen ? closeMobileSidebar() : openMobileSidebar(); }
 
@@ -719,12 +733,14 @@ function toggleUser(e) {
         userDropdown.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
         overlay.style.opacity = '1';
         overlay.classList.remove('pointer-events-none');
+        updateScrollLock();
     } else closeUser();
 }
 function closeUser() {
     if (userDropdown) userDropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
     isUserOpen = false;
     checkOverlay();
+    updateScrollLock();
 }
 function checkOverlay() {
     if (!isSidebarMobileOpen && !isUserOpen) {
@@ -743,6 +759,70 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeMobileSidebar(); closeUser(); }
 });
 if (userDropdown) userDropdown.addEventListener('click', e => e.stopPropagation());
+
+/* ── Body scroll lock ────────────────────────────────────────────────────
+   Keeps the page pinned in place (no background scroll) whenever the mobile
+   sidebar, the user menu, the themed confirm() dialog, or ANY page-level
+   modal (the `.fixed.inset-0` popups used across the admin templates) is
+   open — even the ones defined outside base.html. A MutationObserver
+   watches for those overlays being shown/hidden so every page gets this for
+   free without needing to call anything itself. */
+(function () {
+    let locked = false;
+    let lockScrollY = 0;
+
+    function lockBodyScroll() {
+        if (locked) return;
+        locked = true;
+        lockScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+        document.documentElement.style.setProperty('--scroll-lock-top', `-${lockScrollY}px`);
+        document.body.classList.add('scroll-locked');
+    }
+    function unlockBodyScroll() {
+        if (!locked) return;
+        locked = false;
+        document.body.classList.remove('scroll-locked');
+        document.documentElement.style.removeProperty('--scroll-lock-top');
+        window.scrollTo(0, lockScrollY);
+    }
+
+    function isElementVisible(el) {
+        if (el.classList.contains('hidden')) return false;
+        const style = getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+    }
+
+    function isAnyOverlayOpen() {
+        if (document.body.classList.contains('sidebar-mobile-open')) return true;
+        if (isUserOpen) return true;
+        const confirmOverlay = document.getElementById('confirm-overlay');
+        if (confirmOverlay && isElementVisible(confirmOverlay)) return true;
+        // Generic catch-all for page-specific modals: any fixed, full-screen
+        // popup (dialog role, or the shared .modal-backdrop pattern) that
+        // isn't currently hidden.
+        const modals = document.querySelectorAll(
+            '.fixed.inset-0[role="dialog"], .fixed.inset-0.modal-backdrop'
+        );
+        for (const m of modals) {
+            if (m.id !== 'overlay' && m.id !== 'confirm-overlay' && isElementVisible(m)) return true;
+        }
+        return false;
+    }
+
+    window.updateScrollLock = function updateScrollLock() {
+        if (isAnyOverlayOpen()) lockBodyScroll();
+        else unlockBodyScroll();
+    };
+
+    // Catch modals opened by other templates' own scripts (they just toggle
+    // a `hidden` class and don't know about updateScrollLock).
+    const observer = new MutationObserver(() => window.updateScrollLock());
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class'],
+        subtree: true
+    });
+})();
 
 // Highlight the active sidebar link
 (function () {
@@ -809,6 +889,7 @@ function showConfirm(message, opts = {}) {
         cancelBtn.textContent = cancelText;
         modal.classList.toggle('danger', !!danger);
         overlay.classList.remove('hidden');
+        if (window.updateScrollLock) window.updateScrollLock();
 
         function cleanup(result) {
             overlay.classList.add('hidden');
@@ -816,6 +897,7 @@ function showConfirm(message, opts = {}) {
             cancelBtn.removeEventListener('click', onCancel);
             overlay.removeEventListener('click', onOverlay);
             document.removeEventListener('keydown', onKey);
+            if (window.updateScrollLock) window.updateScrollLock();
             resolve(result);
         }
         function onOk() { cleanup(true); }
