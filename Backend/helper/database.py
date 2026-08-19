@@ -31,7 +31,7 @@ def convert_objectid_to_str(document: Dict[str, Any]) -> Dict[str, Any]:
 
 
 class Database:
-    def __init__(self, db_name: str = "CineFlow"):
+    def __init__(self, db_name: str = "dbFyvio"):
         self.db_uris = Telegram.DATABASE
         self.db_name = db_name
 
