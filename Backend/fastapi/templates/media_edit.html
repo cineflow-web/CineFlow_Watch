@@ -752,44 +752,44 @@
 
     <div class="absolute inset-0 flex items-center justify-center p-2 sm:p-4">
         <div class="glass-card speed-modal-shell">
-            <div class="flex items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline bg-surface">
+            <div class="flex items-start sm:items-center justify-between gap-3 px-3 sm:px-5 py-3 border-b border-hairline bg-surface">
                 <div class="min-w-0">
-                    <h2 class="text-base sm:text-lg font-black text-white leading-tight flex items-center gap-2"><i class="fa-solid fa-rocket" style="color:var(--d-orange)"></i> DC Speed Test</h2>
-                    <p id="st-label" class="text-[11px] sm:text-sm text-text-secondary mt-1 break-all"></p>
+                    <h2 class="text-sm sm:text-base font-black text-white leading-tight flex items-center gap-2"><i class="fa-solid fa-rocket" style="color:var(--d-orange)"></i> DC Speed Test</h2>
+                    <p id="st-label" class="text-[10px] sm:text-xs text-text-secondary mt-0.5 break-all"></p>
                 </div>
-                <button onclick="closeSpeedTest()" class="flex-shrink-0 text-text-secondary hover:text-white text-3xl leading-none transition-colors">&times;</button>
+                <button onclick="closeSpeedTest()" class="flex-shrink-0 text-text-secondary hover:text-white text-2xl leading-none transition-colors">&times;</button>
             </div>
 
-            <div class="speed-modal-body px-4 sm:px-6 py-5 sm:py-6">
-                <div id="st-spinner" class="flex flex-col items-center gap-4 py-8 sm:py-10">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-hairline-strong border-t-primary st-spin"></div>
+            <div class="speed-modal-body px-3 sm:px-5 py-3 sm:py-4">
+                <div id="st-spinner" class="flex flex-col items-center gap-3 py-6 sm:py-8">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-hairline-strong border-t-primary st-spin"></div>
                     <p class="text-sm text-text text-center">Testing all DC clients simultaneously…</p>
                     <p class="text-xs text-text-secondary text-center max-w-md">Downloading 100 MB from each bot client</p>
                 </div>
 
                 <div id="st-results" class="hidden">
-                    <div class="overflow-x-auto rounded-lg border border-hairline">
-                        <table class="w-full min-w-[760px] text-sm">
+                    <div class="rounded-lg border border-hairline">
+                        <table class="w-full text-xs sm:text-sm">
                             <thead class="bg-surface text-left">
                                 <tr class="text-text-secondary">
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Bot / DC</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Ping</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Speed</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Time</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Downloaded</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Status</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Bot / DC</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Ping</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Speed</th>
+                                    <th class="hidden sm:table-cell px-3 py-2 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Time</th>
+                                    <th class="hidden sm:table-cell px-3 py-2 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Downloaded</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="st-tbody" class="divide-y divide-hairline bg-surface"></tbody>
                         </table>
                     </div>
-                    <p id="st-summary" class="text-xs text-text-secondary mt-3 text-right"></p>
+                    <p id="st-summary" class="text-[11px] sm:text-xs text-text-secondary mt-2 text-right"></p>
                 </div>
 
-                <div id="st-error" class="hidden mt-2 rounded-lg border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-200"></div>
+                <div id="st-error" class="hidden mt-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2.5 text-sm text-red-200"></div>
             </div>
 
-            <div class="flex flex-col sm:flex-row justify-end gap-3 px-4 sm:px-6 py-4 border-t border-hairline bg-surface">
+            <div class="flex flex-col sm:flex-row justify-end gap-2.5 px-3 sm:px-5 py-3 border-t border-hairline bg-surface">
                 <button id="st-rerun-btn" onclick="rerunSpeedTest()" class="hidden btn-ui btn-primary">
                     <i class="fa-solid fa-arrows-rotate"></i> Re-run
                 </button>
@@ -1728,12 +1728,12 @@
                     const tr = document.createElement('tr');
                     tr.className = 'animate-pulse';
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-text-secondary"><i class="fa-solid fa-arrows-rotate"></i> Bot ${i + 1}</td>
-                        <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
-                        <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
-                        <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-lg text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
+                        <td class="px-2 sm:px-3 py-2 font-medium text-text-secondary whitespace-nowrap"><i class="fa-solid fa-arrows-rotate"></i> Bot ${i + 1}</td>
+                        <td class="px-2 sm:px-3 py-2"><span class="text-muted">testing…</span></td>
+                        <td class="px-2 sm:px-3 py-2"><span class="text-muted">testing…</span></td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-muted">—</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-muted">—</td>
+                        <td class="px-2 sm:px-3 py-2"><span class="px-1.5 py-0.5 rounded-lg text-[10px] sm:text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
                     tbody.appendChild(tr);
                     pendingRows[i] = tr;
                 }
@@ -1762,12 +1762,12 @@
                     const newTr = document.createElement('tr');
                     newTr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
                     newTr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
-                        <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
-                        <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
-                        <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
-                        <td class="px-4 py-3">${badge}</td>`;
+                        <td class="px-2 sm:px-3 py-2 font-medium text-white whitespace-nowrap">${medal}${dc}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text whitespace-nowrap">${ping}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text">${speed}${isErr ? `<div class="text-[10px] sm:text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-sm">${taken}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-xs">${bytes}</td>
+                        <td class="px-2 sm:px-3 py-2">${badge}</td>`;
 
                     if (pendingRows[r.client_index]) {
                         pendingRows[r.client_index].replaceWith(newTr);
@@ -1809,12 +1809,12 @@
                     const tr = document.createElement('tr');
                     tr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
-                        <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
-                        <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
-                        <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
-                        <td class="px-4 py-3">${badge}</td>`;
+                        <td class="px-2 sm:px-3 py-2 font-medium text-white whitespace-nowrap">${medal}${dc}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text whitespace-nowrap">${ping}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text">${speed}${isErr ? `<div class="text-[10px] sm:text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-sm">${taken}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-xs">${bytes}</td>
+                        <td class="px-2 sm:px-3 py-2">${badge}</td>`;
                     tbody.appendChild(tr);
                 }
 
