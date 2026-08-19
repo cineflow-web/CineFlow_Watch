@@ -442,10 +442,7 @@ tailwind.config = {
     </button>
 
     <a href="/" class="flex items-center gap-2.5 shrink-0">
-        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_55%,transparent)]">
-            <i class="fa-solid fa-play text-background text-xs"></i>
-        </div>
-        <span class="hidden sm:block text-lg font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+        <span class="text-lg font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
             CineFlow
         </span>
     </a>
@@ -547,11 +544,20 @@ tailwind.config = {
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="mt-auto w-full max-w-5xl mx-auto px-6 py-8">
-        <div class="glass-panel rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-2">
-                <i class="fa-brands fa-telegram text-primary text-xl"></i>
-                <p class="text-text-secondary text-sm">© 2026 CineFlow</p>
+    <footer class="mt-auto w-full max-w-5xl mx-auto px-6 py-10">
+        <div class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                        <i class="fa-brands fa-telegram text-base" style="color:var(--primary)"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">CineFlow</p>
+                        <p class="text-[11px] text-text-secondary">Self-hosted streaming, done right</p>
+                    </div>
+                </div>
+                <p class="text-text-secondary text-xs">© 2026 CineFlow — All rights reserved</p>
             </div>
         </div>
     </footer>

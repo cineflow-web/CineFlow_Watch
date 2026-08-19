@@ -6,70 +6,66 @@
 <div class="pb-10">
 
     <!-- ══════════════ Header ══════════════ -->
-    <header class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-            <h1 class="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                System Overview
-            </h1>
-            <p class="text-text-secondary text-xs mt-0.5">Real-time performance and live stream activity</p>
+    <header class="mb-6 surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3">
+        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
+
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                <i class="fa-solid fa-gauge-high text-base" style="color:var(--primary)"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent truncate">
+                    System Overview
+                </h1>
+                <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Real-time performance &amp; live stream activity</p>
+            </div>
         </div>
+
         <button onclick="refreshDashboard()"
-            class="btn-ghost flex items-center justify-center gap-2 px-5 py-2.5 text-sm active:scale-95">
+            class="btn-ghost flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 text-sm active:scale-95 shrink-0">
             <i id="refresh-icon" class="fa-solid fa-arrows-rotate transition-transform duration-700"></i>
-            <span class="font-bold uppercase tracking-wider">Refresh</span>
+            <span class="hidden sm:inline font-bold uppercase tracking-wider">Refresh</span>
         </button>
     </header>
 
     <div id="setup-card" class="mb-6"></div>
 
     <!-- ══════════════ Compact stat strip ══════════════ -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
-        <div class="surface-card px-4 py-3.5 flex items-center gap-3">
-            <i class="fa-solid fa-clock text-lg" style="color:var(--primary)"></i>
-            <div class="min-w-0">
-                <p class="text-[9px] uppercase font-bold text-text-secondary tracking-widest">Uptime</p>
-                <p id="sys-uptime" class="text-sm font-extrabold text-text truncate">{{ system_stats.uptime or 'N/A' }}</p>
-            </div>
+    <div class="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-6 gap-2 mb-6">
+        <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+            <i class="fa-solid fa-clock text-base sm:text-lg" style="color:var(--primary)"></i>
+            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Uptime</p>
+            <p id="sys-uptime" class="text-xs sm:text-sm font-extrabold text-text truncate w-full">{{ system_stats.uptime or 'N/A' }}</p>
         </div>
 
-        <div class="surface-card px-4 py-3.5 flex items-center gap-3">
-            <i class="fa-solid fa-robot text-lg" style="color:var(--d-cyan)"></i>
-            <div class="min-w-0">
-                <p class="text-[9px] uppercase font-bold text-text-secondary tracking-widest">Bots</p>
-                <p id="sys-bots-count" class="text-sm font-extrabold text-text truncate">{{ system_stats.connected_bots|default(0) }} Nodes</p>
-            </div>
+        <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+            <i class="fa-solid fa-robot text-base sm:text-lg" style="color:var(--d-cyan)"></i>
+            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Bots</p>
+            <p id="sys-bots-count" class="text-xs sm:text-sm font-extrabold text-text truncate w-full">{{ system_stats.connected_bots|default(0) }} Nodes</p>
         </div>
 
-        <div class="surface-card px-4 py-3.5 flex items-center gap-3">
-            <i class="fa-solid fa-tower-broadcast text-lg" style="color:var(--d-pink)"></i>
-            <div class="min-w-0">
-                <p class="text-[9px] uppercase font-bold text-text-secondary tracking-widest">Live</p>
-                <p id="sys-live-streams" class="text-sm font-extrabold text-text truncate">{{ system_stats.total_active_streams }} Active</p>
-            </div>
+        <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+            <i class="fa-solid fa-tower-broadcast text-base sm:text-lg" style="color:var(--d-pink)"></i>
+            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Live</p>
+            <p id="sys-live-streams" class="text-xs sm:text-sm font-extrabold text-text truncate w-full">{{ system_stats.total_active_streams }} Active</p>
         </div>
 
-        <div class="surface-card px-4 py-3.5 flex items-center gap-3">
-            <i class="fa-solid fa-film text-lg" style="color:var(--d-green)"></i>
-            <div class="min-w-0">
-                <p class="text-[9px] uppercase font-bold text-text-secondary tracking-widest">Movies</p>
-                <p class="text-sm font-extrabold text-text truncate tabular">{{ system_stats.movies or 0 }}</p>
-            </div>
+        <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+            <i class="fa-solid fa-film text-base sm:text-lg" style="color:var(--d-green)"></i>
+            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Movies</p>
+            <p class="text-xs sm:text-sm font-extrabold text-text truncate tabular w-full">{{ system_stats.movies or 0 }}</p>
         </div>
 
-        <div class="surface-card px-4 py-3.5 flex items-center gap-3">
-            <i class="fa-solid fa-tv text-lg" style="color:var(--d-orange)"></i>
-            <div class="min-w-0">
-                <p class="text-[9px] uppercase font-bold text-text-secondary tracking-widest">TV Shows</p>
-                <p class="text-sm font-extrabold text-text truncate tabular">{{ system_stats.tv_shows or 0 }}</p>
-            </div>
+        <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+            <i class="fa-solid fa-tv text-base sm:text-lg" style="color:var(--d-orange)"></i>
+            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">TV Shows</p>
+            <p class="text-xs sm:text-sm font-extrabold text-text truncate tabular w-full">{{ system_stats.tv_shows or 0 }}</p>
         </div>
 
-        <div class="surface-card px-4 py-3.5 flex items-center gap-3">
-            <i class="fa-solid fa-code-branch text-lg" style="color:var(--text-sec)"></i>
-            <div class="min-w-0">
-                <p class="text-[9px] uppercase font-bold text-text-secondary tracking-widest">Version</p>
-                <p id="sys-version" class="text-sm font-extrabold text-text truncate">v{{ system_stats.version or '1.0.0' }}</p>
-            </div>
+        <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
+            <i class="fa-solid fa-code-branch text-base sm:text-lg" style="color:var(--text-sec)"></i>
+            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Version</p>
+            <p id="sys-version" class="text-xs sm:text-sm font-extrabold text-text truncate w-full">v{{ system_stats.version or '1.0.0' }}</p>
         </div>
     </div>
 
