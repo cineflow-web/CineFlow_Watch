@@ -56,7 +56,7 @@
     --radius-lg: 1.15rem;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -73,6 +73,7 @@ body {
     background-color: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 body::before {
@@ -404,8 +405,17 @@ body.sidebar-compact #collapse-toggle i { transform: rotate(180deg); }
     margin-left: var(--sidebar-w);
     margin-top: var(--topbar-h);
     transition: margin-left 0.22s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
 }
 body.sidebar-compact #app-main { margin-left: var(--sidebar-w-compact); }
+
+/* Sticky footer: fills the real visible viewport (dvh), not the inflated
+   100vh mobile browsers report when the address bar is shown/hidden. */
+#app-main.mh-app  { min-height: 100vh; min-height: calc(100dvh - var(--topbar-h)); }
+#app-main.mh-full { min-height: 100vh; min-height: 100dvh; }
+#app-main > .app-content { flex: 1 1 auto; min-width: 0; }
+#app-main > footer { flex-shrink: 0; min-width: 0; }
 
 @media (max-width: 900px) {
     #sidebar { transform: translateX(-100%); width: var(--sidebar-w) !important; box-shadow: var(--shadow-strong); }
@@ -590,12 +600,12 @@ tailwind.config = {
 </aside>
 {% endif %}
 
-<main id="app-main" class="flex flex-col {% if current_user %}min-h-[calc(100vh-var(--topbar-h))]{% else %}min-h-screen{% endif %}">
-    <div class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
+<main id="app-main" class="{% if current_user %}mh-app{% else %}mh-full{% endif %}">
+    <div class="app-content w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="w-full border-t border-hairline mt-4 shrink-0">
+    <footer class="w-full border-t border-hairline mt-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3">
             <div class="flex items-center gap-2 min-w-0">
                 <img src="https://iili.io/CLM4WKX.md.png" alt="CineFlow" class="h-5 w-auto object-contain opacity-90 shrink-0">
