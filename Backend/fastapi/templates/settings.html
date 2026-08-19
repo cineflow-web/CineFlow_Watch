@@ -268,9 +268,11 @@
                     Pulls the latest code and restarts the server. The app is briefly unreachable, then reconnects automatically.
                 </p>
             </div>
-            <button id="restart-btn" onclick="restartApp()" title="Restart Now"
-                class="icon-action danger shrink-0" style="width:2.6rem;height:2.6rem;font-size:1rem">
+            <button id="restart-btn" onclick="restartApp()"
+                class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white active:scale-95 transition-all shrink-0"
+                style="background:var(--d-red);border-radius:0.6rem;box-shadow:0 8px 22px color-mix(in srgb, var(--d-red) 35%, transparent)">
                 <i class="fa-solid fa-power-off"></i>
+                <span>Restart Now</span>
             </button>
         </div>
     </div>
