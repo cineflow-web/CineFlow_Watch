@@ -85,7 +85,7 @@
 
     <!-- Media Grid -->
     <div id="media-grid"
-         class="grid grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-5">
+         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-5">
         <!-- Media items will be loaded here -->
     </div>
 
@@ -351,9 +351,9 @@
 
         if (currentPage > 1) {
             paginationHTML += `
-                <button onclick='loadMedia(${currentPage - 1}, ${JSON.stringify(currentSearch)})'
-                        class="px-3 py-1.5 rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
-                    Previous
+                <button onclick='loadMedia(${currentPage - 1}, ${JSON.stringify(currentSearch)})' title="Previous"
+                        class="w-8 h-8 inline-flex items-center justify-center rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
             `;
         }
@@ -400,9 +400,9 @@
 
         if (currentPage < totalPages) {
             paginationHTML += `
-                <button onclick='loadMedia(${currentPage + 1}, ${JSON.stringify(currentSearch)})'
-                        class="px-3 py-1.5 rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
-                    Next
+                <button onclick='loadMedia(${currentPage + 1}, ${JSON.stringify(currentSearch)})' title="Next"
+                        class="w-8 h-8 inline-flex items-center justify-center rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
             `;
         }
