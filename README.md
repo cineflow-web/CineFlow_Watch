@@ -762,8 +762,8 @@ Your server runs at ➡️ `http://<your-vps-ip>:8000`
 #### 🔵 Option 2 — Plain Docker (manual)
 
 ```bash
-docker build -t telegram-stremio .
-docker run -d -p 8000:8000 telegram-stremio
+docker build -t cineflow .
+docker run -d -p 8000:8000 cineflow
 ```
 Your server runs at ➡️ `http://<your-vps-ip>:8000`
 

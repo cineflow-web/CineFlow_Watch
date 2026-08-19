@@ -27,7 +27,7 @@ loop = asyncio.get_event_loop()
 #----- Boot every subsystem then idle the bot
 async def start_services():
     try:
-        LOGGER.info(f"Initializing Telegram-Stremio v-{__version__}")
+        LOGGER.info(f"Initializing CineFlow v-{__version__}")
         await asyncio.sleep(1.2)
 
         await db.connect()
@@ -71,7 +71,7 @@ async def start_services():
         await setup_bot_commands(StreamBot)
         await asyncio.sleep(2)
 
-        LOGGER.info('Initializing Telegram-Stremio Web Server...')
+        LOGGER.info('Initializing CineFlow Web Server...')
         await restart_notification()
         loop.create_task(server.serve())
         loop.create_task(ping())
@@ -81,7 +81,7 @@ async def start_services():
 
         await subscription_task_manager.sync(StreamBot)
 
-        LOGGER.info("Telegram-Stremio Started Successfully!")
+        LOGGER.info("CineFlow Started Successfully!")
         await idle()
     except Exception:
         LOGGER.error("Error during startup:\n" + format_exc())

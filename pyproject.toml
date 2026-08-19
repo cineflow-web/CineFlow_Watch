@@ -1,5 +1,5 @@
 [project]
-name = "Telegram-Stremio"
+name = "CineFlow"
 version = "5.0.1"
 description = "A powerful, self-hosted CineFlow Media Server built with FastAPI, MongoDB, and PyroFork seamlessly integrated with Stremio for automated media streaming and discovery."
 readme = "README.md"

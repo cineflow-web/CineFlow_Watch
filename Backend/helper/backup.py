@@ -58,7 +58,7 @@ def _revive(obj):
 async def export_config() -> dict:
     settings = {k: v for k, v in SettingsManager.current().to_dict().items() if k not in _SETTINGS_EXCLUDE}
     data = {
-        "app": "telegram-stremio",
+        "app": "cineflow",
         "version": __version__,
         "exported_at": datetime.utcnow().isoformat(),
         "settings": settings,
@@ -69,8 +69,8 @@ async def export_config() -> dict:
 
 
 async def import_config(payload: dict) -> dict:
-    if not isinstance(payload, dict) or payload.get("app") != "telegram-stremio":
-        raise ValueError("This doesn't look like a Telegram-Stremio backup file.")
+    if not isinstance(payload, dict) or payload.get("app") != "cineflow":
+        raise ValueError("This doesn't look like a CineFlow backup file.")
 
     result = {}
 

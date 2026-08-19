@@ -534,6 +534,7 @@
                 <div class="ui-select">
                     <select id="plan-currency" class="ui-select-native">
                         <option value="INR">INR (₹)</option>
+                        <option value="LKR">LKR (Rs)</option>
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
@@ -707,7 +708,7 @@
     }
 
     function currencySymbol(code) {
-        const map = {INR:'₹',USD:'$',EUR:'€',GBP:'£',JPY:'¥',AUD:'A$',CAD:'C$',SGD:'S$',AED:'د.إ',BRL:'R$'};
+        const map = {INR:'₹',LKR:'Rs',USD:'$',EUR:'€',GBP:'£',JPY:'¥',AUD:'A$',CAD:'C$',SGD:'S$',AED:'د.إ',BRL:'R$'};
         return map[(code || 'INR').toUpperCase()] || ((code || 'INR') + ' ');
     }
 

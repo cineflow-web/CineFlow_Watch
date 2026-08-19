@@ -506,7 +506,7 @@ async def get_manifest(token: str, token_data: dict = Depends(verify_token)):
         pass
 
     return {
-        "id": f"telegram.media.{token[:8]}",
+        "id": f"cineflow.media.{token[:8]}",
         "version": addon_version,
         "name": addon_name,
         "logo": "https://iili.io/CsmODDQ.md.png",

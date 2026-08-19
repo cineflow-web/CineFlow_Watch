@@ -101,7 +101,7 @@ def movie_nfo(doc: Dict[str, Any]) -> str:
         lines.append(f"  <thumb aspect=\"poster\">{_e(poster)}</thumb>")
     if backdrop:
         lines.append(f"  <fanart><thumb>{_e(backdrop)}</thumb></fanart>")
-    lines.append("  <source>Telegram-Stremio WebDAV</source>")
+    lines.append("  <source>CineFlow WebDAV</source>")
     lines.append("</movie>")
     return "\n".join(lines) + "\n"
 
@@ -169,7 +169,7 @@ def tvshow_nfo(doc: Dict[str, Any]) -> str:
         lines.append(f'  <thumb aspect="poster">{_e(poster)}</thumb>')
     if backdrop:
         lines.append(f"  <fanart><thumb>{_e(backdrop)}</thumb></fanart>")
-    lines.append("  <source>Telegram-Stremio WebDAV</source>")
+    lines.append("  <source>CineFlow WebDAV</source>")
     lines.append("</tvshow>")
     return "\n".join(lines) + "\n"
 
@@ -208,7 +208,7 @@ def episode_nfo(
         lines.append(f'  <uniqueid type="tmdb">{_e(tmdb_id)}</uniqueid>')
     if backdrop:
         lines.append(f'  <thumb>{_e(backdrop)}</thumb>')
-    lines.append("  <source>Telegram-Stremio WebDAV</source>")
+    lines.append("  <source>CineFlow WebDAV</source>")
     lines.append("</episodedetails>")
     return "\n".join(lines) + "\n"
 

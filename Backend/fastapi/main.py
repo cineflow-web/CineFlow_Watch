@@ -678,7 +678,7 @@ async def admin_backup_export(_: bool = Depends(require_auth)):
     data = await export_config_api()
     return JSONResponse(
         content=data,
-        headers={"Content-Disposition": 'attachment; filename="telegram-stremio-backup.json"'},
+        headers={"Content-Disposition": 'attachment; filename="cineflow-backup.json"'},
     )
 
 @app.post("/api/admin/backup/import")

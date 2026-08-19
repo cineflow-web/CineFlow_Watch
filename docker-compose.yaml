@@ -1,7 +1,7 @@
 services:
-  telegram-stremio:
+  cineflow:
     build: .
-    container_name: tg_stremio  
+    container_name: cineflow  
     ports:
       - "8000:8000"
     volumes:
