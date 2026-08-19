@@ -37,6 +37,45 @@
     color: var(--text-sec);
   }
 
+  /* ── Custom themed dropdown (replaces native <select> popovers) ───────
+     Mobile browsers (Android Chrome especially) render native <select>
+     option lists with their own OS/forced-dark-mode palette instead of
+     matching this page's theme. This wraps each select in a `.ui-select`
+     container: the native <select> stays fully functional (value/onchange
+     keep working untouched) but is visually hidden, while a themed
+     trigger + panel mirror it. */
+  .ui-select { position: relative; }
+  .ui-select-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .ui-select-trigger {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    cursor: pointer; user-select: none; text-align: left;
+  }
+  .ui-select-trigger .ui-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ui-select-chevron { font-size: .72rem; color: var(--text-sec); transition: transform .2s ease; flex-shrink: 0; }
+  .ui-select.open .ui-select-chevron { transform: rotate(180deg); color: var(--primary); }
+  .ui-select.open .ui-select-trigger { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+  .ui-select-panel {
+    position: absolute; left: 0; right: 0; top: calc(100% + .5rem); z-index: 60;
+    background: color-mix(in srgb, var(--card) 97%, var(--bg));
+    border: 1px solid var(--hairline-strong);
+    border-radius: .85rem; box-shadow: var(--shadow-strong); padding: .35rem;
+    max-height: 14rem; overflow-y: auto;
+    animation: ui-select-pop 140ms cubic-bezier(.2,1,.3,1);
+  }
+  .ui-select-panel.hidden { display: none; }
+  @keyframes ui-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .ui-select-option {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    padding: .6rem .7rem; border-radius: .6rem; font-size: .85rem; font-weight: 700;
+    color: var(--text); cursor: pointer; transition: background .15s ease; white-space: nowrap;
+  }
+  .ui-select-option:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+  .ui-select-option.selected { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+  .ui-select-option .fa-check { font-size: .68rem; opacity: 0; }
+  .ui-select-option.selected .fa-check { opacity: 1; }
+
   .field-label {
     display: block;
     font-size: 0.76rem;
@@ -475,9 +514,16 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3">
-            <select id="custom-catalog-select" class="field-input">
-                <option value="">Loading catalogs...</option>
-            </select>
+            <div class="ui-select">
+                <select id="custom-catalog-select" class="ui-select-native">
+                    <option value="">Loading catalogs...</option>
+                </select>
+                <button type="button" class="field-input ui-select-trigger">
+                    <span class="ui-select-label">Loading catalogs...</span>
+                    <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <button type="button" onclick="addCurrentMediaToCatalog()" class="btn-ui btn-primary">
                 <i class="fa-solid fa-plus"></i> Add to Catalog
             </button>
@@ -491,11 +537,18 @@
         <div class="mt-5 pt-5" style="border-top:1px solid color-mix(in srgb, var(--border) 85%, transparent)">
             <label class="field-label">Who can see this title</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                <select id="media-visibility" class="field-input" onchange="onMediaVisibilityChange()">
-                    <option value="public">Everyone</option>
-                    <option value="tokens">Specific users</option>
-                    <option value="owner">Owner only (hidden)</option>
-                </select>
+                <div class="ui-select flex-1">
+                    <select id="media-visibility" class="ui-select-native" onchange="onMediaVisibilityChange()">
+                        <option value="public">Everyone</option>
+                        <option value="tokens">Specific users</option>
+                        <option value="owner">Owner only (hidden)</option>
+                    </select>
+                    <button type="button" class="field-input ui-select-trigger">
+                        <span class="ui-select-label">Everyone</span>
+                        <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                    </button>
+                    <div class="ui-select-panel hidden" role="listbox"></div>
+                </div>
                 <button type="button" onclick="applyMediaVisibility()" class="btn-ui btn-primary sm:w-auto shrink-0">Apply</button>
             </div>
             <div id="media-token-picker-wrap" class="hidden mt-3">
@@ -917,10 +970,49 @@
     </div>
 </div>
 
+<!-- Generic confirm modal (replaces native confirm()) -->
+<div id="app-confirm-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="acCancel()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="glass-card rounded-xl w-full max-w-sm overflow-hidden">
+            <div class="flex items-center gap-2.5 px-4 py-3.5 border-b border-hairline">
+                <div id="ac-icon-wrap" class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--d-red) 15%, transparent)">
+                    <i id="ac-icon" class="fa-solid fa-triangle-exclamation text-xs" style="color:var(--d-red)"></i>
+                </div>
+                <h2 id="ac-title" class="text-sm sm:text-base font-extrabold text-text">Are you sure?</h2>
+            </div>
+            <div class="px-4 py-3.5">
+                <p id="ac-message" class="text-sm text-text-secondary"></p>
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3.5 border-t border-hairline">
+                <button onclick="acCancel()" class="btn-ui btn-ghost">Cancel</button>
+                <button id="ac-confirm-btn" onclick="acConfirm()" class="px-3.5 py-2 rounded-lg font-bold text-sm" style="background:var(--d-red); color:#fff">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const tmdbId = {{ tmdb_id }};
     const dbIndex = {{ db_index }};
     const mediaType = '{{ media_type }}';
+
+    let acResolve = null;
+    function acCancel() {
+        document.getElementById('app-confirm-modal').classList.add('hidden');
+        if (acResolve) { acResolve(false); acResolve = null; }
+    }
+    function acConfirm() {
+        document.getElementById('app-confirm-modal').classList.add('hidden');
+        if (acResolve) { acResolve(true); acResolve = null; }
+    }
+    function appConfirm(message, opts = {}) {
+        document.getElementById('ac-title').textContent = opts.title || 'Are you sure?';
+        document.getElementById('ac-message').textContent = message;
+        document.getElementById('ac-confirm-btn').textContent = opts.confirmLabel || 'Delete';
+        document.getElementById('app-confirm-modal').classList.remove('hidden');
+        return new Promise(resolve => { acResolve = resolve; });
+    }
 
     let selectedRescanMatch = null;
     let latestRescanResults = [];
@@ -1060,7 +1152,7 @@
             return;
         }
 
-        if (!confirm(`Replace current metadata with "${selectedRescanMatch.title}"?\n\nExisting Telegram files will stay safe.`)) {
+        if (!await appConfirm(`Replace current metadata with "${selectedRescanMatch.title}"? Existing Telegram files will stay safe.`, {title: 'Replace metadata?', confirmLabel: 'Replace'})) {
             return;
         }
 
@@ -1175,7 +1267,7 @@
     }
 
     async function deleteQuality(id, btn) {
-        if (!confirm(`Are you sure you want to delete ${id}?`)) return;
+        if (!await appConfirm(`Are you sure you want to delete ${id}?`, {title: 'Delete quality?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-quality?tmdb_id=${tmdbId}&db_index=${dbIndex}&id=${encodeURIComponent(id)}`, {
@@ -1197,7 +1289,7 @@
     }
 
     async function deleteTVQuality(season, episode, id, btn) {
-        if (!confirm(`Are you sure you want to delete ${id} from Season ${season} Episode ${episode}?`)) return;
+        if (!await appConfirm(`Are you sure you want to delete ${id} from Season ${season} Episode ${episode}?`, {title: 'Delete quality?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-quality?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}&episode=${episode}&id=${encodeURIComponent(id)}`, {
@@ -1226,7 +1318,7 @@
     }
 
     async function deleteTVEpisode(season, episode, btn) {
-        if (!confirm(`Delete Season ${season} Episode ${episode}? This removes the episode and all its qualities.`)) return;
+        if (!await appConfirm(`Delete Season ${season} Episode ${episode}? This removes the episode and all its qualities.`, {title: 'Delete episode?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-episode?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}&episode=${episode}`, {
@@ -1256,7 +1348,7 @@
     }
 
     async function deleteTVSeason(season, btn) {
-        if (!confirm(`Delete the entire Season ${season}? This action cannot be undone.`)) return;
+        if (!await appConfirm(`Delete the entire Season ${season}? This action cannot be undone.`, {title: 'Delete season?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-season?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}`, {
@@ -1986,9 +2078,17 @@
         div.className = 'flex flex-col sm:flex-row gap-2';
         div.setAttribute('data-sub-row', '');
         div.innerHTML = `<input class="field-input flex-1 sub-url" placeholder="Telegram message link" value="${url}">
-            <select class="field-input sm:w-44 sub-lang">${subtitleLangOptions()}</select>
+            <div class="ui-select sm:w-44">
+                <select class="ui-select-native sub-lang">${subtitleLangOptions()}</select>
+                <button type="button" class="field-input ui-select-trigger">
+                    <span class="ui-select-label">Auto-detect</span>
+                    <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <button type="button" onclick="this.closest('[data-sub-row]').remove()" class="btn-ui btn-ghost w-full sm:w-auto">Remove</button>`;
         document.getElementById('subtitle-rows').appendChild(div);
+        enhanceSelect(div.querySelector('.sub-lang'));
     }
 
     async function loadSubtitleLanguages() {
@@ -2147,6 +2247,79 @@
         if (document.getElementById('subtitle-list')) {
             loadSubtitleLanguages().then(loadSubtitles);
         }
+    });
+
+    /* ── Themed dropdown engine (replaces native <select> popovers on mobile) ──
+       Wraps a <select class="ui-select-native"> inside a `.ui-select` container.
+       The native select stays fully functional (value / onchange / .innerHTML
+       rebuilds all keep working untouched) — it's just visually hidden while a
+       custom trigger + panel mirror it. */
+    function enhanceSelect(select) {
+        const wrap = select.closest('.ui-select');
+        const trigger = wrap.querySelector('.ui-select-trigger');
+        const label = trigger.querySelector('.ui-select-label');
+        const panel = wrap.querySelector('.ui-select-panel');
+
+        function syncLabel() {
+            const opt = select.options[select.selectedIndex];
+            label.textContent = opt ? opt.textContent : '';
+        }
+
+        const nativeDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        Object.defineProperty(select, 'value', {
+            configurable: true,
+            get() { return nativeDesc.get.call(select); },
+            set(v) { nativeDesc.set.call(select, v); syncLabel(); },
+        });
+
+        new MutationObserver(syncLabel).observe(select, { childList: true, subtree: true, characterData: true });
+
+        function buildPanel() {
+            panel.innerHTML = '';
+            Array.from(select.options).forEach(opt => {
+                const row = document.createElement('div');
+                row.className = 'ui-select-option' + (opt.value === select.value ? ' selected' : '');
+                row.setAttribute('role', 'option');
+                row.innerHTML = `<span>${escapeHtml(opt.textContent)}</span><i class="fa-solid fa-check"></i>`;
+                row.addEventListener('click', () => {
+                    select.value = opt.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePanel();
+                });
+                panel.appendChild(row);
+            });
+        }
+
+        function openPanel() {
+            document.querySelectorAll('.ui-select.open').forEach(o => { if (o !== wrap) closeOther(o); });
+            buildPanel();
+            panel.classList.remove('hidden');
+            wrap.classList.add('open');
+        }
+        function closePanel() {
+            panel.classList.add('hidden');
+            wrap.classList.remove('open');
+        }
+        function closeOther(otherWrap) {
+            otherWrap.querySelector('.ui-select-panel').classList.add('hidden');
+            otherWrap.classList.remove('open');
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            wrap.classList.contains('open') ? closePanel() : openPanel();
+        });
+
+        syncLabel();
+        wrap._closeUiSelect = closePanel;
+    }
+
+    document.querySelectorAll('.ui-select-native').forEach(enhanceSelect);
+
+    document.addEventListener('click', (e) => {
+        document.querySelectorAll('.ui-select.open').forEach(wrap => {
+            if (!wrap.contains(e.target) && wrap._closeUiSelect) wrap._closeUiSelect();
+        });
     });
 </script>
 {% endblock %}

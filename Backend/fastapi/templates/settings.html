@@ -1385,13 +1385,13 @@ function addItem(listKey) {
 
     const channelLists = ['auth_channels', 'global_search_channels', 'manual_channels'];
     if (channelLists.includes(listKey) && !isValidChannelId(value)) {
-        alert('Only channel IDs in -100xxxxxxxxxx format are accepted (channels only).');
+        showToast('Only channel IDs in -100xxxxxxxxxx format are accepted (channels only).', 'error', 'Error');
         return;
     }
 
     const existing = collectList(listKey);
     if (existing.includes(value)) {
-        alert('This channel is already added.');
+        showToast('This channel is already added.', 'error', 'Error');
         return;
     }
 
@@ -1513,16 +1513,16 @@ async function saveSettings() {
     if (scId) channelFields.push(scId);
     for (const c of channelFields) {
         if (!isValidChannelId(c)) {
-            alert('Only channel IDs in -100xxxxxxxxxx format are accepted: ' + c);
+            showToast('Only channel IDs in -100xxxxxxxxxx format are accepted: ' + c, 'error', 'Error');
             return;
         }
     }
     if (acEl.value.trim() && !acId) {
-        alert('Announcement channel must be -100xxxxxxxxxx format.');
+        showToast('Announcement channel must be -100xxxxxxxxxx format.', 'error', 'Error');
         return;
     }
     if (scEl.value.trim() && !scId) {
-        alert('Skip channel must be -100xxxxxxxxxx format.');
+        showToast('Skip channel must be -100xxxxxxxxxx format.', 'error', 'Error');
         return;
     }
 
