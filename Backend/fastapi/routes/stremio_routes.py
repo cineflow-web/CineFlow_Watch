@@ -32,7 +32,7 @@ templates = Jinja2Templates(directory="Backend/fastapi/templates")
 #----- Addon configuration
 ADDON_NAME = "CineFlow"
 ADDON_VERSION = __version__
-ADDON_LOGO = "https://iili.io/CsmODDQ.md.png"
+ADDON_LOGO = "https://iili.io/CLbxErB.png"
 PAGE_SIZE = 15
 
 
