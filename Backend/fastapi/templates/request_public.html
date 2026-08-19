@@ -4,41 +4,83 @@
 {% block content %}
 <style>
   .rp-shell { max-width: 1100px; margin: 0 auto; }
-  .rp-hero { text-align: center; padding: 1rem 0 1.75rem; }
-  .rp-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; letter-spacing: -0.02em;
-                background: linear-gradient(120deg, var(--primary), var(--accent, var(--primary)));
-                -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .rp-hero p { color: var(--text-sec); margin-top: 0.5rem; font-size: 0.98rem; }
-  .rp-search { display: flex; gap: 0.6rem; max-width: 640px; margin: 1.25rem auto 0; }
-  .rp-search input { flex: 1; background: var(--surface, rgba(255,255,255,0.05)); border: 1px solid var(--hairline, rgba(255,255,255,0.12));
-                     color: var(--text); border-radius: 9999px; padding: 0.85rem 1.25rem; font-size: 1rem; outline: none; }
-  .rp-search input:focus { border-color: var(--primary); }
-  .rp-search button { background: var(--primary); color: var(--bg); border: none; border-radius: 9999px;
-                      padding: 0 1.5rem; font-weight: 800; cursor: pointer; font-size: 1rem; }
-  .rp-hint { text-align: center; color: var(--text-sec); font-size: 0.8rem; margin-top: 0.6rem; }
-  .rp-section-title { font-size: 1.15rem; font-weight: 800; margin: 2rem 0 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+  /* ── Hero header (matches Settings / Dashboard header) ───────────────── */
+  .rp-hero {
+      position: relative; overflow: hidden; text-align: center;
+      padding: 2rem 1.25rem 2.25rem;
+  }
+  .rp-hero-icon {
+      margin: 0 auto 0.9rem;
+      color: var(--primary); font-size: 2rem; line-height: 1;
+  }
+  .rp-hero h1 {
+      font-size: clamp(1.7rem, 4vw, 2.5rem); font-weight: 900; letter-spacing: -0.02em;
+      background: linear-gradient(120deg, var(--primary), var(--accent, var(--primary)));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .rp-hero p { color: var(--text-sec); margin-top: 0.5rem; font-size: 0.94rem; }
+  .rp-search { display: flex; gap: 0.6rem; max-width: 620px; margin: 1.4rem auto 0; }
+  .rp-search input {
+      flex: 1; background: color-mix(in srgb, var(--card) 88%, var(--bg));
+      border: 1px solid var(--hairline); color: var(--text);
+      border-radius: var(--radius-md); padding: 0.85rem 1.25rem; font-size: 0.95rem; outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .rp-search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+  .rp-search button {
+      background: var(--primary); color: var(--bg); border: none; border-radius: var(--radius-md);
+      padding: 0 1.5rem; font-weight: 800; cursor: pointer; font-size: 1rem;
+      box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 30%, transparent);
+      transition: filter .2s ease;
+  }
+  .rp-search button:hover { filter: brightness(1.08); }
+  .rp-hint { color: var(--text-sec); font-size: 0.8rem; margin-top: 0.7rem; }
+
+  /* ── Section titles (uppercase, icon — matches Settings card headers) ── */
+  .rp-section-title {
+      font-size: 0.85rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--text); margin: 0 0 1rem; display: flex; align-items: center; gap: 0.55rem;
+  }
+  .rp-section-title i { font-size: 0.95rem; }
+
+  /* ── Result / popular cards ───────────────────────────────────────────── */
   .rp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
-  .rp-card { background: var(--surface, rgba(255,255,255,0.03)); border: 1px solid var(--hairline, rgba(255,255,255,0.08));
-             border-radius: 1rem; overflow: hidden; display: flex; flex-direction: column; transition: transform .15s, border-color .15s; }
-  .rp-card:hover { transform: translateY(-3px); border-color: var(--primary); }
-  .rp-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, #1f2937, #111827); }
+  .rp-card {
+      background: color-mix(in srgb, var(--card) 92%, var(--bg));
+      border: 1px solid var(--hairline); border-radius: 1.15rem;
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: border-color .15s ease, transform .15s ease;
+  }
+  .rp-card:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); transform: translateY(-3px); }
+  .rp-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, color-mix(in srgb, var(--text) 8%, var(--bg)), var(--bg)); }
   .rp-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .rp-poster .noimg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--text-sec); }
   .rp-type { position: absolute; top: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.65); color: #fff;
              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
   .rp-count { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--primary); color: var(--bg);
-              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 800; }
+              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800;
+              display: inline-flex; align-items: center; gap: 0.3rem; }
   .rp-body { padding: 0.65rem 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
   .rp-title { font-weight: 700; font-size: 0.9rem; line-height: 1.25; }
-  .rp-btn { margin-top: auto; border: none; border-radius: 0.6rem; padding: 0.5rem; font-weight: 800; font-size: 0.82rem;
-            cursor: pointer; background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--primary); }
+  .rp-btn {
+      margin-top: auto; border: none; border-radius: 0.6rem; padding: 0.5rem;
+      font-weight: 800; font-size: 0.82rem; cursor: pointer;
+      background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary);
+      transition: background .15s ease, color .15s ease;
+  }
   .rp-btn:hover { background: var(--primary); color: var(--bg); }
   .rp-empty { text-align: center; color: var(--text-sec); padding: 2rem 1rem; }
   .rp-spinner { text-align: center; color: var(--text-sec); padding: 2rem; }
 </style>
 
 <div class="rp-shell">
-  <div class="rp-hero">
+
+  <!-- ══════════════ Hero ══════════════ -->
+  <header class="mb-5 surface-card rp-hero">
+    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
+
+    <div class="rp-hero-icon"><i class="fa-solid fa-clapperboard"></i></div>
     <h1>Request a Movie or Show</h1>
     <p>Can't find something? Search below and send a request — we'll try to add it.</p>
     <form class="rp-search" onsubmit="doSearch(event)">
@@ -46,15 +88,15 @@
       <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
     <p class="rp-hint">Examples: <b>Inception</b> · <b>tt1375666</b> · <b>27205</b></p>
-  </div>
+  </header>
 
-  <div id="rp-results-wrap" style="display:none">
-    <div class="rp-section-title"><i class="fa-solid fa-list"></i> Search results</div>
+  <div id="rp-results-wrap" class="settings-card mb-4" style="display:none">
+    <div class="rp-section-title"><i class="fa-solid fa-list" style="color:var(--primary)"></i> Search results</div>
     <div id="rp-results" class="rp-grid"></div>
   </div>
 
-  <div id="rp-popular-wrap">
-    <div class="rp-section-title"><i class="fa-solid fa-fire" style="color:#f59e0b"></i> Most Requested</div>
+  <div id="rp-popular-wrap" class="settings-card">
+    <div class="rp-section-title"><i class="fa-solid fa-fire" style="color:var(--d-orange)"></i> Most Requested</div>
     <div id="rp-popular" class="rp-grid"></div>
   </div>
 </div>
@@ -87,7 +129,7 @@ function resultCard(r, idx) {
 
 function popularCard(r) {
   const yr = r.year ? ` (${esc(r.year)})` : '';
-  const count = `<span class="rp-count">👥 ${esc(r.request_count || 0)}</span>`;
+  const count = `<span class="rp-count"><i class="fa-solid fa-users"></i> ${esc(r.request_count || 0)}</span>`;
   return `<div class="rp-card">
     ${posterHtml(r, count)}
     <div class="rp-body"><div class="rp-title">${esc(r.title)}${yr}</div></div>
@@ -110,7 +152,7 @@ async function doSearch(e) {
       ? searchResults.map((r, i) => resultCard(r, i)).join('')
       : `<div class="rp-empty" style="grid-column:1/-1">No matches found. Try a different name or an IMDb/TMDB ID.</div>`;
   } catch (err) {
-    box.innerHTML = `<div class="rp-empty" style="grid-column:1/-1;color:#ef4444">Search failed. Please try again.</div>`;
+    box.innerHTML = `<div class="rp-empty" style="grid-column:1/-1;color:var(--d-red)">Search failed. Please try again.</div>`;
   }
 }
 
@@ -127,12 +169,12 @@ async function sendRequest(idx) {
     });
     const data = await res.json();
     const map = {
-      created:            ['🎉 Request submitted! We\'ll try to add it soon.', 'success', 'Requested'],
-      added:              ['👍 Added your vote — this was already requested.', 'success', 'Requested'],
-      reopened:           ['🔄 Request re-opened. Thanks!', 'success', 'Requested'],
-      already_available:  ['✅ Good news — this is already in the library!', 'info', 'Available'],
-      banned:             ['🚫 This title has been banned and can\'t be requested.', 'error', 'Not allowed'],
-      invalid:            ['⚠️ Could not identify this title.', 'error', 'Error'],
+      created:            ['Request submitted! We\'ll try to add it soon.', 'success', 'Requested'],
+      added:              ['Added your vote — this was already requested.', 'success', 'Requested'],
+      reopened:           ['Request re-opened. Thanks!', 'success', 'Requested'],
+      already_available:  ['Good news — this is already in the library!', 'info', 'Available'],
+      banned:             ['This title has been banned and can\'t be requested.', 'error', 'Not allowed'],
+      invalid:            ['Could not identify this title.', 'error', 'Error'],
     };
     const m = map[data.reason] || (data.ok ? ['Request submitted!', 'success', 'Requested']
                                             : ['Something went wrong.', 'error', 'Error']);

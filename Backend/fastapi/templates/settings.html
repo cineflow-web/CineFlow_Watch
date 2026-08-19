@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Settings — TG Stremio{% endblock %}
+{% block title %}Settings — CineFlow{% endblock %}
 
 {% block content %}
 
@@ -8,29 +8,35 @@
 .bk-desc { color: var(--text-sec); font-size: 0.85rem; margin-bottom: 1rem; }
 .bk-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 @media (max-width: 520px) { .bk-actions { grid-template-columns: 1fr; } }
-.bk-btn { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.1rem; border-radius: 0.9rem; cursor: pointer;
-          text-decoration: none; text-align: left; transition: all .15s;
-          border: 1px solid var(--border); background: color-mix(in srgb, var(--card) 92%, var(--bg)); }
-.bk-btn:hover { transform: translateY(-1px); border-color: var(--primary); }
-.bk-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-.bk-ic { width: 2.5rem; height: 2.5rem; border-radius: 0.7rem; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; }
-.bk-export .bk-ic { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--primary); }
-.bk-import .bk-ic { background: #22c55e22; color: #22c55e; }
+.bk-btn { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.1rem; border-radius: 0.75rem; cursor: pointer;
+          text-decoration: none; text-align: left; transition: all .18s ease;
+          border: 1px solid var(--hairline); background: var(--surface); }
+.bk-btn:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 45%, var(--hairline)); box-shadow: var(--shadow-soft); }
+.bk-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+.bk-ic { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; }
+.bk-export .bk-ic { color: var(--d-cyan); }
+.bk-import .bk-ic { color: var(--d-green); }
 .bk-txt { display: flex; flex-direction: column; line-height: 1.25; }
 .bk-txt b { font-size: 0.95rem; color: var(--text); }
 .bk-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
-.bk-chip { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 9999px; color: var(--text-sec); border: 1px solid var(--border); background: color-mix(in srgb, var(--card) 92%, var(--bg)); }
+.bk-chip { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 9999px; color: var(--text-sec); border: 1px solid var(--hairline); background: var(--surface); }
 .bk-txt small { font-size: 0.75rem; color: var(--text-sec); }
 .bk-status { margin-top: 0.9rem; font-size: 0.85rem; color: var(--text-sec); display: flex; align-items: center; gap: 0.5rem; }
 .bk-warn { color: var(--text-sec); font-size: 0.78rem; margin-top: 0.85rem; }
 .bk-warn i { color: var(--warning, #f59e0b); }
 
 /* ── Toggle switch ───────────────────────────────────────────────────────── */
-.toggle-wrap { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+.toggle-wrap {
+    display: flex; align-items: center; gap: 0.75rem; cursor: pointer;
+    padding: 0.65rem 0.75rem; margin: 0 -0.75rem;
+    border-radius: 0.6rem;
+    transition: background .15s ease;
+}
+.toggle-wrap:hover { background: var(--surface); }
 .toggle-input { position: absolute; opacity: 0; width: 0; height: 0; }
 .toggle-track {
     display: inline-block; width: 3rem; height: 1.625rem;
-    border-radius: 9999px; background: var(--border);
+    border-radius: 9999px; background: var(--surface-3);
     position: relative; transition: background 0.2s ease; flex-shrink: 0;
 }
 .toggle-track::after {
@@ -47,36 +53,63 @@
 
 /* ── Section cards ───────────────────────────────────────────────────────── */
 .settings-card {
-    background: color-mix(in srgb, var(--card) 94%, var(--bg));
-    border: 1px solid var(--border);
-    border-radius: 1.5rem;
-    padding: 1.5rem 1.75rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    position: relative;
+    background: color-mix(in srgb, var(--card) 92%, var(--bg));
+    border: 1px solid var(--hairline);
+    border-radius: 0.85rem;
+    padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow-soft);
+    transition: border-color .2s ease;
 }
+.settings-card:hover { border-color: color-mix(in srgb, var(--primary) 22%, var(--hairline)); }
 .settings-card h2 {
-    font-size: 1rem; font-weight: 800;
-    letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--primary); margin-bottom: 1.25rem;
-    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; font-weight: 800;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text); margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.55rem;
 }
+.settings-card h2 i:first-child {
+    font-size: 0.95rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+/* ── Compact icon-only action buttons (refresh / download / etc.) ──────────── */
+.icon-action {
+    width: 2.15rem; height: 2.15rem; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 0.6rem;
+    background: var(--surface); border: 1px solid var(--hairline);
+    color: var(--text-sec); font-size: 0.85rem;
+    cursor: pointer; transition: background .15s ease, color .15s ease, transform .12s ease, border-color .15s ease;
+}
+.icon-action:hover { background: var(--surface-2); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); }
+.icon-action:active { transform: scale(.92); }
+.icon-action.danger {
+    background: color-mix(in srgb, var(--d-red) 12%, transparent);
+    color: var(--d-red);
+    border-color: color-mix(in srgb, var(--d-red) 30%, transparent);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--d-red) 22%, transparent);
+}
+.icon-action.danger:hover { background: color-mix(in srgb, var(--d-red) 24%, transparent); color: var(--d-red); }
 
 /* ── Inputs ──────────────────────────────────────────────────────────────── */
 .s-input {
     width: 100%;
-    background: color-mix(in srgb, var(--bg) 70%, transparent);
-    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 65%, transparent);
+    border: 1px solid var(--hairline);
     color: var(--text);
-    border-radius: 0.75rem;
-    padding: 0.6rem 1rem;
+    border-radius: 0.6rem;
+    padding: 0.62rem 1rem;
     font-size: 0.88rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.s-input:focus { border-color: var(--primary); }
+.s-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
 .s-label {
-    display: block; font-size: 0.78rem; font-weight: 700;
+    display: block; font-size: 0.76rem; font-weight: 800;
     color: var(--text-sec); text-transform: uppercase;
-    letter-spacing: 0.04em; margin-bottom: 0.4rem;
+    letter-spacing: 0.06em; margin-bottom: 0.45rem;
 }
 
 /* ── Multi-value list ────────────────────────────────────────────────────── */
@@ -90,7 +123,7 @@
     padding: 0.55rem 0.85rem;
     background: color-mix(in srgb, var(--primary) 10%, transparent);
     border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
-    border-radius: 0.75rem;
+    border-radius: 0.6rem;
     font-size: 0.875rem; font-weight: 600;
     color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -102,34 +135,38 @@
     cursor: default;
 }
 .remove-btn {
-    width: 2rem; height: 2rem; flex-shrink: 0;
-    background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25);
-    color: #ef4444; border-radius: 0.5rem;
+    width: 2.1rem; height: 2.1rem; flex-shrink: 0;
+    background: color-mix(in srgb, var(--d-red) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--d-red) 28%, transparent);
+    color: var(--d-red); border-radius: 0.6rem;
     font-size: 1rem; line-height: 1;
-    cursor: pointer; transition: background 0.15s;
+    cursor: pointer; transition: background 0.15s ease, transform 0.12s ease;
     display: flex; align-items: center; justify-content: center;
 }
-.remove-btn:hover { background: rgba(239,68,68,0.25); }
+.remove-btn:hover { background: color-mix(in srgb, var(--d-red) 22%, transparent); }
+.remove-btn:active { transform: scale(.93); }
 .add-row { display: flex; gap: 0.5rem; }
 .add-btn {
-    flex-shrink: 0; padding: 0.6rem 1rem;
-    background: color-mix(in srgb, var(--primary) 15%, transparent);
-    border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
-    color: var(--primary); border-radius: 0.75rem;
-    font-size: 0.82rem; font-weight: 700; cursor: pointer;
-    transition: background 0.15s; white-space: nowrap;
+    flex-shrink: 0; padding: 0.6rem 1.1rem;
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 38%, transparent);
+    color: var(--primary); border-radius: 0.6rem;
+    font-size: 0.8rem; font-weight: 800; cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s ease; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 0.4rem;
 }
-.add-btn:hover { background: color-mix(in srgb, var(--primary) 28%, transparent); }
+.add-btn:hover { background: color-mix(in srgb, var(--primary) 26%, transparent); }
+.add-btn:active { transform: scale(.96); }
 
 /* ── Anime channel checkbox ──────────────────────────────────────────────── */
 .auth-item .s-input { min-width: 0; }
 .anime-check {
     display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0;
     cursor: pointer; user-select: none; white-space: nowrap;
-    padding: 0.4rem 0.6rem; border-radius: 0.6rem;
-    border: 1px solid var(--border); background: transparent;
+    padding: 0.4rem 0.65rem; border-radius: 0.6rem;
+    border: 1px solid var(--hairline); background: transparent;
     font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.03em; color: var(--text-sec); transition: all 0.15s;
+    letter-spacing: 0.03em; color: var(--text-sec); transition: all 0.15s ease;
 }
 .anime-check input { width: 0.95rem; height: 0.95rem; accent-color: var(--primary); cursor: pointer; margin: 0; }
 .anime-check:hover { border-color: color-mix(in srgb, var(--primary) 35%, transparent); }
@@ -142,47 +179,58 @@
 /* ── Grid helpers ────────────────────────────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
-.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.divider { border: none; border-top: 1px solid var(--hairline); margin: 0.9rem 0; }
 
-/* ── Stats grid ──────────────────────────────────────────────────────────── */
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 0.75rem; }
+/* ── Stats grid (compact, home-page style tiles) ────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px,1fr)); gap: 0.5rem; }
 .stat-box {
-    background: color-mix(in srgb, var(--bg) 55%, transparent);
-    border: 1px solid var(--border); border-radius: 0.9rem;
-    padding: 0.75rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline); border-radius: 0.75rem;
+    padding: 0.7rem 0.5rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 0.15rem; aspect-ratio: 1 / 1;
+    transition: border-color .15s ease, transform .15s ease;
 }
-.stat-box .v { font-size: 1.3rem; font-weight: 800; }
-.stat-box .l { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-sec); }
+.stat-box:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); transform: translateY(-1px); }
+.stat-box i { font-size: 1rem; margin-bottom: 0.15rem; }
+.stat-box .v { font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
+.stat-box .l { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sec); font-weight: 700; }
 .hint { font-size: 0.78rem; color: var(--text-sec); }
 </style>
 
 <!-- Page header -->
-<div class="flex items-center justify-between mb-8">
-    <div>
-        <h1 class="text-3xl font-extrabold">Settings</h1>
-        <p class="mt-1 text-sm" style="color:var(--text-sec)">
-            Runtime configuration — stored in the database, no restart needed.
-        </p>
-    </div>
-    <button id="save-btn" onclick="saveSettings()"
-        class="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm text-white shadow-lg transition-all"
-        style="background:var(--primary); box-shadow:0 0 18px color-mix(in srgb,var(--primary) 40%,transparent)">
-        <i class="fa-solid fa-floppy-disk"></i>
-        <span id="save-label">Save Settings</span>
-    </button>
-</div>
+<header class="mb-4 surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3">
+    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
 
-<div class="space-y-6" id="settings-root">
+    <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+            <i class="fa-solid fa-gear text-base" style="color:var(--primary)"></i>
+        </div>
+        <div class="min-w-0">
+            <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
+                Settings
+            </h1>
+            <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Runtime configuration — stored in the database, no restart needed</p>
+        </div>
+    </div>
+
+    <button id="save-btn" onclick="saveSettings()" class="btn-primary flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm active:scale-95 shrink-0">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span id="save-label">Save</span>
+    </button>
+</header>
+
+<div class="space-y-4" id="settings-root">
 
     <!-- ── System & Maintenance ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-server"></i> System &amp; Maintenance</h2>
+        <h2><i class="fa-solid fa-server" style="color:var(--d-cyan)"></i> System &amp; Maintenance</h2>
 
         <!-- DB & system stats -->
-        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
             <label class="s-label" style="margin-bottom:0">Database &amp; System Stats</label>
-            <button class="add-btn" type="button" onclick="loadDbStats(this)">
-                <i class="fa-solid fa-rotate"></i> Refresh
+            <button class="icon-action" type="button" onclick="loadDbStats(this)" title="Refresh stats">
+                <i class="fa-solid fa-rotate"></i>
             </button>
         </div>
         <div class="stat-grid" id="stats-grid">
@@ -192,46 +240,48 @@
         <hr class="divider">
 
         <!-- Live logs -->
-        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
             <label class="s-label" style="margin-bottom:0">Logs</label>
-            <div class="flex items-center gap-3 flex-wrap">
-                <label class="anime-check" title="Auto-refresh the log every 2s">
+            <div class="flex items-center gap-1 flex-wrap">
+                <label class="anime-check" title="Auto-refresh the log every 2s" style="margin-right:0.25rem">
                     <input type="checkbox" id="log-live-toggle" onchange="toggleLiveLogs()">
                     <span>Live</span>
                 </label>
-                <button class="add-btn" type="button" onclick="loadLogs(this)">
-                    <i class="fa-solid fa-rotate"></i> Refresh
+                <button class="icon-action" type="button" onclick="loadLogs(this)" title="Refresh logs">
+                    <i class="fa-solid fa-rotate"></i>
                 </button>
-                <button class="add-btn" type="button" onclick="window.open('/api/admin/logs/download','_blank')">
-                    <i class="fa-solid fa-download"></i> Download
+                <button class="icon-action" type="button" onclick="window.open('/api/admin/logs/download','_blank')" title="Download log">
+                    <i class="fa-solid fa-download"></i>
                 </button>
             </div>
         </div>
-        <pre id="log-view" style="background:color-mix(in srgb,var(--bg) 80%,#000);border:1px solid var(--border);
-            border-radius:0.75rem;padding:1rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;
-            line-height:1.5;color:var(--text);max-height:340px;overflow:auto;white-space:pre-wrap;
+        <pre id="log-view" style="background:color-mix(in srgb,var(--bg) 80%,#000);border:1px solid var(--hairline);
+            border-radius:var(--radius-lg);padding:0.85rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+            line-height:1.5;color:var(--text);max-height:260px;overflow:auto;white-space:pre-wrap;
             word-break:break-word;margin:0">Loading logs…</pre>
 
         <hr class="divider">
 
         <!-- Restart -->
-        <label class="s-label">Restart App</label>
-        <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
-            Pulls the latest code from the upstream repo/branch above and restarts the server.
-            The web app becomes unreachable for a few seconds — this page will reconnect
-            automatically once it's back online.
-        </p>
-        <button id="restart-btn" onclick="restartApp()"
-            class="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm text-white shadow-lg transition-all"
-            style="background:#ef4444;box-shadow:0 0 18px rgba(239,68,68,0.4)">
-            <i class="fa-solid fa-power-off"></i>
-            <span>Restart Now</span>
-        </button>
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div class="min-w-0">
+                <label class="s-label" style="margin-bottom:0.2rem">Restart App</label>
+                <p style="font-size:0.78rem;color:var(--text-sec);max-width:34rem">
+                    Pulls the latest code and restarts the server. The app is briefly unreachable, then reconnects automatically.
+                </p>
+            </div>
+            <button id="restart-btn" onclick="restartApp()"
+                class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white active:scale-95 transition-all shrink-0"
+                style="background:var(--d-red);border-radius:0.6rem;box-shadow:0 8px 22px color-mix(in srgb, var(--d-red) 35%, transparent)">
+                <i class="fa-solid fa-power-off"></i>
+                <span>Restart Now</span>
+            </button>
+        </div>
     </div>
 
     <!-- ── General ─────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-sliders"></i> General</h2>
+        <h2><i class="fa-solid fa-sliders" style="color:var(--d-purple)"></i> General</h2>
         <div class="space-y-4">
             <label class="toggle-wrap">
                 <input type="checkbox" class="toggle-input" id="replace_mode"
@@ -271,7 +321,7 @@
 
     <!-- ── Authentication ──────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-shield-halved"></i> Admin Authentication</h2>
+        <h2><i class="fa-solid fa-shield-halved" style="color:var(--d-red)"></i> Admin Authentication</h2>
         <div class="grid-2">
             <div>
                 <label class="s-label" for="admin_username">Admin Username</label>
@@ -354,7 +404,7 @@
 
     <!-- ── Media & Content ─────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-film"></i> Media &amp; Content</h2>
+        <h2><i class="fa-solid fa-film" style="color:var(--d-green)"></i> Media &amp; Content</h2>
         <div class="grid-2">
             <div>
                 <label class="s-label" for="tmdb_api">TMDB API Key</label>
@@ -394,7 +444,7 @@
 
     <!-- ── Poster Provider ─────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-image"></i> Poster Provider</h2>
+        <h2><i class="fa-solid fa-image" style="color:var(--d-pink)"></i> Poster Provider</h2>
         <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
             Replace catalog posters with textless artwork. Only one provider can be active at a time.
         </p>
@@ -491,7 +541,7 @@
 
     <!-- ── Manual Add Channels ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-hand-pointer"></i> Manual Add Channels</h2>
+        <h2><i class="fa-solid fa-hand-pointer" style="color:var(--d-orange)"></i> Manual Add Channels</h2>
         <label class="s-label">MANUAL_CHANNELS
             <span style="font-weight:400;text-transform:none;letter-spacing:0">
                 — files sent here are <strong>not</strong> auto-indexed with TMDb/IMDb.
@@ -519,7 +569,7 @@
 
     <!-- ── Subscription ────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-credit-card"></i> Subscription</h2>
+        <h2><i class="fa-solid fa-credit-card" style="color:var(--d-yellow)"></i> Subscription</h2>
         <label class="toggle-wrap" style="margin-bottom:1.25rem">
             <input type="checkbox" class="toggle-input" id="subscription"
                 {% if settings.subscription %}checked{% endif %}
@@ -592,7 +642,7 @@
 
 <!-- ── Telegram User Session ──────────────────────────────────────── -->
 <div class="settings-card">
-    <h2><i class="fa-solid fa-user-lock"></i> Telegram User Session</h2>
+    <h2><i class="fa-solid fa-user-lock" style="color:var(--d-cyan)"></i> Telegram User Session</h2>
     <p class="bk-desc">
         Log in with your phone number to generate the User Session automatically — no manual
         session string needed. It's encrypted and stored securely, and powers Global Search.
@@ -774,7 +824,7 @@ async function sessAction(kind) {
 }
 
 async function sessRemove() {
-    if (!confirm('Remove the stored Telegram session? Global Search will stop working until you log in again.')) return;
+    if (!(await showConfirm('Remove the stored Telegram session? Global Search will stop working until you log in again.', { title: 'Remove session', okText: 'Remove', danger: true }))) return;
     try {
         const res = await fetch('/api/admin/settings/session', { method: 'DELETE' });
         if (!res.ok) throw new Error();
@@ -789,7 +839,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
 <!-- ── Global Search (Userbot) ────────────────────────────────────── -->
 <div class="settings-card">
-    <h2><i class="fa-solid fa-globe"></i> Global Search</h2>
+    <h2><i class="fa-solid fa-globe" style="color:var(--d-purple)"></i> Global Search</h2>
 
     <label class="toggle-wrap" style="{% if not userbot_configured %}opacity:0.5{% endif %}">
         <input type="checkbox" class="toggle-input" id="global_search"
@@ -801,7 +851,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
             <strong>Enable Global Search</strong>
             <span style="color:var(--text-sec);font-size:0.8rem;display:block">
                 Search media <strong>only in the channels listed below</strong>.
-                Results are tagged <strong>🌐 GLOBAL</strong> in the stream list
+                Results are tagged <strong><i class="fa-solid fa-globe"></i> GLOBAL</strong> in the stream list
                 for items not in your local catalog.
             </span>
         </span>
@@ -872,7 +922,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
 <!-- ── New Content Announcements ──────────────────────────────────── -->
 <div class="settings-card">
-    <h2><i class="fa-solid fa-bullhorn"></i> New Content Announcements</h2>
+    <h2><i class="fa-solid fa-bullhorn" style="color:var(--d-pink)"></i> New Content Announcements</h2>
 
     <label class="toggle-wrap">
         <input type="checkbox" class="toggle-input" id="announce_new_content"
@@ -917,7 +967,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Skip Channel (metadata failures) ────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-inbox"></i> Skip Channel</h2>
+        <h2><i class="fa-solid fa-inbox" style="color:var(--d-orange)"></i> Skip Channel</h2>
         <label class="s-label" for="skip_channel">SKIP CHANNEL
             <span style="font-weight:400;text-transform:none;letter-spacing:0">
                 — when a file forwarded to an auth channel fails to index (title, quality or a
@@ -955,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Proxy ───────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-network-wired"></i> Proxy Settings</h2>
+        <h2><i class="fa-solid fa-network-wired" style="color:var(--d-cyan)"></i> Proxy Settings</h2>
         <div style="margin-bottom:1rem">
             <label class="s-label" for="http_proxy_url">HTTP Proxy URL</label>
             <input type="url" id="http_proxy_url" class="s-input"
@@ -1010,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
     
     <!-- ── WebDAV ──────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-hard-drive"></i> WebDAV</h2>
+        <h2><i class="fa-solid fa-hard-drive" style="color:var(--d-green)"></i> WebDAV</h2>
         <p style="font-size:0.82rem;color:var(--text-sec);margin-bottom:1rem">
             Expose your library as a virtual filesystem.
             URL: <code id="webdav-url-hint">/webdav/&lt;API_TOKEN&gt;/</code>
@@ -1050,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
 <!-- ── Databases ────────────────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-database"></i> Databases</h2>
+        <h2><i class="fa-solid fa-database" style="color:var(--d-yellow)"></i> Databases</h2>
         <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
             Tracking and Storage 1 are required to boot the app and can't be edited
             here. Additional storage databases connect/disconnect instantly when
@@ -1111,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Multi-Token Clients ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-brands fa-telegram"></i> Multi-Token Clients</h2>
+        <h2><i class="fa-brands fa-telegram" style="color:var(--d-purple)"></i> Multi-Token Clients</h2>
         <p style="font-size:0.83rem;color:var(--text-sec);margin-bottom:1rem">
             Additional bot tokens used for parallel streaming. Changes reinitialise
             the client pool immediately (no restart needed).
@@ -1137,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 
     <!-- ── Backup & Restore ───────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-box-archive"></i> Backup &amp; Restore</h2>
+        <h2><i class="fa-solid fa-box-archive" style="color:var(--d-orange)"></i> Backup &amp; Restore</h2>
         <p class="bk-desc">
             Export everything — settings, custom catalogs, subscription plans and access tokens — to a JSON file,
             or restore from one. Passwords and the session secret are never exported, but the file can hold bot
@@ -1189,7 +1239,7 @@ document.addEventListener('DOMContentLoaded', sessLoadStatus);
 <!-- Floating save (mobile) -->
 <div class="fixed bottom-6 right-6 md:hidden z-50">
     <button onclick="saveSettings()"
-        class="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl"
+        class="w-14 h-14 rounded-lg flex items-center justify-center text-white shadow-xl"
         style="background:var(--primary)">
         <i class="fa-solid fa-floppy-disk text-lg"></i>
     </button>
@@ -1335,13 +1385,13 @@ function addItem(listKey) {
 
     const channelLists = ['auth_channels', 'global_search_channels', 'manual_channels'];
     if (channelLists.includes(listKey) && !isValidChannelId(value)) {
-        alert('Only channel IDs in -100xxxxxxxxxx format are accepted (channels only).');
+        showToast('Only channel IDs in -100xxxxxxxxxx format are accepted (channels only).', 'error', 'Error');
         return;
     }
 
     const existing = collectList(listKey);
     if (existing.includes(value)) {
-        alert('This channel is already added.');
+        showToast('This channel is already added.', 'error', 'Error');
         return;
     }
 
@@ -1463,16 +1513,16 @@ async function saveSettings() {
     if (scId) channelFields.push(scId);
     for (const c of channelFields) {
         if (!isValidChannelId(c)) {
-            alert('Only channel IDs in -100xxxxxxxxxx format are accepted: ' + c);
+            showToast('Only channel IDs in -100xxxxxxxxxx format are accepted: ' + c, 'error', 'Error');
             return;
         }
     }
     if (acEl.value.trim() && !acId) {
-        alert('Announcement channel must be -100xxxxxxxxxx format.');
+        showToast('Announcement channel must be -100xxxxxxxxxx format.', 'error', 'Error');
         return;
     }
     if (scEl.value.trim() && !scId) {
-        alert('Skip channel must be -100xxxxxxxxxx format.');
+        showToast('Skip channel must be -100xxxxxxxxxx format.', 'error', 'Error');
         return;
     }
 
@@ -1563,7 +1613,7 @@ async function restoreBackup(input) {
     const file = input.files && input.files[0];
     input.value = '';
     if (!file) return;
-    if (!confirm('Restore this backup? It will replace your catalogs, plans and tokens, and reconnect databases / bot tokens.')) return;
+    if (!(await showConfirm('Restore this backup? It will replace your catalogs, plans and tokens, and reconnect databases / bot tokens.', { title: 'Restore backup', okText: 'Restore', danger: true }))) return;
 
     const btn = document.getElementById('restore-btn');
     const status = document.getElementById('restore-status');
@@ -1758,9 +1808,13 @@ function rebuildDatabaseList(dbList) {
 
 /* ── System & Maintenance ───────────────────────────────────────────────── */
 const STAT_FIELDS = [
-    ['movies', 'Movies'], ['tv_shows', 'TV Shows'], ['episodes', 'Episodes'],
-    ['streams', 'Streams'], ['db_size', 'DB Size'],
-    ['auth_channels', 'AUTH Channels'], ['version', 'Version'],
+    ['movies', 'Movies', 'fa-film', 'var(--d-purple)'],
+    ['tv_shows', 'TV Shows', 'fa-tv', 'var(--d-cyan)'],
+    ['episodes', 'Episodes', 'fa-clapperboard', 'var(--d-pink)'],
+    ['streams', 'Streams', 'fa-tower-broadcast', 'var(--d-orange)'],
+    ['db_size', 'DB Size', 'fa-database', 'var(--d-green)'],
+    ['auth_channels', 'AUTH Channels', 'fa-satellite-dish', 'var(--d-yellow)'],
+    ['version', 'Version', 'fa-code-branch', 'var(--primary)'],
 ];
 let logLiveTimer = null;
 
@@ -1778,8 +1832,8 @@ async function loadDbStats(btn) {
         const data = await res.json();
         if (data.status !== 'success') throw new Error(data.message || 'failed');
         const s = data.data;
-        grid.innerHTML = STAT_FIELDS.map(([k, label]) =>
-            `<div class="stat-box"><div class="v">${escapeHtml(String(s[k] ?? '—'))}</div><div class="l">${label}</div></div>`
+        grid.innerHTML = STAT_FIELDS.map(([k, label, icon, color]) =>
+            `<div class="stat-box"><i class="fa-solid ${icon}" style="color:${color}"></i><div class="v">${escapeHtml(String(s[k] ?? '—'))}</div><div class="l">${label}</div></div>`
         ).join('');
     } catch (e) {
         grid.innerHTML = `<div class="hint" style="grid-column:1/-1;color:#ef4444">Failed to load stats.</div>`;
@@ -1815,7 +1869,7 @@ function toggleLiveLogs() {
 }
 
 async function restartApp() {
-    if (!confirm('Restart the app now? It will pull the latest code and be unreachable for a few seconds.')) return;
+    if (!(await showConfirm('Restart the app now? It will pull the latest code and be unreachable for a few seconds.', { title: 'Restart app', okText: 'Restart', danger: true }))) return;
 
     let before = null;
     try { before = (await (await fetch('/api/admin/health')).json()).start_time; } catch (e) {}

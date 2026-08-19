@@ -6,7 +6,7 @@ import pytz
 from Backend.helper.database import Database
 
 #----- Shared application state
-timezone = pytz.timezone("Asia/Kolkata")
+timezone = pytz.timezone("Asia/Colombo")
 now = datetime.now(timezone)
 StartTime = time()
 
@@ -14,4 +14,4 @@ USE_DEFAULT_ID: str = None
 MANUAL_SESSION: dict = None
 db = Database()
 
-__version__ = "5.0.1"
+__version__ = "1.0.0"

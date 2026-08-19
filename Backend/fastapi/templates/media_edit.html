@@ -1,48 +1,104 @@
 {% extends "base.html" %}
 
-{% block title %}Edit {{ media_type|title }} - Fyvio Backend{% endblock %}
+{% block title %}Edit {{ media_type|title }} - CineFlow Backend{% endblock %}
 
 {% block content %}
 <style>
+  /* ── Cards — compact, square-rounded, settings-page language ─────────── */
   .glass-card {
-    background: color-mix(in srgb, var(--card) 94%, var(--bg));
-    border: 1px solid color-mix(in srgb, var(--border) 95%, transparent);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    background: color-mix(in srgb, var(--card) 92%, var(--bg));
+    border: 1px solid var(--hairline);
+    border-radius: 0.9rem;
+    box-shadow: var(--shadow-soft);
   }
 
   .glass-card-soft {
-    background: color-mix(in srgb, var(--card) 86%, var(--bg));
-    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    background: color-mix(in srgb, var(--card) 88%, var(--bg));
+    border: 1px solid var(--hairline);
+    border-radius: 0.85rem;
   }
 
   .section-title {
     color: var(--text);
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .section-title .st-ic {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    color: var(--sic, var(--primary));
   }
 
   .muted {
     color: var(--text-sec);
   }
 
+  /* ── Custom themed dropdown (replaces native <select> popovers) ───────
+     Mobile browsers (Android Chrome especially) render native <select>
+     option lists with their own OS/forced-dark-mode palette instead of
+     matching this page's theme. This wraps each select in a `.ui-select`
+     container: the native <select> stays fully functional (value/onchange
+     keep working untouched) but is visually hidden, while a themed
+     trigger + panel mirror it. */
+  .ui-select { position: relative; }
+  .ui-select-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .ui-select-trigger {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    cursor: pointer; user-select: none; text-align: left;
+  }
+  .ui-select-trigger .ui-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ui-select-chevron { font-size: .72rem; color: var(--text-sec); transition: transform .2s ease; flex-shrink: 0; }
+  .ui-select.open .ui-select-chevron { transform: rotate(180deg); color: var(--primary); }
+  .ui-select.open .ui-select-trigger { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+  .ui-select-panel {
+    position: absolute; left: 0; right: 0; top: calc(100% + .5rem); z-index: 60;
+    background: color-mix(in srgb, var(--card) 97%, var(--bg));
+    border: 1px solid var(--hairline-strong);
+    border-radius: .85rem; box-shadow: var(--shadow-strong); padding: .35rem;
+    max-height: 14rem; overflow-y: auto;
+    animation: ui-select-pop 140ms cubic-bezier(.2,1,.3,1);
+  }
+  .ui-select-panel.hidden { display: none; }
+  /* Flipped upward when there isn't enough room below the trigger before the
+     modal footer — set by positionPanel() in the dropdown engine JS. */
+  .ui-select-panel.drop-up { top: auto; bottom: calc(100% + .5rem); }
+  @keyframes ui-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .ui-select-option {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    padding: .6rem .7rem; border-radius: .6rem; font-size: .85rem; font-weight: 700;
+    color: var(--text); cursor: pointer; transition: background .15s ease; white-space: nowrap;
+  }
+  .ui-select-option:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+  .ui-select-option.selected { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+  .ui-select-option .fa-check { font-size: .68rem; opacity: 0; }
+  .ui-select-option.selected .fa-check { opacity: 1; }
+
   .field-label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text);
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+    color: var(--text-sec);
   }
 
   .field-input, .field-textarea {
     width: 100%;
-    border-radius: 1rem;
-    border: 1px solid color-mix(in srgb, var(--border) 95%, transparent);
-    background: color-mix(in srgb, var(--bg) 76%, transparent);
+    border-radius: 0.6rem;
+    border: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--bg) 65%, transparent);
     color: var(--text);
-    padding: 0.9rem 1rem;
+    padding: 0.62rem 0.85rem;
+    font-size: 0.88rem;
     outline: none;
-    transition: all 0.2s ease;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    transition: border-color .2s ease, box-shadow .2s ease;
   }
 
   .field-input::placeholder,
@@ -52,7 +108,7 @@
 
   .field-input:focus, .field-textarea:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+    box-shadow: 0 0 0 3px var(--ring);
   }
 
   .hero-wrap {
@@ -84,24 +140,25 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.4rem 0.8rem;
+    padding: 0.32rem 0.7rem;
     border-radius: 9999px;
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
-    background: color-mix(in srgb, var(--bg) 66%, transparent);
+    border: 1px solid var(--hairline);
+    background: var(--surface);
     color: var(--text);
   }
 
   .quality-row {
-    background: color-mix(in srgb, var(--bg) 70%, transparent);
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 0.75rem;
   }
 
   .quality-badge {
-    border-radius: 9999px;
-    padding: 0.35rem 0.8rem;
-    font-size: 0.75rem;
+    border-radius: 0.4rem;
+    padding: 0.28rem 0.65rem;
+    font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: .02em;
   }
@@ -110,51 +167,53 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
-    border-radius: 1rem;
-    padding: 0.8rem 1.15rem;
-    font-size: 0.92rem;
+    gap: 0.4rem;
+    border-radius: 0.6rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.83rem;
     font-weight: 800;
-    transition: all 0.2s ease;
+    transition: filter .15s ease, transform .12s ease, border-color .15s ease, background .15s ease;
     border: 1px solid transparent;
     white-space: nowrap;
   }
 
-  .btn-ui:hover {
-    transform: translateY(-1px);
-  }
+  .btn-ui:active { transform: scale(.97); }
 
   .btn-primary {
     background: var(--primary);
-    color: white;
-    box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 26%, transparent);
+    color: var(--bg);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 26%, transparent);
   }
 
-  .btn-primary:hover { filter: brightness(1.03); }
+  .btn-primary:hover { filter: brightness(1.06); }
 
   .btn-ghost {
-    background: color-mix(in srgb, var(--bg) 74%, transparent);
+    background: var(--surface);
     color: var(--text);
-    border-color: color-mix(in srgb, var(--border) 95%, transparent);
+    border-color: var(--hairline);
   }
+  .btn-ghost:hover { background: var(--surface-2); border-color: var(--hairline-strong); }
 
   .btn-danger {
-    background: color-mix(in srgb, rgb(239 68 68) 16%, transparent);
-    color: rgb(248 113 113);
-    border-color: color-mix(in srgb, rgb(239 68 68) 26%, transparent);
+    background: color-mix(in srgb, var(--d-red) 14%, transparent);
+    color: var(--d-red);
+    border-color: color-mix(in srgb, var(--d-red) 28%, transparent);
   }
+  .btn-danger:hover { background: color-mix(in srgb, var(--d-red) 24%, transparent); }
 
   .btn-success {
-    background: color-mix(in srgb, rgb(34 197 94) 16%, transparent);
-    color: rgb(74 222 128);
-    border-color: color-mix(in srgb, rgb(34 197 94) 26%, transparent);
+    background: color-mix(in srgb, var(--d-green) 14%, transparent);
+    color: var(--d-green);
+    border-color: color-mix(in srgb, var(--d-green) 28%, transparent);
   }
+  .btn-success:hover { background: color-mix(in srgb, var(--d-green) 24%, transparent); }
 
   .btn-info {
-    background: color-mix(in srgb, rgb(59 130 246) 16%, transparent);
-    color: rgb(96 165 250);
-    border-color: color-mix(in srgb, rgb(59 130 246) 26%, transparent);
+    background: color-mix(in srgb, var(--d-cyan) 14%, transparent);
+    color: var(--d-cyan);
+    border-color: color-mix(in srgb, var(--d-cyan) 28%, transparent);
   }
+  .btn-info:hover { background: color-mix(in srgb, var(--d-cyan) 24%, transparent); }
 
   .season-content {
     transition: max-height 0.32s ease, opacity 0.25s ease, transform 0.25s ease;
@@ -173,30 +232,30 @@
   }
 
   .match-card {
-    background: color-mix(in srgb, var(--bg) 72%, transparent);
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-    border-radius: 1.25rem;
-    padding: 1rem;
-    transition: all 0.2s ease;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 0.8rem;
+    padding: 0.85rem;
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
   }
 
   .match-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     border-color: color-mix(in srgb, var(--primary) 35%, transparent);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--shadow-soft);
   }
 
   .match-card.active {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+    box-shadow: 0 0 0 3px var(--ring);
   }
 
   .match-thumb {
-    width: 4.75rem;
-    height: 7rem;
-    border-radius: 1rem;
+    width: 4.25rem;
+    height: 6.3rem;
+    border-radius: 0.6rem;
     object-fit: cover;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--hairline);
     flex-shrink: 0;
   }
 
@@ -212,6 +271,7 @@
     width: min(100%, 56rem);
     max-height: calc(100dvh - 1rem);
     overflow: hidden;
+    border-radius: 1rem;
   }
 
   .speed-modal-body {
@@ -220,12 +280,45 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  /* ── Confirm modal (delete/replace prompts) ──────────────────────────── */
+  .ac-modal {
+    width: 100%; max-width: 340px;
+    background: color-mix(in srgb, var(--card) 97%, var(--bg));
+    border: 1px solid var(--hairline-strong);
+    border-radius: 1.1rem;
+    padding: 1.35rem 1.25rem 1.1rem;
+    box-shadow: var(--shadow-strong);
+    text-align: center;
+    animation: ac-pop 180ms cubic-bezier(.2,1,.3,1);
+  }
+  .ac-icon {
+    width: 3rem; height: 3rem; margin: 0 auto 0.7rem;
+    border-radius: 9999px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem;
+  }
+  .ac-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 0.35rem; line-height: 1.25; }
+  .ac-message { font-size: 0.78rem; color: color-mix(in srgb, var(--primary) 30%, var(--text-sec)); line-height: 1.4; margin-bottom: 1rem; overflow-wrap: anywhere; word-break: break-all; }
+  .ac-actions { display: flex; gap: 0.5rem; }
+  .ac-btn {
+    flex: 1; padding: 0.55rem 0.8rem; border-radius: 0.65rem;
+    font-size: 0.8rem; font-weight: 800; cursor: pointer;
+    border: 1px solid var(--hairline); transition: filter .15s ease, background .15s ease;
+  }
+  .ac-cancel { background: var(--surface); color: var(--text); }
+  .ac-cancel:hover { background: var(--surface-2); }
+  .ac-danger { background: var(--d-red); color: #fff; border-color: transparent; box-shadow: 0 6px 16px color-mix(in srgb, var(--d-red) 50%, transparent); }
+  .ac-danger:hover { filter: brightness(1.08); }
+  .ac-primary { background: var(--primary); color: #fff; border-color: transparent; box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent); }
+  .ac-primary:hover { filter: brightness(1.08); }
+  @keyframes ac-pop { from { opacity: 0; transform: scale(0.94) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
   @media (max-width: 640px) {
     .btn-ui { width: 100%; }
     .speed-modal-shell {
       width: calc(100vw - 0.75rem);
       max-height: calc(100dvh - 0.75rem);
-      border-radius: 1.25rem;
+      border-radius: 0.9rem;
     }
 
     .speed-modal-body {
@@ -233,20 +326,21 @@
     }
   }
 
+  /* ── Tabs — compact pill bar ───────────────────────────────────────── */
   .edit-tabs {
     position: sticky;
     top: 0.5rem;
     z-index: 20;
     display: flex;
-    gap: 0.4rem;
+    gap: 0.3rem;
     overflow-x: auto;
-    padding: 0.4rem;
-    margin-bottom: 1.5rem;
-    border-radius: 1.25rem;
+    padding: 0.35rem;
+    margin-bottom: 1rem;
+    border-radius: 0.85rem;
     scrollbar-width: none;
     background: color-mix(in srgb, var(--card) 90%, var(--bg));
-    border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-soft);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
@@ -258,11 +352,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
+    gap: 0.4rem;
     white-space: nowrap;
-    padding: 0.65rem 1rem;
-    border-radius: 0.95rem;
-    font-size: 0.9rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.6rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--text-sec);
     border: 1px solid transparent;
@@ -272,13 +366,13 @@
 
   .edit-tab:hover {
     color: var(--text);
-    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    background: var(--surface);
   }
 
   .edit-tab.active {
-    color: #fff;
+    color: var(--bg);
     background: var(--primary);
-    box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 30%, transparent);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 30%, transparent);
   }
 
   .edit-panel {
@@ -293,14 +387,14 @@
   @media (max-width: 640px) {
     .edit-tab {
       flex: 0 0 auto;
-      font-size: 0.82rem;
-      padding: 0.55rem 0.85rem;
+      font-size: 0.78rem;
+      padding: 0.5rem 0.8rem;
     }
   }
 </style>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-    <div class="glass-card rounded-3xl p-5 sm:p-6 mb-6 sm:mb-8">
+<div class="pb-4 sm:pb-5">
+    <div class="glass-card p-4 sm:p-5 mb-4 sm:mb-5">
         <div class="flex flex-col gap-4">
             <a id="back-to-list" href="/media/manage?media_type={{ media_type }}"
                class="inline-flex items-center gap-2 text-primary font-semibold hover:opacity-90 w-fit">
@@ -312,16 +406,21 @@
             </a>
 
             <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
-                <div>
-                    <h1 class="section-title text-2xl sm:text-3xl lg:text-4xl">Edit {{ media_type|title }}</h1>
-                    <p class="muted mt-1 text-sm sm:text-base">TMDB ID: {{ tmdb_id }} · DB Index: {{ db_index }}</p>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                        <i class="fa-solid {{ 'fa-film' if media_type == 'movie' else 'fa-tv' }} text-base" style="color:var(--primary)"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h1 class="gradient-text text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">Edit {{ media_type|title }}</h1>
+                        <p class="muted mt-0.5 text-xs sm:text-sm truncate">TMDB ID: {{ tmdb_id }} · DB Index: {{ db_index }}</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     {% if media_details %}
-    <div class="glass-card rounded-3xl overflow-hidden mb-6 sm:mb-8">
+    <div class="glass-card overflow-hidden mb-4 sm:mb-5">
         <div class="hero-wrap">
             {% if media_details.backdrop %}
             <img src="{{ cover_url(media_details.backdrop) }}" alt="{{ media_details.title }} backdrop" class="hero-backdrop"
@@ -329,12 +428,12 @@
             {% endif %}
             <div class="hero-gradient"></div>
 
-            <div class="relative z-10 p-5 sm:p-6 lg:p-8">
+            <div class="relative z-10 p-4 sm:p-5 lg:p-6">
                 <div class="flex flex-col md:flex-row md:items-end gap-5 sm:gap-6">
                     <div class="mx-auto md:mx-0 flex-shrink-0">
                         <img src="{{ cover_url(media_details.poster) or '/static/placeholder.jpg' }}"
                              alt="{{ media_details.title }}"
-                             class="w-36 sm:w-40 md:w-48 h-54 sm:h-60 md:h-72 object-cover rounded-2xl shadow-2xl border border-hairline-strong"
+                             class="w-32 sm:w-36 md:w-44 h-48 sm:h-54 md:h-64 object-cover rounded-lg shadow-2xl border border-hairline-strong"
                              onerror="this.src='https://via.placeholder.com/300x450/e5e7eb/9ca3af?text=No+Image'">
                     </div>
 
@@ -343,24 +442,24 @@
                             {{ media_details.title }}
                         </h2>
 
-                        <div class="flex flex-wrap justify-center md:justify-start items-center gap-2 sm:gap-3 mt-4">
+                        <div class="flex flex-wrap justify-center md:justify-start items-center gap-2 mt-3">
                             {% if media_details.rating %}
-                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-400 text-black text-sm font-extrabold shadow-sm">
-                                ⭐ {{ media_details.rating }}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-extrabold shadow-sm" style="background:var(--d-yellow); color:#1a1a1a">
+                                <i class="fa-solid fa-star"></i> {{ media_details.rating }}
                             </span>
                             {% endif %}
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-3 text-white text-xs font-semibold border border-hairline-strong">
                                 {{ media_details.release_year }}
                             </span>
                             {% if media_details.genres %}
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-3 text-white text-xs font-semibold border border-hairline-strong">
                                 {{ media_details.genres|length }} genre{{ 's' if media_details.genres|length != 1 else '' }}
                             </span>
                             {% endif %}
                         </div>
 
                         {% if media_details.genres %}
-                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-4">
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-3">
                             {% for genre in media_details.genres[:8] %}
                             <span class="pill">{{ genre }}</span>
                             {% endfor %}
@@ -372,8 +471,8 @@
         </div>
 
         {% if media_details.description %}
-        <div class="border-t border-hairline p-5 sm:p-6 lg:p-8">
-            <h3 class="section-title text-lg sm:text-xl mb-3">Overview</h3>
+        <div class="border-t p-4 sm:p-5 lg:p-6" style="border-color: var(--hairline-soft)">
+            <h3 class="section-title text-base sm:text-lg mb-2.5"><span class="st-ic" style="--sic:var(--d-cyan)"><i class="fa-solid fa-align-left"></i></span>Overview</h3>
             <p class="muted leading-7 text-sm sm:text-base">{{ media_details.description }}</p>
         </div>
         {% endif %}
@@ -382,19 +481,19 @@
 
     {% if media_details %}
     <div class="edit-tabs" role="tablist" id="edit-tabs">
-        <button type="button" class="edit-tab active" data-tab="details" onclick="switchEditTab('details')">📝 <span>Details</span></button>
-        <button type="button" class="edit-tab" data-tab="content" onclick="switchEditTab('content')">🎬 <span>Content</span></button>
-        <button type="button" class="edit-tab" data-tab="subtitles" onclick="switchEditTab('subtitles')">💬 <span>Subtitles</span></button>
-        <button type="button" class="edit-tab" data-tab="catalog" onclick="switchEditTab('catalog')">📚 <span>Catalog</span></button>
-        <button type="button" class="edit-tab" data-tab="rescan" onclick="switchEditTab('rescan')">🔄 <span>Rescan</span></button>
+        <button type="button" class="edit-tab active" data-tab="details" onclick="switchEditTab('details')"><i class="fa-solid fa-file-lines"></i> <span>Details</span></button>
+        <button type="button" class="edit-tab" data-tab="content" onclick="switchEditTab('content')"><i class="fa-solid fa-film"></i> <span>Content</span></button>
+        <button type="button" class="edit-tab" data-tab="subtitles" onclick="switchEditTab('subtitles')"><i class="fa-solid fa-closed-captioning"></i> <span>Subtitles</span></button>
+        <button type="button" class="edit-tab" data-tab="catalog" onclick="switchEditTab('catalog')"><i class="fa-solid fa-layer-group"></i> <span>Catalog</span></button>
+        <button type="button" class="edit-tab" data-tab="rescan" onclick="switchEditTab('rescan')"><i class="fa-solid fa-arrows-rotate"></i> <span>Rescan</span></button>
     </div>
     {% endif %}
 
     {% if media_details %}
-    <div class="glass-card edit-panel hidden rounded-3xl p-5 sm:p-6 lg:p-8 mb-6 sm:mb-8" data-panel="rescan">
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-5 sm:mb-6">
+    <div class="glass-card edit-panel hidden p-4 sm:p-5 lg:p-6 mb-4 sm:mb-5" data-panel="rescan">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-4 sm:mb-5">
             <div>
-                <h3 class="section-title text-xl sm:text-2xl">Rescan Metadata</h3>
+                <h3 class="section-title text-lg sm:text-xl"><span class="st-ic" style="--sic:var(--d-orange)"><i class="fa-solid fa-arrows-rotate"></i></span>Rescan Metadata</h3>
                 <p class="muted mt-1 text-sm sm:text-base">
                     Use this only when the auto-detected {{ media_type }} is mismatched. Existing Telegram files will stay safe.
                 </p>
@@ -411,7 +510,7 @@
                 value="{{ media_details.title if media_details else '' }}"
             >
             <button type="button" class="btn-ui btn-primary" onclick="searchRescanCandidates()">
-                🔎 Search Matches
+                <i class="fa-solid fa-magnifying-glass"></i> Search Matches
             </button>
         </div>
 
@@ -419,7 +518,7 @@
 
         <div id="rescan-results" class="grid grid-cols-1 xl:grid-cols-2 gap-3 mt-4"></div>
 
-        <div id="rescan-preview" class="hidden mt-5 rounded-3xl border border-hairline bg-surface p-4 sm:p-5">
+        <div id="rescan-preview" class="hidden mt-4 rounded-xl border border-hairline bg-surface p-4 sm:p-5">
             <div class="flex items-start gap-4">
                 <img id="rescan-preview-poster" src="/static/placeholder.jpg" alt="Selected poster" class="match-thumb">
                 <div class="min-w-0 flex-1">
@@ -432,7 +531,7 @@
             <div class="flex flex-col sm:flex-row justify-end gap-3 mt-5">
                 <button type="button" onclick="clearRescanSelection()" class="btn-ui btn-ghost">Cancel</button>
                 <button type="button" onclick="applyRescanSelection()" class="btn-ui btn-primary">
-                    ✨ Apply Selected Match
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Apply Selected Match
                 </button>
             </div>
         </div>
@@ -441,21 +540,28 @@
 
 
     {% if media_details %}
-    <div class="glass-card edit-panel hidden rounded-3xl p-5 sm:p-6 lg:p-8 mb-6 sm:mb-8" data-panel="catalog">
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-5 sm:mb-6">
+    <div class="glass-card edit-panel hidden p-4 sm:p-5 lg:p-6 mb-4 sm:mb-5" data-panel="catalog">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-4 sm:mb-5">
             <div>
-                <h3 class="section-title text-xl sm:text-2xl">Custom Catalog</h3>
+                <h3 class="section-title text-lg sm:text-xl"><span class="st-ic" style="--sic:var(--d-pink)"><i class="fa-solid fa-layer-group"></i></span>Custom Catalog</h3>
                 <p class="muted mt-1 text-sm sm:text-base">Add this title directly into any custom Stremio catalog.</p>
             </div>
             <a href="/catalogs" class="btn-ui btn-ghost">Manage Catalogs</a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3">
-            <select id="custom-catalog-select" class="field-input">
-                <option value="">Loading catalogs...</option>
-            </select>
+            <div class="ui-select">
+                <select id="custom-catalog-select" class="ui-select-native">
+                    <option value="">Loading catalogs...</option>
+                </select>
+                <button type="button" class="field-input ui-select-trigger">
+                    <span class="ui-select-label">Loading catalogs...</span>
+                    <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <button type="button" onclick="addCurrentMediaToCatalog()" class="btn-ui btn-primary">
-                ➕ Add to Catalog
+                <i class="fa-solid fa-plus"></i> Add to Catalog
             </button>
             <button type="button" onclick="removeCurrentMediaFromCatalog()" class="btn-ui btn-danger">
                 Remove
@@ -467,11 +573,18 @@
         <div class="mt-5 pt-5" style="border-top:1px solid color-mix(in srgb, var(--border) 85%, transparent)">
             <label class="field-label">Who can see this title</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                <select id="media-visibility" class="field-input" onchange="onMediaVisibilityChange()">
-                    <option value="public">Everyone</option>
-                    <option value="tokens">Specific users</option>
-                    <option value="owner">Owner only (hidden)</option>
-                </select>
+                <div class="ui-select flex-1">
+                    <select id="media-visibility" class="ui-select-native" onchange="onMediaVisibilityChange()">
+                        <option value="public">Everyone</option>
+                        <option value="tokens">Specific users</option>
+                        <option value="owner">Owner only (hidden)</option>
+                    </select>
+                    <button type="button" class="field-input ui-select-trigger">
+                        <span class="ui-select-label">Everyone</span>
+                        <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                    </button>
+                    <div class="ui-select-panel hidden" role="listbox"></div>
+                </div>
                 <button type="button" onclick="applyMediaVisibility()" class="btn-ui btn-primary sm:w-auto shrink-0">Apply</button>
             </div>
             <div id="media-token-picker-wrap" class="hidden mt-3">
@@ -495,13 +608,13 @@
         .me-chip-empty { color: var(--text-sec); background: color-mix(in srgb, var(--bg) 70%, transparent); }
     </style>
 
-    <div class="glass-card edit-panel rounded-3xl p-5 sm:p-6 lg:p-8 mb-6 sm:mb-8" data-panel="details">
-        <div class="flex items-center justify-between gap-3 mb-5 sm:mb-6">
-            <h3 class="section-title text-xl sm:text-2xl">Edit Details</h3>
+    <div class="glass-card edit-panel p-4 sm:p-5 lg:p-6 mb-4 sm:mb-5" data-panel="details">
+        <div class="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+            <h3 class="section-title text-lg sm:text-xl"><span class="st-ic" style="--sic:var(--d-green)"><i class="fa-solid fa-file-lines"></i></span>Edit Details</h3>
         </div>
 
         <form onsubmit="updateMedia(event)" id="edit-form">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-5">
                 <div class="md:col-span-2">
                     <label class="field-label">Title *</label>
                     <input type="text" id="title" name="title" value="{{ media_details.title if media_details else '' }}"
@@ -567,12 +680,12 @@
     </div>
 
     {% if media_details %}
-    <div class="glass-card edit-panel hidden rounded-3xl p-5 sm:p-6 lg:p-8" data-panel="content">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 sm:mb-6">
-            <h3 class="section-title text-xl sm:text-2xl">Available Content</h3>
+    <div class="glass-card edit-panel hidden p-4 sm:p-5 lg:p-6" data-panel="content">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-5">
+            <h3 class="section-title text-lg sm:text-xl"><span class="st-ic" style="--sic:var(--d-cyan)"><i class="fa-solid fa-film"></i></span>Available Content</h3>
             <div class="flex items-center gap-2">
                 <button type="button" onclick="openAddStream()" class="btn-ui btn-success">
-                    ➕ {{ 'Add Season / Episode / Stream' if media_type == 'tv' else 'Add Stream' }}
+                    <i class="fa-solid fa-plus"></i> {{ 'Add Season / Episode / Stream' if media_type == 'tv' else 'Add Stream' }}
                 </button>
             </div>
         </div>
@@ -581,11 +694,11 @@
         <div class="space-y-3" id="movie-quality-list">
             {% set sorted_qualities = media_details.telegram|sort(attribute='quality') %}
             {% for quality in sorted_qualities %}
-            <div class="quality-row rounded-2xl p-4 sm:p-5" data-quality-row>
+            <div class="quality-row p-3.5 sm:p-4" data-quality-row>
                 <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <span class="quality-badge bg-blue-500/15 text-blue-300 border border-blue-500/20">
+                            <span class="quality-badge" style="background:color-mix(in srgb, var(--d-cyan) 15%, transparent); color:var(--d-cyan); border:1px solid color-mix(in srgb, var(--d-cyan) 30%, transparent)">
                                 {{ quality.quality }}
                             </span>
                             <span class="pill">{{ quality.size }}</span>
@@ -595,10 +708,10 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full sm:w-auto xl:min-w-[24rem]">
                         <button onclick="copyStreamLink('{{ quality.id }}', '{{ quality.name }}')" class="btn-ui btn-success w-full" title="Copy direct stream link">
-                            📋 Copy Link
+                            <i class="fa-solid fa-copy"></i> Copy Link
                         </button>
                         <button onclick="runSpeedTest('{{ quality.id }}', 'movie', '{{ quality.quality }}')" class="btn-ui btn-info w-full">
-                            🚀 Speed Test
+                            <i class="fa-solid fa-rocket"></i> Speed Test
                         </button>
                         <button onclick="deleteQuality('{{ quality.id }}', this)" class="btn-ui btn-danger w-full">
                             Delete
@@ -613,13 +726,13 @@
         </div>
 
         {% elif media_type == 'tv' and media_details.seasons %}
-        <div class="space-y-4 sm:space-y-5" id="season-list">
+        <div class="space-y-3 sm:space-y-4" id="season-list">
             {% for season in media_details.seasons|sort(attribute='season_number') %}
-            <div class="glass-card-soft rounded-3xl overflow-hidden border border-hairline" data-season-block data-season="{{ season.season_number }}">
-                <div class="px-4 sm:px-5 lg:px-6 py-4 sm:py-5 border-b border-hairline bg-surface">
+            <div class="glass-card-soft overflow-hidden border border-hairline" data-season-block data-season="{{ season.season_number }}">
+                <div class="px-4 sm:px-5 py-3 sm:py-3.5 border-b bg-surface" style="border-color: var(--hairline-soft)">
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0">
-                            <h4 class="section-title text-base sm:text-lg lg:text-xl">Season {{ season.season_number }}</h4>
+                            <h4 class="section-title text-sm sm:text-base lg:text-lg"><span class="st-ic" style="--sic:var(--d-cyan); font-size:0.85rem"><i class="fa-solid fa-layer-group"></i></span>Season {{ season.season_number }}</h4>
                             <p class="muted text-xs sm:text-sm mt-1" data-ep-count>{{ season.episodes|length }} episode{{ 's' if season.episodes|length != 1 else '' }}</p>
                         </div>
 
@@ -638,11 +751,11 @@
                 </div>
 
                 <div id="season-content-{{ loop.index0 }}" class="season-content">
-                    <div class="divide-y divide-hairline" data-episodes>
+                    <div class="divide-y divide-hairline-soft" data-episodes>
                         {% for episode in season.episodes|sort(attribute='episode_number') %}
                         <div class="p-4 sm:p-5" data-episode-block data-episode="{{ episode.episode_number }}">
                             <div class="flex flex-col xl:flex-row xl:items-start gap-4">
-                                <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary/15 border border-primary/20 flex items-center justify-center mx-auto xl:mx-0">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center mx-auto xl:mx-0">
                                     <span class="text-sm font-black text-primary">{{ episode.episode_number }}</span>
                                 </div>
 
@@ -658,11 +771,11 @@
                                         {% if episode.telegram %}
                                         {% set sorted_episode_qualities = episode.telegram|sort(attribute='quality') %}
                                         {% for quality in sorted_episode_qualities %}
-                                        <div class="quality-row rounded-2xl p-3 sm:p-4" data-tv-quality>
+                                        <div class="quality-row p-3 sm:p-3.5" data-tv-quality>
                                             <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                                                 <div class="min-w-0 flex-1">
                                                     <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                                                        <span class="quality-badge bg-green-500/15 text-green-300 border border-green-500/20">{{ quality.quality }}</span>
+                                                        <span class="quality-badge" style="background:color-mix(in srgb, var(--d-green) 15%, transparent); color:var(--d-green); border:1px solid color-mix(in srgb, var(--d-green) 30%, transparent)">{{ quality.quality }}</span>
                                                         <span class="pill">{{ quality.size }}</span>
                                                     </div>
                                                     <p class="muted text-xs sm:text-sm mt-2 break-all">{{ quality.name }}</p>
@@ -670,10 +783,10 @@
 
                                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full sm:w-auto xl:min-w-[22rem]">
                                                     <button onclick="copyStreamLink('{{ quality.id }}', '{{ quality.name }}')" class="btn-ui btn-success w-full text-xs sm:text-sm">
-                                                        📋 Copy
+                                                        <i class="fa-solid fa-copy"></i> Copy
                                                     </button>
                                                     <button onclick="runSpeedTest('{{ quality.id }}', 'tv', '{{ quality.quality }}')" class="btn-ui btn-info w-full text-xs sm:text-sm">
-                                                        🚀 Speed Test
+                                                        <i class="fa-solid fa-rocket"></i> Speed Test
                                                     </button>
                                                     <button onclick="deleteTVQuality({{ season.season_number }}, {{ episode.episode_number }}, '{{ quality.id }}', this)" class="btn-ui btn-danger w-full text-xs sm:text-sm">
                                                         Delete
@@ -709,13 +822,13 @@
         {% endif %}
     </div>
 
-    <div class="glass-card edit-panel hidden rounded-3xl p-5 sm:p-6 lg:p-8" data-panel="subtitles">
+    <div class="glass-card edit-panel hidden p-4 sm:p-5 lg:p-6" data-panel="subtitles">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div>
-                <h3 class="section-title text-xl sm:text-2xl">Subtitles</h3>
+                <h3 class="section-title text-lg sm:text-xl"><span class="st-ic" style="--sic:var(--d-purple)"><i class="fa-solid fa-closed-captioning"></i></span>Subtitles</h3>
                 <p class="muted text-sm mt-1">Attach subtitle files from a Telegram channel your bot can read.</p>
             </div>
-            <button type="button" onclick="openSubtitleModal()" class="btn-ui btn-success">➕ Add Subtitle</button>
+            <button type="button" onclick="openSubtitleModal()" class="btn-ui btn-success"><i class="fa-solid fa-plus"></i> Add Subtitle</button>
         </div>
         <div id="subtitle-list" class="space-y-2"></div>
         <div id="subtitle-empty" class="hidden text-center py-8"><p class="muted text-sm">No subtitles added yet.</p></div>
@@ -727,47 +840,47 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSpeedTest()"></div>
 
     <div class="absolute inset-0 flex items-center justify-center p-2 sm:p-4">
-        <div class="glass-card speed-modal-shell rounded-2xl sm:rounded-3xl">
-            <div class="flex items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline bg-surface">
+        <div class="glass-card speed-modal-shell">
+            <div class="flex items-start sm:items-center justify-between gap-3 px-3 sm:px-5 py-3 border-b bg-surface" style="border-color: var(--hairline-soft)">
                 <div class="min-w-0">
-                    <h2 class="text-base sm:text-xl font-black text-white leading-tight">🚀 DC Speed Test</h2>
-                    <p id="st-label" class="text-[11px] sm:text-sm text-text-secondary mt-1 break-all"></p>
+                    <h2 class="text-sm sm:text-base font-black text-white leading-tight flex items-center gap-2"><i class="fa-solid fa-rocket" style="color:var(--d-orange)"></i> DC Speed Test</h2>
+                    <p id="st-label" class="text-[10px] sm:text-xs text-text-secondary mt-0.5 break-all"></p>
                 </div>
-                <button onclick="closeSpeedTest()" class="flex-shrink-0 text-text-secondary hover:text-white text-3xl leading-none transition-colors">&times;</button>
+                <button onclick="closeSpeedTest()" class="flex-shrink-0 text-text-secondary hover:text-white text-2xl leading-none transition-colors">&times;</button>
             </div>
 
-            <div class="speed-modal-body px-4 sm:px-6 py-5 sm:py-6">
-                <div id="st-spinner" class="flex flex-col items-center gap-4 py-8 sm:py-10">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-hairline-strong border-t-primary st-spin"></div>
+            <div class="speed-modal-body px-3 sm:px-5 py-3 sm:py-4">
+                <div id="st-spinner" class="flex flex-col items-center gap-3 py-6 sm:py-8">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-hairline-strong border-t-primary st-spin"></div>
                     <p class="text-sm text-text text-center">Testing all DC clients simultaneously…</p>
                     <p class="text-xs text-text-secondary text-center max-w-md">Downloading 100 MB from each bot client</p>
                 </div>
 
                 <div id="st-results" class="hidden">
-                    <div class="overflow-x-auto rounded-2xl border border-hairline">
-                        <table class="w-full min-w-[760px] text-sm">
+                    <div class="rounded-lg border border-hairline-soft">
+                        <table class="w-full text-xs sm:text-sm">
                             <thead class="bg-surface text-left">
                                 <tr class="text-text-secondary">
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Bot / DC</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Ping</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Speed</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Time</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Downloaded</th>
-                                    <th class="px-4 py-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Status</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Bot / DC</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Ping</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Speed</th>
+                                    <th class="hidden sm:table-cell px-3 py-2 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Time</th>
+                                    <th class="hidden sm:table-cell px-3 py-2 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">Downloaded</th>
+                                    <th class="px-2 sm:px-3 py-2 font-semibold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="st-tbody" class="divide-y divide-hairline bg-surface"></tbody>
+                            <tbody id="st-tbody" class="divide-y divide-hairline-soft bg-surface"></tbody>
                         </table>
                     </div>
-                    <p id="st-summary" class="text-xs text-text-secondary mt-3 text-right"></p>
+                    <p id="st-summary" class="text-[11px] sm:text-xs text-text-secondary mt-2 text-right"></p>
                 </div>
 
-                <div id="st-error" class="hidden mt-2 rounded-2xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-200"></div>
+                <div id="st-error" class="hidden mt-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2.5 text-sm text-red-200"></div>
             </div>
 
-            <div class="flex flex-col sm:flex-row justify-end gap-3 px-4 sm:px-6 py-4 border-t border-hairline bg-surface">
+            <div class="flex flex-col sm:flex-row justify-end gap-2.5 px-3 sm:px-5 py-3 border-t bg-surface" style="border-color: var(--hairline-soft)">
                 <button id="st-rerun-btn" onclick="rerunSpeedTest()" class="hidden btn-ui btn-primary">
-                    🔄 Re-run
+                    <i class="fa-solid fa-arrows-rotate"></i> Re-run
                 </button>
                 <button onclick="closeSpeedTest()" class="btn-ui btn-ghost">
                     Close
@@ -779,25 +892,25 @@
 
 <style>
     #add-stream-modal .as-input {
-        width: 100%; border-radius: 0.85rem;
-        border: 1px solid color-mix(in srgb, var(--border) 95%, transparent);
-        background: color-mix(in srgb, var(--bg) 78%, transparent);
-        color: var(--text); padding: 0.7rem 0.9rem; font-size: 0.9rem; outline: none;
+        width: 100%; border-radius: 0.6rem;
+        border: 1px solid var(--hairline);
+        background: color-mix(in srgb, var(--bg) 65%, transparent);
+        color: var(--text); padding: 0.6rem 0.85rem; font-size: 0.88rem; outline: none;
     }
-    #add-stream-modal .as-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent); }
-    #add-stream-modal .as-label { display:block; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-sec); margin-bottom:0.35rem; }
-    #add-stream-modal .as-btn { display:inline-flex; align-items:center; justify-content:center; gap:0.4rem; border-radius:0.85rem; padding:0.7rem 1.1rem; font-weight:700; font-size:0.88rem; border:1px solid transparent; cursor:pointer; white-space:nowrap; transition:filter .15s ease; }
+    #add-stream-modal .as-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+    #add-stream-modal .as-label { display:block; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-sec); margin-bottom:0.35rem; }
+    #add-stream-modal .as-btn { display:inline-flex; align-items:center; justify-content:center; gap:0.4rem; border-radius:0.6rem; padding:0.6rem 1rem; font-weight:800; font-size:0.83rem; border:1px solid transparent; cursor:pointer; white-space:nowrap; transition:filter .15s ease; }
     #add-stream-modal .as-btn:hover { filter: brightness(1.06); }
-    #add-stream-modal .as-btn-ghost { background: color-mix(in srgb, var(--bg) 74%, transparent); color: var(--text); border-color: color-mix(in srgb, var(--border) 95%, transparent); }
-    #add-stream-modal .as-btn-success { background: rgb(16 185 129); color:#fff; }
+    #add-stream-modal .as-btn-ghost { background: var(--surface); color: var(--text); border-color: var(--hairline); }
+    #add-stream-modal .as-btn-success { background: var(--d-green); color:var(--bg); }
 </style>
 
 <div id="add-stream-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAddStream()"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="glass-card w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[90dvh] flex flex-col">
-            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline">
-                <h2 class="text-base sm:text-xl font-black text-text">➕ Add Stream</h2>
+        <div class="glass-card w-full sm:max-w-xl rounded-t-xl sm:rounded-xl max-h-[92dvh] sm:max-h-[90dvh] flex flex-col">
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b" style="border-color: var(--hairline-soft)">
+                <h2 class="text-base sm:text-lg font-black text-text flex items-center gap-2"><i class="fa-solid fa-plus" style="color:var(--d-green)"></i> Add Stream</h2>
                 <button onclick="closeAddStream()" class="text-text-secondary hover:text-text text-3xl leading-none">&times;</button>
             </div>
 
@@ -847,7 +960,7 @@
                 <input id="as-quality-custom" class="as-input hidden" placeholder="Custom quality label (e.g. 4K HDR)">
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 border-t border-hairline">
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 border-t" style="border-color: var(--hairline-soft)">
                 <button onclick="closeAddStream()" class="as-btn as-btn-ghost w-full sm:w-auto">Cancel</button>
                 <button id="as-submit" onclick="submitAddStream()" class="as-btn as-btn-success w-full sm:w-auto">Add Stream</button>
             </div>
@@ -858,9 +971,9 @@
 <div id="subtitle-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSubtitleModal()"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="glass-card w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[90dvh] flex flex-col">
-            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline">
-                <h2 class="text-base sm:text-xl font-black text-text">➕ Add Subtitle</h2>
+        <div class="glass-card w-full sm:max-w-xl rounded-t-xl sm:rounded-xl max-h-[92dvh] sm:max-h-[90dvh] flex flex-col">
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b" style="border-color: var(--hairline-soft)">
+                <h2 class="text-base sm:text-lg font-black text-text flex items-center gap-2"><i class="fa-solid fa-plus" style="color:var(--d-purple)"></i> Add Subtitle</h2>
                 <button onclick="closeSubtitleModal()" class="text-text-secondary hover:text-text text-3xl leading-none">&times;</button>
             </div>
             <div class="px-4 sm:px-6 py-5 space-y-4 overflow-y-auto flex-1 min-h-0">
@@ -885,9 +998,27 @@
                     <p class="muted text-xs mt-2">Forward the subtitle file to a channel your bot admins (a MANUAL channel is recommended), then paste its message link. Language is auto-detected but you can override it.</p>
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 border-t border-hairline">
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 border-t" style="border-color: var(--hairline-soft)">
                 <button onclick="closeSubtitleModal()" class="btn-ui btn-ghost w-full sm:w-auto">Cancel</button>
                 <button id="sub-submit" onclick="submitSubtitles()" class="btn-ui btn-success w-full sm:w-auto">Add Subtitle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generic confirm modal (replaces native confirm()) -->
+<div id="app-confirm-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-black/65 backdrop-blur-sm" onclick="acCancel()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="ac-modal">
+            <div id="ac-icon-wrap" class="ac-icon">
+                <i id="ac-icon" class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h2 id="ac-title" class="ac-title">Are you sure?</h2>
+            <p id="ac-message" class="ac-message"></p>
+            <div class="ac-actions">
+                <button onclick="acCancel()" class="ac-btn ac-cancel">Cancel</button>
+                <button id="ac-confirm-btn" onclick="acConfirm()" class="ac-btn ac-danger">Delete</button>
             </div>
         </div>
     </div>
@@ -897,6 +1028,40 @@
     const tmdbId = {{ tmdb_id }};
     const dbIndex = {{ db_index }};
     const mediaType = '{{ media_type }}';
+
+    let acResolve = null;
+    function acCancel() {
+        document.getElementById('app-confirm-modal').classList.add('hidden');
+        if (acResolve) { acResolve(false); acResolve = null; }
+    }
+    function acConfirm() {
+        document.getElementById('app-confirm-modal').classList.add('hidden');
+        if (acResolve) { acResolve(true); acResolve = null; }
+    }
+    function appConfirm(message, opts = {}) {
+        const danger = opts.danger !== false;
+        document.getElementById('ac-title').textContent = opts.title || 'Are you sure?';
+        document.getElementById('ac-message').textContent = message;
+        document.getElementById('ac-confirm-btn').textContent = opts.confirmLabel || 'Delete';
+        const iconWrap = document.getElementById('ac-icon-wrap');
+        const icon = document.getElementById('ac-icon');
+        const okBtn = document.getElementById('ac-confirm-btn');
+        if (danger) {
+            iconWrap.style.background = 'color-mix(in srgb, var(--d-red) 18%, transparent)';
+            iconWrap.style.color = 'var(--d-red)';
+            iconWrap.style.boxShadow = '0 0 0 6px color-mix(in srgb, var(--d-red) 9%, transparent)';
+            icon.className = 'fa-solid fa-triangle-exclamation';
+            okBtn.className = 'ac-btn ac-danger';
+        } else {
+            iconWrap.style.background = 'color-mix(in srgb, var(--primary) 15%, transparent)';
+            iconWrap.style.color = 'var(--primary)';
+            iconWrap.style.boxShadow = '0 0 0 6px color-mix(in srgb, var(--primary) 7%, transparent)';
+            icon.className = 'fa-solid fa-circle-question';
+            okBtn.className = 'ac-btn ac-primary';
+        }
+        document.getElementById('app-confirm-modal').classList.remove('hidden');
+        return new Promise(resolve => { acResolve = resolve; });
+    }
 
     let selectedRescanMatch = null;
     let latestRescanResults = [];
@@ -1036,7 +1201,7 @@
             return;
         }
 
-        if (!confirm(`Replace current metadata with "${selectedRescanMatch.title}"?\n\nExisting Telegram files will stay safe.`)) {
+        if (!await appConfirm(`Replace current metadata with "${selectedRescanMatch.title}"? Existing Telegram files will stay safe.`, {title: 'Replace metadata?', confirmLabel: 'Replace'})) {
             return;
         }
 
@@ -1151,7 +1316,7 @@
     }
 
     async function deleteQuality(id, btn) {
-        if (!confirm(`Are you sure you want to delete ${id}?`)) return;
+        if (!await appConfirm(`Are you sure you want to delete ${id}?`, {title: 'Delete quality?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-quality?tmdb_id=${tmdbId}&db_index=${dbIndex}&id=${encodeURIComponent(id)}`, {
@@ -1173,7 +1338,7 @@
     }
 
     async function deleteTVQuality(season, episode, id, btn) {
-        if (!confirm(`Are you sure you want to delete ${id} from Season ${season} Episode ${episode}?`)) return;
+        if (!await appConfirm(`Are you sure you want to delete ${id} from Season ${season} Episode ${episode}?`, {title: 'Delete quality?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-quality?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}&episode=${episode}&id=${encodeURIComponent(id)}`, {
@@ -1202,7 +1367,7 @@
     }
 
     async function deleteTVEpisode(season, episode, btn) {
-        if (!confirm(`Delete Season ${season} Episode ${episode}? This removes the episode and all its qualities.`)) return;
+        if (!await appConfirm(`Delete Season ${season} Episode ${episode}? This removes the episode and all its qualities.`, {title: 'Delete episode?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-episode?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}&episode=${episode}`, {
@@ -1232,7 +1397,7 @@
     }
 
     async function deleteTVSeason(season, btn) {
-        if (!confirm(`Delete the entire Season ${season}? This action cannot be undone.`)) return;
+        if (!await appConfirm(`Delete the entire Season ${season}? This action cannot be undone.`, {title: 'Delete season?'})) return;
 
         try {
             const response = await fetch(`/api/media/delete-tv-season?tmdb_id=${tmdbId}&db_index=${dbIndex}&season=${season}`, {
@@ -1417,9 +1582,9 @@
         box.innerHTML = inList.map(c => {
             const hidden = (c.visibility === 'owner') || (c.visible === false);
             const kind = c.auto ? 'auto' : (hidden ? 'hidden' : 'custom');
-            const icon = c.auto ? '✨' : (hidden ? '🔒' : '🎯');
+            const icon = c.auto ? '<i class="fa-solid fa-wand-magic-sparkles"></i>' : (hidden ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-key"></i>');
             const label = c.auto ? 'Auto' : (hidden ? 'Hidden' : 'Custom');
-            const excl = c.exclusive ? ' · 🔐' : '';
+            const excl = c.exclusive ? ' · <i class="fa-solid fa-lock"></i>' : '';
             return `<span class="me-chip me-chip-${kind}" title="${escapeHtml(label)} catalog">${icon} ${escapeHtml(c.name)}${excl}</span>`;
         }).join('');
     }
@@ -1636,8 +1801,8 @@
     function _miniBar(value, max, color) {
         if (!value || !max) return '';
         const pct = Math.min(100, (value / max) * 100).toFixed(1);
-        return `<div class="w-full bg-surface-2 rounded-full h-1.5 mt-1 overflow-hidden">
-            <div class="${color} h-1.5 rounded-full transition-all" style="width:${pct}%"></div>
+        return `<div class="w-full bg-surface-2 rounded-lg h-1.5 mt-1 overflow-hidden">
+            <div class="${color} h-1.5 rounded-lg transition-all" style="width:${pct}%"></div>
         </div>`;
     }
 
@@ -1669,7 +1834,7 @@
             if (!summaryEl) return;
 
             if (best) {
-                summaryEl.textContent = `🏆 Fastest: DC ${best.dc_id} — ${best.speed_mbps.toFixed(2)} MB/s | ${completedCount}/${totalCount} client(s) done`;
+                summaryEl.textContent = `Fastest: DC ${best.dc_id} — ${best.speed_mbps.toFixed(2)} MB/s | ${completedCount}/${totalCount} client(s) done`;
             } else {
                 summaryEl.textContent = `${completedCount}/${totalCount} client(s) done`;
             }
@@ -1704,12 +1869,12 @@
                     const tr = document.createElement('tr');
                     tr.className = 'animate-pulse';
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-text-secondary">🔄 Bot ${i + 1}</td>
-                        <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
-                        <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
-                        <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3 text-muted">—</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
+                        <td class="px-2 sm:px-3 py-2 font-medium text-text-secondary whitespace-nowrap"><i class="fa-solid fa-arrows-rotate"></i> Bot ${i + 1}</td>
+                        <td class="px-2 sm:px-3 py-2"><span class="text-muted">testing…</span></td>
+                        <td class="px-2 sm:px-3 py-2"><span class="text-muted">testing…</span></td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-muted">—</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-muted">—</td>
+                        <td class="px-2 sm:px-3 py-2"><span class="px-1.5 py-0.5 rounded-lg text-[10px] sm:text-xs bg-surface-2 text-text-secondary">Pending</span></td>`;
                     tbody.appendChild(tr);
                     pendingRows[i] = tr;
                 }
@@ -1732,18 +1897,18 @@
                     const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
                     const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
                     const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
+                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
+                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
 
                     const newTr = document.createElement('tr');
                     newTr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
                     newTr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
-                        <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
-                        <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
-                        <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
-                        <td class="px-4 py-3">${badge}</td>`;
+                        <td class="px-2 sm:px-3 py-2 font-medium text-white whitespace-nowrap">${medal}${dc}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text whitespace-nowrap">${ping}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text">${speed}${isErr ? `<div class="text-[10px] sm:text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-sm">${taken}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-xs">${bytes}</td>
+                        <td class="px-2 sm:px-3 py-2">${badge}</td>`;
 
                     if (pendingRows[r.client_index]) {
                         pendingRows[r.client_index].replaceWith(newTr);
@@ -1769,7 +1934,7 @@
                 for (let i = 0; i < allResults.length; i++) {
                     const r = allResults[i];
                     const isErr = !!r.error && !r.speed_mbps;
-                    const medal = i === 0 && !isErr ? '🥇 ' : '';
+                    const medal = i === 0 && !isErr ? '<i class="fa-solid fa-medal" style="color:var(--d-yellow)"></i> ' : '';
                     const dc = `Bot ${r.client_index + 1} <span class="text-xs text-text-secondary">(DC ${r.dc_id})</span>`;
                     const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
                     const speed = r.speed_mbps !== null
@@ -1779,18 +1944,18 @@
                     const taken = r.time_taken_sec !== null ? `${r.time_taken_sec.toFixed(2)}s` : '—';
                     const bytes = r.bytes_downloaded ? `${(r.bytes_downloaded / 1048576).toFixed(2)} MB` : '—';
                     const badge = isErr
-                        ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
-                        : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
+                        ? `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-200 border border-rose-500/20">Error</span>`
+                        : `<span class="px-2 py-0.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-200 border border-emerald-500/20">✓ OK</span>`;
 
                     const tr = document.createElement('tr');
                     tr.className = `transition-colors ${isErr ? 'opacity-70' : ''}`;
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-white">${medal}${dc}</td>
-                        <td class="px-4 py-3 text-text">${ping}</td>
-                        <td class="px-4 py-3 text-text">${speed}${isErr ? `<div class="text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
-                        <td class="px-4 py-3 text-text-secondary text-sm">${taken}</td>
-                        <td class="px-4 py-3 text-text-secondary text-xs">${bytes}</td>
-                        <td class="px-4 py-3">${badge}</td>`;
+                        <td class="px-2 sm:px-3 py-2 font-medium text-white whitespace-nowrap">${medal}${dc}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text whitespace-nowrap">${ping}</td>
+                        <td class="px-2 sm:px-3 py-2 text-text">${speed}${isErr ? `<div class="text-[10px] sm:text-xs text-rose-300 mt-1">${r.error}</div>` : ''}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-sm">${taken}</td>
+                        <td class="hidden sm:table-cell px-3 py-2 text-text-secondary text-xs">${bytes}</td>
+                        <td class="px-2 sm:px-3 py-2">${badge}</td>`;
                     tbody.appendChild(tr);
                 }
 
@@ -1962,9 +2127,17 @@
         div.className = 'flex flex-col sm:flex-row gap-2';
         div.setAttribute('data-sub-row', '');
         div.innerHTML = `<input class="field-input flex-1 sub-url" placeholder="Telegram message link" value="${url}">
-            <select class="field-input sm:w-44 sub-lang">${subtitleLangOptions()}</select>
+            <div class="ui-select sm:w-44">
+                <select class="ui-select-native sub-lang">${subtitleLangOptions()}</select>
+                <button type="button" class="field-input ui-select-trigger">
+                    <span class="ui-select-label">Auto-detect</span>
+                    <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                </button>
+                <div class="ui-select-panel hidden" role="listbox"></div>
+            </div>
             <button type="button" onclick="this.closest('[data-sub-row]').remove()" class="btn-ui btn-ghost w-full sm:w-auto">Remove</button>`;
         document.getElementById('subtitle-rows').appendChild(div);
+        enhanceSelect(div.querySelector('.sub-lang'));
     }
 
     async function loadSubtitleLanguages() {
@@ -1989,10 +2162,10 @@
             listEl.innerHTML = subs.map(s => {
                 const pad = n => String(n).padStart(2, '0');
                 const where = (s.media_type === 'tv' && s.season) ? `S${pad(s.season)}E${pad(s.episode)} · ` : '';
-                return `<div class="quality-row rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                return `<div class="quality-row p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="quality-badge bg-purple-500/15 text-purple-300 border border-purple-500/20">${s.lang_label || s.lang_code || 'Unknown'}</span>
+                            <span class="quality-badge" style="background:color-mix(in srgb, var(--d-purple) 15%, transparent); color:var(--d-purple); border:1px solid color-mix(in srgb, var(--d-purple) 30%, transparent)">${s.lang_label || s.lang_code || 'Unknown'}</span>
                             <span class="pill">${where}${s.source || 'auto'}</span>
                         </div>
                         <p class="muted mt-2 text-sm break-all">${s.name || ''}</p>
@@ -2123,6 +2296,110 @@
         if (document.getElementById('subtitle-list')) {
             loadSubtitleLanguages().then(loadSubtitles);
         }
+    });
+
+    /* ── Themed dropdown engine (replaces native <select> popovers on mobile) ──
+       Wraps a <select class="ui-select-native"> inside a `.ui-select` container.
+       The native select stays fully functional (value / onchange / .innerHTML
+       rebuilds all keep working untouched) — it's just visually hidden while a
+       custom trigger + panel mirror it. */
+    function enhanceSelect(select) {
+        const wrap = select.closest('.ui-select');
+        const trigger = wrap.querySelector('.ui-select-trigger');
+        const label = trigger.querySelector('.ui-select-label');
+        const panel = wrap.querySelector('.ui-select-panel');
+
+        function syncLabel() {
+            const opt = select.options[select.selectedIndex];
+            label.textContent = opt ? opt.textContent : '';
+        }
+
+        const nativeDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        Object.defineProperty(select, 'value', {
+            configurable: true,
+            get() { return nativeDesc.get.call(select); },
+            set(v) { nativeDesc.set.call(select, v); syncLabel(); },
+        });
+
+        new MutationObserver(syncLabel).observe(select, { childList: true, subtree: true, characterData: true });
+
+        function buildPanel() {
+            panel.innerHTML = '';
+            Array.from(select.options).forEach(opt => {
+                const row = document.createElement('div');
+                row.className = 'ui-select-option' + (opt.value === select.value ? ' selected' : '');
+                row.setAttribute('role', 'option');
+                row.innerHTML = `<span>${escapeHtml(opt.textContent)}</span><i class="fa-solid fa-check"></i>`;
+                row.addEventListener('click', () => {
+                    select.value = opt.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePanel();
+                });
+                panel.appendChild(row);
+            });
+        }
+
+        function positionPanel() {
+            // Keep the panel from ever overlapping the modal footer (or the
+            // top of the modal) by measuring real available space each time
+            // it opens, flipping direction and clamping height as needed.
+            panel.classList.remove('drop-up');
+            panel.style.maxHeight = '';
+            const scrollBody = wrap.closest('.overflow-y-auto');
+            const footer = scrollBody ? scrollBody.nextElementSibling : null;
+            const triggerRect = trigger.getBoundingClientRect();
+            const bottomBoundary = footer ? footer.getBoundingClientRect().top : window.innerHeight;
+            const topBoundary = scrollBody ? scrollBody.getBoundingClientRect().top : 0;
+            const gap = 8;
+            const spaceBelow = bottomBoundary - triggerRect.bottom - gap;
+            const spaceAbove = triggerRect.top - topBoundary - gap;
+            const preferred = 224; // 14rem
+            const minUsable = 90;
+            if (spaceBelow < minUsable && spaceAbove > spaceBelow) {
+                panel.classList.add('drop-up');
+                panel.style.maxHeight = Math.max(minUsable, Math.min(preferred, spaceAbove)) + 'px';
+            } else {
+                panel.style.maxHeight = Math.max(minUsable, Math.min(preferred, spaceBelow)) + 'px';
+            }
+        }
+        function openPanel() {
+            document.querySelectorAll('.ui-select.open').forEach(o => { if (o !== wrap) closeOther(o); });
+            buildPanel();
+            panel.classList.remove('hidden');
+            wrap.classList.add('open');
+            positionPanel();
+        }
+        function closePanel() {
+            panel.classList.add('hidden');
+            wrap.classList.remove('open');
+        }
+        function closeOther(otherWrap) {
+            otherWrap.querySelector('.ui-select-panel').classList.add('hidden');
+            otherWrap.classList.remove('open');
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            wrap.classList.contains('open') ? closePanel() : openPanel();
+        });
+
+        syncLabel();
+        wrap._closeUiSelect = closePanel;
+        wrap._positionUiSelect = positionPanel;
+    }
+
+    document.querySelectorAll('.ui-select-native').forEach(enhanceSelect);
+
+    window.addEventListener('resize', () => {
+        document.querySelectorAll('.ui-select.open').forEach(wrap => {
+            if (wrap._positionUiSelect) wrap._positionUiSelect();
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        document.querySelectorAll('.ui-select.open').forEach(wrap => {
+            if (!wrap.contains(e.target) && wrap._closeUiSelect) wrap._closeUiSelect();
+        });
     });
 </script>
 {% endblock %}

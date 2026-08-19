@@ -1,76 +1,80 @@
 {% extends "base.html" %}
 
-{% block title %}Media Management - Telegram Stremio{% endblock %}
+{% block title %}Media Management - CineFlow{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="pb-4 sm:pb-5">
     <!-- Unified toolbar -->
-    <section class="glass-panel rounded-3xl p-4 sm:p-5 mb-6 sm:mb-8">
-        <div class="flex flex-col xl:flex-row xl:items-center gap-4">
-            <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-text shrink-0">
-                <i class="fa-solid fa-clapperboard text-primary mr-2"></i>Media Library
-            </h1>
+    <section class="glass-panel rounded-xl p-4 sm:p-5 mb-4 sm:mb-5 relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
+        <div class="flex flex-col xl:flex-row xl:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-2.5 shrink-0">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                    <i class="fa-solid fa-clapperboard text-sm" style="color:var(--primary)"></i>
+                </div>
+                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-text">Media Library</h1>
+            </div>
 
             <div class="relative flex-1 min-w-0">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary text-xs"></i>
                 <input type="text" id="search-input"
                        placeholder="Search {{ media_type }}s by title..."
-                       class="w-full pl-11 pr-24 py-3 rounded-2xl bg-background text-text placeholder:text-text-secondary border border-border focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary transition">
-                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                       class="w-full pl-10 pr-20 py-2.5 rounded-lg bg-background text-text placeholder:text-text-secondary border border-border focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary transition text-sm">
+                <div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
                     <button onclick="clearSearch()" title="Clear"
-                            class="w-9 h-9 inline-flex items-center justify-center rounded-xl text-text-secondary hover:bg-surface-2 transition">
-                        <i class="fa-solid fa-rotate-left"></i>
+                            class="w-8 h-8 inline-flex items-center justify-center rounded-md text-text-secondary hover:bg-surface-2 transition">
+                        <i class="fa-solid fa-rotate-left text-xs"></i>
                     </button>
                     <button onclick="searchMedia()" title="Search"
-                            class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                            class="w-8 h-8 inline-flex items-center justify-center rounded-md bg-primary text-white shadow-lg shadow-primary/20">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </button>
                 </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
                 <a href="/media/manage?media_type=movie{% if custom %}&custom=1{% endif %}"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border {% if media_type == 'movie' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
-                    <i class="fa-solid fa-film"></i> Movies
+                   class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition border {% if media_type == 'movie' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
+                    <i class="fa-solid fa-film" style="color:{{ 'inherit' if media_type == 'movie' else 'var(--d-cyan)' }}"></i> Movies
                 </a>
                 <a href="/media/manage?media_type=tv{% if custom %}&custom=1{% endif %}"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border {% if media_type == 'tv' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
-                    <i class="fa-solid fa-tv"></i> TV
+                   class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition border {% if media_type == 'tv' %}bg-primary text-white border-primary shadow-lg shadow-primary/20{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
+                    <i class="fa-solid fa-tv" style="color:{{ 'inherit' if media_type == 'tv' else 'var(--d-pink)' }}"></i> TV
                 </a>
-                <label class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border cursor-pointer select-none {% if custom %}bg-amber-500/15 text-amber-300 border-amber-500/40{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}">
+                <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition border cursor-pointer select-none {% if custom %}border-amber-500/40{% else %}glass-panel text-text hover:bg-surface-2 border-hairline{% endif %}" {% if custom %}style="background:color-mix(in srgb, var(--d-yellow) 15%, transparent); color:var(--d-yellow)"{% endif %}>
                     <input type="checkbox" {% if custom %}checked{% endif %}
                            onchange="window.location.href='/media/manage?media_type={{ media_type }}' + (this.checked ? '&custom=1' : '')"
-                           class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
-                    <i class="fa-solid fa-star"></i> Custom
+                           class="w-3.5 h-3.5 rounded accent-amber-500 cursor-pointer">
+                    <i class="fa-solid fa-star" style="color:var(--d-yellow)"></i> Custom
                 </label>
-                <button type="button" onclick="openManualAdd()"
-                   class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full text-sm font-bold transition border bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500/90">
-                    <i class="fa-solid fa-plus"></i> Add
+                <button type="button" onclick="openManualAdd()" title="Add"
+                   class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-bold transition border shadow-lg" style="background:var(--d-green); color:var(--bg); border-color:var(--d-green); box-shadow:0 8px 20px color-mix(in srgb, var(--d-green) 26%, transparent)">
+                    <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </div>
     </section>
 
     <!-- Loading Indicator -->
-    <div id="loading" class="hidden text-center py-16">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full border border-hairline glass-panel mb-4">
-            <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-primary"></div>
+    <div id="loading" class="hidden text-center py-14">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg border border-hairline glass-panel mb-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
         </div>
-        <p class="text-text-secondary">Loading {{ media_type }}s...</p>
+        <p class="text-text-secondary text-sm">Loading {{ media_type }}s...</p>
     </div>
 
     <!-- Error Display -->
-    <div id="error-display" class="hidden mb-6 sm:mb-8">
-        <div class="glass-panel rounded-3xl p-5 sm:p-6 border border-red-500/30">
+    <div id="error-display" class="hidden mb-4 sm:mb-5">
+        <div class="glass-panel rounded-xl p-4 sm:p-5" style="border:1px solid color-mix(in srgb, var(--d-red) 30%, transparent)">
             <div class="flex items-start gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-red-500/15 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--d-red) 15%, transparent)">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:var(--d-red)"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-bold text-red-300">Error Loading Media</h3>
-                    <p id="error-message" class="mt-2 text-sm text-red-200/90"></p>
+                    <h3 class="text-base font-bold" style="color:var(--d-red)">Error Loading Media</h3>
+                    <p id="error-message" class="mt-1.5 text-sm text-text-secondary"></p>
                     <button onclick="retryLoad()"
-                            class="mt-4 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-2xl transition font-bold shadow-lg shadow-primary/20">
+                            class="mt-3 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-3.5 py-2 rounded-lg transition font-bold text-sm shadow-lg shadow-primary/20">
                         <i class="fa-solid fa-rotate-right"></i>
                         Try Again
                     </button>
@@ -81,18 +85,18 @@
 
     <!-- Media Grid -->
     <div id="media-grid"
-         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5 mb-6 sm:mb-8">
+         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-5">
         <!-- Media items will be loaded here -->
     </div>
 
     <!-- No Results -->
-    <div id="no-results" class="hidden text-center py-16">
-        <div class="glass-panel rounded-3xl p-8 max-w-xl mx-auto">
-            <div class="mx-auto w-16 h-16 rounded-2xl bg-surface flex items-center justify-center mb-4 border border-hairline">
-                <i class="fa-solid fa-box-open text-3xl text-text-secondary"></i>
+    <div id="no-results" class="hidden text-center py-14">
+        <div class="glass-panel rounded-xl p-6 sm:p-7 max-w-xl mx-auto">
+            <div class="mx-auto w-14 h-14 rounded-lg bg-surface flex items-center justify-center mb-3 border border-hairline">
+                <i class="fa-solid fa-box-open text-2xl text-text-secondary"></i>
             </div>
-            <h3 class="text-xl font-bold text-text mb-2">No {{ media_type }}s found</h3>
-            <p class="text-sm text-text-secondary mb-6">
+            <h3 class="text-lg font-bold text-text mb-1.5">No {{ media_type }}s found</h3>
+            <p class="text-sm text-text-secondary mb-4">
                 {% if media_type == 'movie' %}
                 No movies match your search criteria.
                 {% else %}
@@ -100,7 +104,7 @@
                 {% endif %}
             </p>
             <button onclick="clearSearch()"
-                    class="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-3 rounded-2xl transition font-bold shadow-lg shadow-primary/20">
+                    class="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-lg transition font-bold text-sm shadow-lg shadow-primary/20">
                 <i class="fa-solid fa-clapperboard"></i>
                 Show All {{ media_type|title }}s
             </button>
@@ -108,16 +112,16 @@
     </div>
 
     <!-- Pagination -->
-    <div id="pagination" class="hidden mt-6 sm:mt-8">
-        <div class="glass-panel rounded-3xl p-3 sm:p-4 overflow-x-auto">
+    <div id="pagination" class="hidden mt-5 sm:mt-6">
+        <div class="glass-panel rounded-xl p-2.5 sm:p-3 overflow-x-auto">
             <div class="flex justify-center items-center gap-2 min-w-max px-1" id="pagination-inner"></div>
         </div>
     </div>
 
     <!-- Media Info -->
-    <div id="media-info" class="hidden mt-6">
-        <div class="glass-panel rounded-3xl p-4 sm:p-5">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-text-secondary">
+    <div id="media-info" class="hidden mt-4">
+        <div class="glass-panel rounded-xl p-3.5 sm:p-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm text-text-secondary">
                 <span id="results-info"></span>
                 <span id="db-info"></span>
             </div>
@@ -280,49 +284,50 @@
     function createMediaCard(item) {
     const title = item.title || item.name || 'Unknown Title';
     const year = item.release_year || 'Unknown Year';
-    const rating = item.rating ? `⭐ ${parseFloat(item.rating).toFixed(1)}` : '';
+    const rating = item.rating ? `<i class="fa-solid fa-star" style="color:var(--d-yellow)"></i> ${parseFloat(item.rating).toFixed(1)}` : '';
     const poster = item.poster || 'https://via.placeholder.com/300x450/e5e7eb/9ca3af?text=No+Image';
 
     // Escape title for data attribute safety
     const safeTitle = title.replace(/"/g, '&quot;');
 
     return `
-        <div class="group overflow-hidden rounded-3xl glass-panel border border-hairline hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+        <div class="group overflow-hidden rounded-xl glass-panel border border-hairline hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div class="relative overflow-hidden">
                 <img src="${poster}" alt="${title}" class="w-full aspect-[2/3] object-cover transition duration-300 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/300x450/e5e7eb/9ca3af?text=No+Image'" loading="lazy">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div class="absolute top-3 left-3">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-bold border border-hairline">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-black/60 text-white text-[11px] font-bold border border-hairline">
                         <i class="fa-solid fa-calendar-days"></i> ${year}
                     </span>
                 </div>
                 ${Number(item.tmdb_id) < 0 ? `
                 <div class="absolute top-3 right-3">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/90 text-white text-[11px] font-bold border border-amber-400/40">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold" style="background:var(--d-yellow); color:#1a1a1a">
                         <i class="fa-solid fa-star"></i> Custom
                     </span>
                 </div>` : ''}
                 ${mediaBadges(item)}
             </div>
 
-            <div class="p-4">
+            <div class="p-3">
                 <h3 class="font-bold text-sm sm:text-base text-text line-clamp-2 min-h-[2.75rem]" title="${title}">${title}</h3>
-                <div class="mt-2 flex items-center justify-between text-xs text-text-secondary">
+                <div class="mt-1.5 flex items-center justify-between text-[11px] text-text-secondary">
                     <span>DB #${item.db_index ?? '-'}</span>
                     <span>${mediaType === 'movie' ? 'Movie' : 'TV Show'}</span>
                 </div>
 
-                <div class="mt-4 flex gap-2">
+                <div class="mt-3 flex gap-1.5">
                     <a href="/media/edit?tmdb_id=${encodeURIComponent(item.tmdb_id)}&db_index=${encodeURIComponent(item.db_index)}&media_type=${encodeURIComponent(mediaType)}&page=${currentPage}${currentSearch ? `&search=${encodeURIComponent(currentSearch)}` : ''}"
-                       class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-primary hover:bg-primary/90 text-white text-xs font-bold transition shadow-lg shadow-primary/20">
+                       class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-primary hover:bg-primary/90 text-white text-xs font-bold transition shadow-lg shadow-primary/20">
                         <i class="fa-solid fa-pen-to-square"></i> Edit
                     </a>
                     <button onclick="deleteMedia(this)"
                             data-tmdb-id="${item.tmdb_id}" 
                             data-db-index="${item.db_index ?? ''}" 
                             data-title="${safeTitle}"
-                            class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-2xl glass-panel hover:bg-red-500/10 text-red-300 text-xs font-bold transition border border-hairline">
+                            class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md glass-panel text-xs font-bold transition border border-hairline"
+                            style="color:var(--d-red)" onmouseover="this.style.background='color-mix(in srgb, var(--d-red) 12%, transparent)'" onmouseout="this.style.background=''">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -346,9 +351,9 @@
 
         if (currentPage > 1) {
             paginationHTML += `
-                <button onclick='loadMedia(${currentPage - 1}, ${JSON.stringify(currentSearch)})'
-                        class="px-4 py-2 rounded-2xl glass-panel hover:bg-surface-2 text-text text-sm font-bold transition border border-hairline">
-                    Previous
+                <button onclick='loadMedia(${currentPage - 1}, ${JSON.stringify(currentSearch)})' title="Previous"
+                        class="w-8 h-8 inline-flex items-center justify-center rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
             `;
         }
@@ -359,7 +364,7 @@
         if (startPage > 1) {
             paginationHTML += `
                 <button onclick='loadMedia(1, ${JSON.stringify(currentSearch)})'
-                        class="px-4 py-2 rounded-2xl glass-panel hover:bg-surface-2 text-text text-sm font-bold transition border border-hairline">
+                        class="px-3 py-1.5 rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
                     1
                 </button>
             `;
@@ -372,7 +377,7 @@
             const isActive = i === currentPage;
             paginationHTML += `
                 <button onclick='loadMedia(${i}, ${JSON.stringify(currentSearch)})'
-                        class="px-4 py-2 rounded-2xl text-sm font-bold transition border
+                        class="px-3 py-1.5 rounded-md text-xs sm:text-sm font-bold transition border
                                ${isActive
                                    ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
                                    : 'glass-panel hover:bg-surface-2 text-text border-hairline'}">
@@ -387,7 +392,7 @@
             }
             paginationHTML += `
                 <button onclick='loadMedia(${totalPages}, ${JSON.stringify(currentSearch)})'
-                        class="px-4 py-2 rounded-2xl glass-panel hover:bg-surface-2 text-text text-sm font-bold transition border border-hairline">
+                        class="px-3 py-1.5 rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
                     ${totalPages}
                 </button>
             `;
@@ -395,9 +400,9 @@
 
         if (currentPage < totalPages) {
             paginationHTML += `
-                <button onclick='loadMedia(${currentPage + 1}, ${JSON.stringify(currentSearch)})'
-                        class="px-4 py-2 rounded-2xl glass-panel hover:bg-surface-2 text-text text-sm font-bold transition border border-hairline">
-                    Next
+                <button onclick='loadMedia(${currentPage + 1}, ${JSON.stringify(currentSearch)})' title="Next"
+                        class="w-8 h-8 inline-flex items-center justify-center rounded-md glass-panel hover:bg-surface-2 text-text text-xs sm:text-sm font-bold transition border border-hairline">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
             `;
         }
@@ -447,7 +452,10 @@
     const dbIndex = buttonElement.getAttribute('data-db-index');
     const title = buttonElement.getAttribute('data-title');
 
-    if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`)) return;
+    const ok = await showConfirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`, {
+        title: 'Delete this title?', okText: 'Delete', cancelText: 'Cancel', danger: true
+    });
+    if (!ok) return;
 
     try {
         const response = await fetch(`/api/media/delete?tmdb_id=${encodeURIComponent(tmdbId)}&db_index=${encodeURIComponent(dbIndex)}&media_type=${encodeURIComponent(mediaType)}`, {
@@ -525,36 +533,38 @@
 
     #pagination .overflow-x-auto::-webkit-scrollbar-thumb {
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--hairline-strong);
     }
 
     .ma-input {
         width: 100%;
-        background: var(--background, var(--bg));
-        border: 1px solid var(--border);
+        background: color-mix(in srgb, var(--bg) 65%, transparent);
+        border: 1px solid var(--hairline);
         color: var(--text);
-        border-radius: 0.9rem;
-        padding: 0.7rem 0.9rem;
-        font-size: 0.9rem;
+        border-radius: 0.6rem;
+        padding: 0.6rem 0.85rem;
+        font-size: 0.88rem;
         outline: none;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
-    .ma-input:focus { border-color: var(--primary); }
-    .ma-label { display:block; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary,var(--text-sec)); margin-bottom:0.35rem; }
-    .ma-tab { flex:1; padding:0.55rem; border-radius:0.75rem; font-weight:700; font-size:0.85rem; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; }
-    .ma-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-    .ma-catalog-picker { max-height:10rem; overflow-y:auto; border:1px solid var(--border); border-radius:0.85rem; padding:.4rem; display:flex; flex-direction:column; gap:.25rem; background:var(--background, var(--bg)); }
-    .ma-cat-row { display:flex; align-items:center; gap:.55rem; padding:.45rem .6rem; border-radius:.6rem; cursor:pointer; transition:background .15s ease; }
+    .ma-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+    .ma-label { display:block; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-sec); margin-bottom:0.35rem; }
+    .ma-tab { flex:1; padding:0.55rem; border-radius:0.6rem; font-weight:800; font-size:0.83rem; border:1px solid var(--hairline); background:var(--surface); color:var(--text); cursor:pointer; transition: background .15s ease, border-color .15s ease; }
+    .ma-tab:hover { background:var(--surface-2); }
+    .ma-tab.active { background:var(--primary); color:var(--bg); border-color:var(--primary); }
+    .ma-catalog-picker { max-height:10rem; overflow-y:auto; border:1px solid var(--hairline); border-radius:0.7rem; padding:.4rem; display:flex; flex-direction:column; gap:.25rem; background:color-mix(in srgb, var(--bg) 65%, transparent); }
+    .ma-cat-row { display:flex; align-items:center; gap:.55rem; padding:.4rem .55rem; border-radius:.5rem; cursor:pointer; transition:background .15s ease; }
     .ma-cat-row:hover { background:color-mix(in srgb, var(--primary) 10%, transparent); }
     .ma-cat-row.disabled { opacity:.4; pointer-events:none; }
     .ma-cat-row input { width:1rem; height:1rem; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
-    .ma-cat-excl { font-size:.65rem; font-weight:800; padding:.15rem .4rem; border-radius:9999px; background:color-mix(in srgb, rgb(239 68 68) 16%, transparent); color:rgb(248 113 113); border:1px solid color-mix(in srgb, rgb(239 68 68) 30%, transparent); }
-    .ma-search-results { max-height:16rem; overflow-y:auto; margin-top:.5rem; display:flex; flex-direction:column; gap:.4rem; }
-    .ma-result-row { display:flex; align-items:center; gap:.7rem; padding:.5rem; border-radius:.7rem; border:1px solid var(--border); background:var(--background, var(--bg)); cursor:pointer; text-align:left; transition:border-color .15s ease; }
+    .ma-cat-excl { font-size:.65rem; font-weight:800; padding:.15rem .4rem; border-radius:9999px; background:color-mix(in srgb, var(--d-red) 16%, transparent); color:var(--d-red); border:1px solid color-mix(in srgb, var(--d-red) 30%, transparent); }
+    .ma-search-results { max-height:16rem; overflow-y:auto; margin-top:.5rem; display:flex; flex-direction:column; gap:.35rem; }
+    .ma-result-row { display:flex; align-items:center; gap:.65rem; padding:.5rem; border-radius:.6rem; border:1px solid var(--hairline); background:color-mix(in srgb, var(--bg) 65%, transparent); cursor:pointer; text-align:left; transition:border-color .15s ease; }
     .ma-result-row:hover { border-color:var(--primary); }
-    .ma-result-poster { width:2.5rem; height:3.75rem; object-fit:cover; border-radius:.4rem; flex-shrink:0; background:var(--surface,#222); }
+    .ma-result-poster { width:2.5rem; height:3.75rem; object-fit:cover; border-radius:.4rem; flex-shrink:0; background:var(--surface); }
     .ma-result-meta { min-width:0; flex:1; }
     .ma-src-badge { font-size:.6rem; font-weight:800; padding:.1rem .4rem; border-radius:9999px; background:color-mix(in srgb, var(--primary) 16%, transparent); color:var(--primary); border:1px solid color-mix(in srgb, var(--primary) 30%, transparent); text-transform:uppercase; }
-    .ma-linked-chip { display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .7rem; border-radius:9999px; font-size:.78rem; font-weight:700; background:color-mix(in srgb, rgb(16 185 129) 14%, transparent); color:rgb(52 211 153); border:1px solid color-mix(in srgb, rgb(16 185 129) 30%, transparent); }
+    .ma-linked-chip { display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .7rem; border-radius:9999px; font-size:.78rem; font-weight:700; background:color-mix(in srgb, var(--d-green) 14%, transparent); color:var(--d-green); border:1px solid color-mix(in srgb, var(--d-green) 30%, transparent); }
     .ma-unlink-btn { background:none; border:none; color:inherit; font-size:1.1rem; line-height:1; cursor:pointer; padding:0 .1rem; }
 </style>
 
@@ -562,13 +572,13 @@
 <div id="manual-add-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeManualAdd()"></div>
     <div class="absolute inset-0 flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
-        <div class="glass-panel rounded-3xl w-full max-w-2xl my-4">
-            <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-hairline">
-                <h2 class="text-lg sm:text-xl font-extrabold text-text"><i class="fa-solid fa-plus text-emerald-400"></i> Add Content Manually</h2>
+        <div class="glass-panel rounded-xl w-full max-w-2xl my-4">
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 border-b" style="border-color: var(--hairline-soft)">
+                <h2 class="text-base sm:text-lg font-extrabold text-text flex items-center gap-2"><i class="fa-solid fa-plus" style="color:var(--d-green)"></i> Add Content Manually</h2>
                 <button onclick="closeManualAdd()" class="text-text-secondary hover:text-text text-3xl leading-none">&times;</button>
             </div>
 
-            <div class="px-5 sm:px-6 py-5 space-y-5 max-h-[75vh] overflow-y-auto">
+            <div class="px-4 sm:px-5 py-4 space-y-4 max-h-[75vh] overflow-y-auto">
                 <!-- Type -->
                 <div>
                     <label class="ma-label">Type</label>
@@ -583,7 +593,7 @@
                     <label class="ma-label">Search title (TMDB / Cinemeta) — optional</label>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input id="ma-search-query" class="ma-input" placeholder="Title, IMDb id/link or TMDB id/link">
-                        <button type="button" onclick="maSearchTitles()" class="px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm shrink-0"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                        <button type="button" onclick="maSearchTitles()" class="px-4 py-2.5 rounded-lg bg-primary text-white font-bold text-sm shrink-0"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
                     </div>
                     <p id="ma-search-state" class="text-xs text-text-secondary mt-1 hidden"></p>
                     <div id="ma-search-results" class="ma-search-results hidden"></div>
@@ -683,9 +693,9 @@
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row justify-end gap-3 px-5 sm:px-6 py-4 border-t border-hairline">
-                <button onclick="closeManualAdd()" class="px-5 py-2.5 rounded-2xl glass-panel border border-hairline text-text font-bold text-sm">Cancel</button>
-                <button id="ma-submit" onclick="submitManualAdd()" class="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-bold text-sm">Add Content</button>
+            <div class="flex flex-col sm:flex-row justify-end gap-2.5 px-4 sm:px-5 py-3.5 border-t" style="border-color: var(--hairline-soft)">
+                <button onclick="closeManualAdd()" class="px-4 py-2 rounded-lg glass-panel border border-hairline text-text font-bold text-sm">Cancel</button>
+                <button id="ma-submit" onclick="submitManualAdd()" class="px-4 py-2 rounded-lg font-bold text-sm" style="background:var(--d-green); color:var(--bg)">Add Content</button>
             </div>
         </div>
     </div>
@@ -841,7 +851,7 @@
         document.getElementById('ma-parts').innerHTML =
             `<div class="flex flex-col sm:flex-row gap-2" data-part>
                 <input class="ma-input ma-part-url" placeholder="https://t.me/c/123456/789">
-                <button type="button" onclick="maResolve()" class="px-4 py-2.5 rounded-xl glass-panel border border-hairline text-text font-bold text-sm shrink-0">Resolve</button>
+                <button type="button" onclick="maResolve()" class="px-4 py-2.5 rounded-lg glass-panel border border-hairline text-text font-bold text-sm shrink-0">Resolve</button>
              </div>`;
     }
 
@@ -850,7 +860,7 @@
         div.className = 'flex flex-col sm:flex-row gap-2';
         div.setAttribute('data-part', '');
         div.innerHTML = `<input class="ma-input ma-part-url" placeholder="Split part link (in order)">
-            <button type="button" onclick="this.closest('[data-part]').remove()" class="px-4 py-2.5 rounded-xl border border-hairline text-red-300 font-bold text-sm shrink-0">Remove</button>`;
+            <button type="button" onclick="this.closest('[data-part]').remove()" class="px-4 py-2.5 rounded-lg border border-hairline font-bold text-sm shrink-0" style="color:var(--d-red)">Remove</button>`;
         document.getElementById('ma-parts').appendChild(div);
     }
 

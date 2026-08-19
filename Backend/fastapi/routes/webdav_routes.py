@@ -1,5 +1,5 @@
 """
-WebDAV endpoint for Telegram-Stremio.
+WebDAV endpoint for CineFlow.
 
 URL:  /webdav/{token}/...
 
@@ -80,7 +80,7 @@ async def _require_webdav_auth(request: Request, token: str) -> dict:
         raise HTTPException(
             status_code=401,
             detail="WebDAV Basic auth required. Set username/password in Settings → WebDAV, or clear both fields to disable Basic auth.",
-            headers={"WWW-Authenticate": 'Basic realm="Telegram-Stremio WebDAV"'},
+            headers={"WWW-Authenticate": 'Basic realm="CineFlow WebDAV"'},
         )
     try:
         token_data = await verify_token(token)
@@ -297,7 +297,7 @@ async def webdav_get(request: Request, token: str, path: str = ""):
         body = (
             f"<!DOCTYPE html><html><head><meta charset=utf-8><title>Index of {vpath}</title></head>"
             f"<body><h1>Index of {vpath}</h1><ul>{''.join(rows)}</ul>"
-            f"<p><em>Telegram-Stremio WebDAV</em></p></body></html>"
+            f"<p><em>CineFlow WebDAV</em></p></body></html>"
         ).encode("utf-8")
         return Response(content=body, media_type="text/html; charset=utf-8")
 

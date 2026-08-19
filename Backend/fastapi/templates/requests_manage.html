@@ -1,87 +1,175 @@
 {% extends "base.html" %}
-{% block title %}Content Requests - Telegram Stremio{% endblock %}
+{% block title %}Content Requests - CineFlow{% endblock %}
 
 {% block content %}
 <style>
   .rq-shell { max-width: 1180px; margin: 0 auto; }
-  .rq-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .rq-tab { padding: 0.5rem 1.1rem; border-radius: 9999px; border: 1px solid var(--hairline, rgba(255,255,255,0.1));
-            cursor: pointer; font-weight: 700; font-size: 0.9rem; color: var(--text-sec); background: transparent; }
+
+  /* ── Type tabs (Movies / TV) ─────────────────────────────────────────── */
+  .rq-tabs {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      padding: 0.35rem; border-radius: calc(var(--radius-md) + 0.35rem);
+      border: 1px solid var(--hairline-soft); background: var(--surface);
+  }
+  .rq-tab {
+      padding: 0.5rem 1.1rem; border-radius: var(--radius-md);
+      border: 1px solid transparent; background: transparent;
+      cursor: pointer; font-weight: 700; font-size: 0.85rem; color: var(--text-sec);
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .rq-tab span { opacity: .7; margin-left: .3rem; }
+  .rq-tab i { margin-right: .4rem; opacity: .85; }
+  .rq-tab:hover { background: var(--surface-2); color: var(--text); }
   .rq-tab.active { background: var(--primary); color: var(--bg); border-color: var(--primary); }
-  .rq-filters { display: flex; gap: 0.35rem; flex-wrap: wrap; }
-  .rq-chip { padding: 0.3rem 0.8rem; border-radius: 9999px; border: 1px solid var(--hairline, rgba(255,255,255,0.1));
-             cursor: pointer; font-size: 0.78rem; font-weight: 600; color: var(--text-sec); background: transparent; }
-  .rq-chip.active { background: color-mix(in srgb, var(--primary) 20%, transparent); color: var(--primary); border-color: var(--primary); }
-  .rq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
-  .rq-card { background: var(--surface, rgba(255,255,255,0.03)); border: 1px solid var(--hairline, rgba(255,255,255,0.08));
-             border-radius: 1rem; overflow: hidden; display: flex; flex-direction: column; }
-  .rq-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, #1f2937, #111827); }
-  .rq-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ── Status filter chips ─────────────────────────────────────────────── */
+  .rq-filters {
+      display: flex; gap: 0.3rem; flex-wrap: wrap;
+      padding: 0.35rem; border-radius: calc(var(--radius-md) + 0.35rem);
+      border: 1px solid var(--hairline-soft); background: var(--surface);
+  }
+  .rq-chip {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.35rem 0.85rem; border-radius: var(--radius-md);
+      border: 1px solid transparent; background: transparent;
+      cursor: pointer; font-size: 0.76rem; font-weight: 700; color: var(--text-sec);
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .rq-chip:hover { background: var(--surface-2); color: var(--text); }
+  .rq-chip.active {
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      color: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+
+  /* ── Request cards (matches Media Library card design) ──────────────── */
+  .rq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  @media (min-width: 640px)  { .rq-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+  @media (min-width: 1024px) { .rq-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 1280px) { .rq-grid { grid-template-columns: repeat(5, 1fr); } }
+  @media (min-width: 1536px) { .rq-grid { grid-template-columns: repeat(6, 1fr); } }
+
+  .rq-card {
+      overflow: hidden; border-radius: 0.75rem;
+      background: color-mix(in srgb, var(--card) 92%, var(--bg));
+      border: 1px solid var(--hairline);
+      transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease;
+  }
+  .rq-card:hover {
+      border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline));
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.4);
+  }
+  .rq-poster-wrap { position: relative; overflow: hidden; }
+  .rq-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, color-mix(in srgb, var(--text) 8%, var(--bg)), var(--bg)); }
+  .rq-poster img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
+  .rq-card:hover .rq-poster img { transform: scale(1.05); }
   .rq-poster .noimg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--text-sec); }
-  .rq-count { position: absolute; top: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.65); color: #fff;
-              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
-  .rq-badge { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px;
-              font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
-  .b-pending { background: #f59e0b; color: #111; }
-  .b-uploaded { background: #22c55e; color: #052e16; }
-  .b-denied { background: #64748b; color: #fff; }
-  .b-banned { background: #ef4444; color: #fff; }
-  .rq-body { padding: 0.7rem 0.8rem; flex: 1; display: flex; flex-direction: column; gap: 0.35rem; }
-  .rq-title { font-weight: 700; font-size: 0.92rem; line-height: 1.25; }
-  .rq-id { font-size: 0.72rem; color: var(--text-sec); word-break: break-all; }
-  .rq-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.35rem; padding: 0 0.8rem 0.8rem; }
-  .rq-btn { border: none; border-radius: 0.55rem; padding: 0.45rem 0.3rem; font-size: 0.78rem; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
+  .rq-scrim {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.1) 45%, transparent 70%);
+      opacity: 0; transition: opacity .3s ease; pointer-events: none;
+  }
+  .rq-card:hover .rq-scrim { opacity: 1; }
+
+  .rq-count {
+      position: absolute; top: 0.6rem; left: 0.6rem;
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--hairline);
+      padding: 0.2rem 0.55rem; border-radius: 0.5rem; font-size: 0.68rem; font-weight: 800;
+  }
+  .rq-badge {
+      position: absolute; top: 0.6rem; right: 0.6rem; padding: 0.2rem 0.55rem; border-radius: 0.5rem;
+      font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;
+      border: 1px solid rgba(255,255,255,0.15);
+  }
+  .b-pending  { background: color-mix(in srgb, var(--d-yellow) 88%, transparent); color: #1a1a1a; }
+  .b-uploaded { background: color-mix(in srgb, var(--d-green) 88%, transparent); color: #052e16; }
+  .b-denied   { background: color-mix(in srgb, var(--text-sec) 55%, var(--card)); color: #fff; }
+  .b-banned   { background: color-mix(in srgb, var(--d-red) 88%, transparent); color: #fff; }
+
+  .rq-body { padding: 0.7rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }
+  .rq-title {
+      font-weight: 700; font-size: 0.88rem; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      min-height: 2.4rem;
+  }
+  .rq-id { font-size: 0.7rem; color: var(--text-sec); word-break: break-all; }
+
+  .rq-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.35rem; padding: 0 0.75rem 0.75rem; }
+  .rq-btn {
+      border: none; border-radius: 0.5rem; padding: 0.4rem 0.3rem;
+      font-size: 0.72rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+      transition: filter .15s ease, background .15s ease, color .15s ease;
+  }
   .rq-btn.wide { grid-column: 1 / -1; }
-  .btn-up { background: #22c55e22; color: #22c55e; }
-  .btn-deny { background: #64748b22; color: #94a3b8; }
-  .btn-ban { background: #ef444422; color: #ef4444; }
-  .btn-reopen { background: #f59e0b22; color: #f59e0b; }
-  .btn-del { background: transparent; color: var(--text-sec); border: 1px solid var(--hairline, rgba(255,255,255,0.1)); }
-  .rq-btn:hover { filter: brightness(1.25); }
+  .btn-up     { background: color-mix(in srgb, var(--d-green) 16%, transparent); color: var(--d-green); }
+  .btn-deny   { background: var(--surface-2); color: var(--text-sec); }
+  .btn-ban    { background: color-mix(in srgb, var(--d-red) 16%, transparent); color: var(--d-red); }
+  .btn-reopen { background: color-mix(in srgb, var(--d-orange) 16%, transparent); color: var(--d-orange); }
+  .btn-del    { background: transparent; color: var(--text-sec); border: 1px solid var(--hairline); }
+  .rq-btn:hover { filter: brightness(1.2); }
   .rq-empty { text-align: center; padding: 3rem 1rem; color: var(--text-sec); }
-  .rq-toolbtn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.1rem; border-radius: 0.7rem;
-                font-weight: 700; font-size: 0.85rem; cursor: pointer; text-decoration: none; transition: all .15s;
-                border: 1px solid var(--hairline, rgba(255,255,255,0.12)); background: var(--surface, rgba(255,255,255,0.04)); color: var(--text); }
-  .rq-toolbtn:hover { border-color: var(--primary); color: var(--primary); }
-  .rq-toolbtn.primary { background: var(--primary); color: var(--bg); border-color: var(--primary); }
-  .rq-toolbtn.primary:hover { filter: brightness(1.1); color: var(--bg); }
-  .rq-pager { display: flex; align-items: center; justify-content: center; gap: 0.9rem; margin-top: 1.75rem; }
-  .rq-pager button { border: 1px solid var(--hairline, rgba(255,255,255,0.12)); background: transparent; color: var(--text);
-                     border-radius: 0.6rem; padding: 0.45rem 1rem; cursor: pointer; font-weight: 700; }
+
+  .rq-pager { display: flex; align-items: center; justify-content: center; gap: 0.9rem; margin-top: 1.5rem; }
+  .rq-pager button {
+      border: 1px solid var(--hairline); background: transparent; color: var(--text);
+      border-radius: 0.6rem; padding: 0.45rem 1rem; cursor: pointer; font-weight: 700;
+      transition: border-color .15s ease, color .15s ease;
+  }
+  .rq-pager button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--primary) 40%, var(--hairline)); color: var(--primary); }
   .rq-pager button:disabled { opacity: 0.35; cursor: not-allowed; }
   .rq-pager .pageinfo { color: var(--text-sec); font-size: 0.85rem; font-weight: 600; }
 </style>
 
 <div class="rq-shell">
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-    <div>
-      <h1 class="section-title text-2xl sm:text-3xl">Content Requests</h1>
-      <p class="muted text-sm mt-1">Titles your users requested from the public request page.</p>
-    </div>
-    <div class="flex items-center gap-2">
-      <button onclick="loadRequests()" class="rq-toolbtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
-      <a href="/request" target="_blank" class="rq-toolbtn primary"><i class="fa-solid fa-arrow-up-right-from-square"></i> Public page</a>
-    </div>
-  </div>
 
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-    <div class="rq-tabs">
-      <button class="rq-tab active" data-type="movie" onclick="setType(this,'movie')">🎬 Movies <span id="cnt-movie">0</span></button>
-      <button class="rq-tab" data-type="tv" onclick="setType(this,'tv')">📺 TV Shows <span id="cnt-tv">0</span></button>
+    <!-- ══════════════ Header (matches Settings / Dashboard) ══════════════ -->
+    <header class="mb-4 surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3">
+        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
+
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                <i class="fa-solid fa-inbox text-base" style="color:var(--primary)"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
+                    Content Requests
+                </h1>
+                <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Titles your users requested from the public request page</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="loadRequests()" title="Refresh" class="icon-btn">
+                <i id="rq-refresh-icon" class="fa-solid fa-arrows-rotate transition-transform duration-700"></i>
+            </button>
+            <a href="/request" target="_blank" class="btn-primary flex items-center justify-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 text-sm active:scale-95">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span class="hidden sm:inline">Public page</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ══════════════ Tabs + filters panel ══════════════ -->
+    <div class="settings-card mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="rq-tabs">
+                <button class="rq-tab active" data-type="movie" onclick="setType(this,'movie')"><i class="fa-solid fa-film"></i>Movies <span id="cnt-movie">0</span></button>
+                <button class="rq-tab" data-type="tv" onclick="setType(this,'tv')"><i class="fa-solid fa-tv"></i>TV Shows <span id="cnt-tv">0</span></button>
+            </div>
+            <div class="rq-filters">
+                <button class="rq-chip active" data-status="" onclick="setStatusFilter(this,'')"><i class="fa-solid fa-layer-group"></i> All</button>
+                <button class="rq-chip" data-status="pending" onclick="setStatusFilter(this,'pending')"><i class="fa-solid fa-clock"></i> Pending</button>
+                <button class="rq-chip" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')"><i class="fa-solid fa-check"></i> Uploaded</button>
+                <button class="rq-chip" data-status="denied" onclick="setStatusFilter(this,'denied')"><i class="fa-solid fa-xmark"></i> Denied</button>
+                <button class="rq-chip" data-status="banned" onclick="setStatusFilter(this,'banned')"><i class="fa-solid fa-ban"></i> Banned</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="rq-filters mb-5">
-    <button class="rq-chip active" data-status="" onclick="setStatusFilter(this,'')">All</button>
-    <button class="rq-chip" data-status="pending" onclick="setStatusFilter(this,'pending')">Pending</button>
-    <button class="rq-chip" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')">Uploaded</button>
-    <button class="rq-chip" data-status="denied" onclick="setStatusFilter(this,'denied')">Denied</button>
-    <button class="rq-chip" data-status="banned" onclick="setStatusFilter(this,'banned')">Banned</button>
-  </div>
-
-  <div id="rq-grid" class="rq-grid"></div>
-  <div id="rq-pager" class="rq-pager"></div>
+    <div id="rq-grid" class="rq-grid"></div>
+    <div id="rq-pager" class="rq-pager"></div>
 </div>
 
 <script>
@@ -140,13 +228,16 @@ function cardHtml(r) {
   actions += `<button class="rq-btn btn-del wide" onclick="removeRequest('${r._id}')"><i class="fa-solid fa-trash"></i> Delete</button>`;
 
   return `<div class="rq-card">
-    <div class="rq-poster">
-      ${poster}
-      <span class="rq-count">👥 ${esc(r.request_count || 0)}</span>
-      <span class="rq-badge b-${esc(r.status)}">${esc(r.status)}</span>
+    <div class="rq-poster-wrap">
+      <div class="rq-poster">
+        ${poster}
+        <div class="rq-scrim"></div>
+        <span class="rq-count"><i class="fa-solid fa-users"></i> ${esc(r.request_count || 0)}</span>
+        <span class="rq-badge b-${esc(r.status)}">${esc(r.status)}</span>
+      </div>
     </div>
     <div class="rq-body">
-      <div class="rq-title">${esc(r.title)}${yr}</div>
+      <div class="rq-title" title="${esc(r.title)}${yr}">${esc(r.title)}${yr}</div>
       <div class="rq-id">${idLine(r)}</div>
     </div>
     <div class="rq-actions">${actions}</div>
@@ -185,7 +276,9 @@ function render() {
 
 async function loadRequests() {
   const grid = document.getElementById('rq-grid');
-  grid.innerHTML = `<p class="muted text-sm" style="grid-column:1/-1">Loading…</p>`;
+  const icon = document.getElementById('rq-refresh-icon');
+  if (icon) icon.classList.add('animate-spin');
+  grid.innerHTML = `<p class="muted text-sm" style="grid-column:1/-1;color:var(--text-sec)">Loading…</p>`;
   try {
     const res = await fetch('/api/admin/requests');
     const data = await res.json();
@@ -193,7 +286,9 @@ async function loadRequests() {
     allRequests = data.data || [];
     render();
   } catch (e) {
-    grid.innerHTML = `<p style="color:#ef4444;grid-column:1/-1">Failed to load requests.</p>`;
+    grid.innerHTML = `<p style="color:var(--d-red);grid-column:1/-1">Failed to load requests.</p>`;
+  } finally {
+    if (icon) setTimeout(() => icon.classList.remove('animate-spin'), 450);
   }
 }
 

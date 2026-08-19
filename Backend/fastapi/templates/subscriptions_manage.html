@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Subscription Management - Telegram Stremio{% endblock %}
+{% block title %}Subscription Management - CineFlow{% endblock %}
 
 {% block content %}
 <style>
     .subs-shell {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
     }
 
-    .page-hero,
     .section-panel,
     .table-shell,
     .mobile-user-card,
@@ -23,43 +22,10 @@
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
     }
 
-    .page-hero,
     .section-panel,
     .table-shell,
     .empty-state {
-        border-radius: 1.5rem;
-    }
-
-    .hero-glow {
-        position: relative;
-        overflow: hidden;
-        isolation: isolate;
-    }
-
-    .hero-glow::before {
-        content: "";
-        position: absolute;
-        inset: -30% auto auto -10%;
-        width: 16rem;
-        height: 16rem;
-        border-radius: 9999px;
-        background: color-mix(in srgb, var(--primary) 18%, transparent);
-        filter: blur(50px);
-        z-index: -1;
-        pointer-events: none;
-    }
-
-    .hero-glow::after {
-        content: "";
-        position: absolute;
-        inset: auto -5% -35% auto;
-        width: 14rem;
-        height: 14rem;
-        border-radius: 9999px;
-        background: color-mix(in srgb, var(--accent) 16%, transparent);
-        filter: blur(50px);
-        z-index: -1;
-        pointer-events: none;
+        border-radius: 1.25rem;
     }
 
     .section-title {
@@ -144,7 +110,7 @@
     .plan-card {
         position: relative;
         overflow: hidden;
-        border-radius: 1.5rem;
+        border-radius: 1.1rem;
         background: linear-gradient(
             180deg,
             color-mix(in srgb, var(--card) 96%, var(--bg)),
@@ -155,20 +121,8 @@
         transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
     }
 
-    .plan-card::before {
-        content: "";
-        position: absolute;
-        inset: -25% auto auto -5%;
-        width: 8rem;
-        height: 8rem;
-        border-radius: 9999px;
-        background: color-mix(in srgb, var(--primary) 18%, transparent);
-        filter: blur(36px);
-        pointer-events: none;
-    }
-
     .plan-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-3px);
         border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
         box-shadow: 0 18px 42px rgba(0,0,0,0.24);
     }
@@ -259,12 +213,12 @@
     }
 
     .mobile-user-card {
-        border-radius: 1.35rem;
-        padding: 1rem;
+        border-radius: 1rem;
+        padding: 0.75rem;
     }
 
     .mobile-user-card + .mobile-user-card {
-        margin-top: 0.9rem;
+        margin-top: 0.6rem;
     }
 
     .mobile-grid {
@@ -294,19 +248,27 @@
     }
 
     .modal-glass {
-        border-radius: 1.6rem;
-        padding: 1.4rem;
+        border-radius: 1.25rem;
+        padding: 1.1rem;
         border: 1px solid color-mix(in srgb, var(--border) 95%, transparent);
-        width: min(92vw, 30rem);
+        width: min(92vw, 28rem);
     }
 
     .modal-field label {
         color: var(--text-sec);
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         font-weight: 700;
-        margin-bottom: 0.55rem;
+        margin-bottom: 0.4rem;
         display: block;
     }
+
+    .modal-icon-badge {
+        display: flex; align-items: center; justify-content: center; font-size: 1.35rem;
+        color: var(--primary); flex-shrink: 0;
+    }
+    .modal-icon-badge.danger { color: var(--d-red); }
+    .modal-icon-badge.warning { color: var(--d-orange); }
+    .modal-icon-badge.success { color: var(--d-green); }
 
     .text-soft {
         color: var(--text-sec);
@@ -338,14 +300,9 @@
             display: block;
         }
 
-        .page-hero {
-            padding: 1.25rem;
-            border-radius: 1.35rem;
-        }
-
         .section-panel {
             padding: 1rem;
-            border-radius: 1.35rem;
+            border-radius: 1.1rem;
         }
 
         .pagination-shell {
@@ -370,52 +327,79 @@
             transform: none;
         }
     }
+
+    /* ── Custom themed dropdown (replaces native <select> popovers) ──────── */
+    .ui-select { position: relative; }
+    .ui-select-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .ui-select-trigger {
+        width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+        cursor: pointer; user-select: none; text-align: left; font-size: 0.95rem; font-weight: 500;
+    }
+    .ui-select-trigger .ui-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ui-select-chevron { font-size: 0.75rem; color: var(--text-sec); transition: transform 0.2s ease; flex-shrink: 0; }
+    .ui-select.open .ui-select-chevron { transform: rotate(180deg); color: var(--primary); }
+    .ui-select.open .ui-select-trigger { border-color: color-mix(in srgb, var(--primary) 65%, var(--border)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent); }
+
+    .ui-select-panel {
+        position: absolute; left: 0; right: 0; top: calc(100% + 0.5rem); z-index: 60;
+        background: color-mix(in srgb, var(--card) 97%, var(--bg));
+        border: 1px solid color-mix(in srgb, var(--border) 95%, transparent);
+        border-radius: 1rem; box-shadow: var(--shadow-strong); padding: 0.4rem;
+        max-height: 15rem; overflow-y: auto;
+        animation: ui-select-pop 140ms cubic-bezier(.2,1,.3,1);
+    }
+    .ui-select-panel.hidden { display: none; }
+    @keyframes ui-select-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .ui-select-option {
+        display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+        padding: 0.65rem 0.75rem; border-radius: 0.7rem; font-size: 0.88rem; font-weight: 600;
+        color: var(--text); cursor: pointer; transition: background 0.15s ease; white-space: nowrap;
+    }
+    .ui-select-option:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+    .ui-select-option.selected { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+    .ui-select-option .fa-check { font-size: 0.72rem; opacity: 0; }
+    .ui-select-option.selected .fa-check { opacity: 1; }
 </style>
 
-<div class="subs-shell py-2 sm:py-4">
-    <!-- Hero -->
-    <section class="page-hero hero-glow p-5 sm:p-6 lg:p-8">
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <div class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tracking-[0.18em] uppercase mb-3"
-                     style="border-color: color-mix(in srgb, var(--primary) 28%, var(--border)); color: var(--text-sec); background: color-mix(in srgb, var(--primary) 10%, transparent);">
-                    <i class="fas fa-layer-group text-[11px]" style="color: var(--primary);"></i>
-                    Subscription Control Center
-                </div>
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight section-title">
+<div class="subs-shell py-2 sm:py-3">
+    <!-- Header -->
+    <header class="surface-card relative overflow-hidden p-3 sm:p-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                <i class="fa-solid fa-layer-group text-base" style="color:var(--primary)"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
                     Subscription Management
                 </h1>
-                <p class="mt-2 text-sm sm:text-base section-muted max-w-2xl">
-                    Create plans, manage users, and monitor active or expired subscriptions.
-                </p>
-            </div>
-
-            <div class="flex flex-wrap gap-3">
-                <button onclick="openPlanModal()" class="glass-btn glass-btn-primary rounded-2xl px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
-                    <i class="fas fa-plus"></i>
-                    Add Plan
-                </button>
-                <button onclick="backfillNames()" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold inline-flex items-center gap-2" title="Fetch real Telegram names for 'User <id>' entries">
-                    <i class="fas fa-id-badge"></i>
-                    Sync Names
-                </button>
-                <button onclick="fetchSubscribers()" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
-                    <i class="fas fa-rotate-right"></i>
-                    Refresh Users
-                </button>
+                <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Create plans, manage users, and monitor subscriptions</p>
             </div>
         </div>
-    </section>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="backfillNames()" title="Sync Names" class="icon-btn">
+                <i class="fa-solid fa-id-badge"></i>
+            </button>
+            <button onclick="fetchSubscribers()" title="Refresh Users" class="icon-btn">
+                <i class="fa-solid fa-arrows-rotate transition-transform duration-700"></i>
+            </button>
+            <button onclick="openPlanModal()" class="btn-primary flex items-center justify-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 text-sm active:scale-95">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hidden sm:inline">Add Plan</span>
+            </button>
+        </div>
+    </header>
 
     <!-- Plans -->
-    <section class="section-panel p-4 sm:p-5 lg:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+    <section class="section-panel p-3 sm:p-4 lg:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <div>
-                <h2 class="text-lg sm:text-xl font-bold section-title">Subscription Plans</h2>
+                <h2 class="text-base sm:text-lg font-bold section-title">Subscription Plans</h2>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5" id="plans-container">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4" id="plans-container">
             <div class="empty-state col-span-full text-center px-6 py-10 text-soft">
                 <i class="fas fa-spinner fa-spin mr-2"></i> Loading plans...
             </div>
@@ -423,31 +407,49 @@
     </section>
 
     <!-- Users -->
-    <section class="section-panel p-4 sm:p-5 lg:p-6">
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+    <section class="section-panel p-3 sm:p-4 lg:p-5">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-3">
             <div>
-                <h2 class="text-lg sm:text-xl font-bold section-title">User Subscriptions</h2>
+                <h2 class="text-base sm:text-lg font-bold section-title">User Subscriptions</h2>
                 <p class="text-sm section-muted mt-1">Search, filter, paginate, and manage subscription access.</p>
             </div>
 
             <div class="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <input
-                    id="sub-search"
-                    type="text"
-                    placeholder="Search by name, username or ID..."
-                    class="glass-input"
-                    oninput="subPage=1; renderSubPage()"
-                >
-                <select id="sub-filter" class="glass-select" onchange="subPage=1; renderSubPage()">
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="expired">Expired</option>
-                </select>
-                <select id="sub-page-size" class="glass-select" onchange="subPage=1; renderSubPage()">
-                    <option value="10">10 / page</option>
-                    <option value="25">25 / page</option>
-                    <option value="50">50 / page</option>
-                </select>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-xs" style="color:var(--text-sec)"></i>
+                    <input
+                        id="sub-search"
+                        type="text"
+                        placeholder="Search by name, username or ID..."
+                        class="glass-input"
+                        style="padding-left:2.35rem"
+                        oninput="subPage=1; renderSubPage()"
+                    >
+                </div>
+                <div class="ui-select">
+                    <select id="sub-filter" class="ui-select-native" onchange="subPage=1; renderSubPage()">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                    <button type="button" class="glass-select ui-select-trigger">
+                        <span class="ui-select-label">All Status</span>
+                        <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                    </button>
+                    <div class="ui-select-panel hidden" role="listbox"></div>
+                </div>
+                <div class="ui-select">
+                    <select id="sub-page-size" class="ui-select-native" onchange="subPage=1; renderSubPage()">
+                        <option value="10">10 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                    </select>
+                    <button type="button" class="glass-select ui-select-trigger">
+                        <span class="ui-select-label">10 / page</span>
+                        <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                    </button>
+                    <div class="ui-select-panel hidden" role="listbox"></div>
+                </div>
             </div>
         </div>
 
@@ -457,10 +459,10 @@
                 <table class="subs-table min-w-[780px] text-sm">
                     <thead>
                         <tr>
-                            <th class="px-6 py-4 text-left font-semibold">User Details</th>
-                            <th class="px-6 py-4 text-center font-semibold">Status</th>
-                            <th class="px-6 py-4 text-center font-semibold">Expiry</th>
-                            <th class="px-6 py-4 text-right font-semibold">Actions</th>
+                            <th class="px-4 py-2.5 text-left font-semibold">User Details</th>
+                            <th class="px-4 py-2.5 text-center font-semibold">Status</th>
+                            <th class="px-4 py-2.5 text-center font-semibold">Expiry</th>
+                            <th class="px-4 py-2.5 text-right font-semibold">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="subscribers-tbody">
@@ -482,7 +484,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-shell mt-5" id="sub-pagination">
+        <div class="pagination-shell mt-3" id="sub-pagination">
             <div id="sub-page-info" class="pagination-text text-sm"></div>
             <div class="controls">
                 <button id="sub-btn-prev" onclick="subChangePage(-1)"
@@ -502,17 +504,20 @@
 <!-- Plan Modal -->
 <div id="plan-modal" class="fixed inset-0 hidden z-50 modal-backdrop items-center justify-center p-4">
     <div class="modal-glass">
-        <div class="flex items-start justify-between gap-4 mb-5">
-            <div>
-                <h3 class="text-xl font-bold section-title" id="plan-modal-title">Add New Plan</h3>
-                <p class="text-sm text-soft mt-1">Create or update a subscription plan.</p>
+        <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-start gap-3 min-w-0">
+                <div class="modal-icon-badge"><i class="fa-solid fa-tags"></i></div>
+                <div class="min-w-0">
+                    <h3 class="text-xl font-bold section-title" id="plan-modal-title">Add New Plan</h3>
+                    <p class="text-sm text-soft mt-1">Create or update a subscription plan.</p>
+                </div>
             </div>
-            <button onclick="closePlanModal()" class="glass-btn rounded-full w-10 h-10 flex items-center justify-center">
+            <button onclick="closePlanModal()" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center shrink-0">
                 <i class="fas fa-xmark"></i>
             </button>
         </div>
 
-        <form id="plan-form" onsubmit="submitPlanForm(event)" class="space-y-4">
+        <form id="plan-form" onsubmit="submitPlanForm(event)" class="space-y-3">
             <input type="hidden" id="plan-id">
 
             <div class="modal-field">
@@ -524,23 +529,31 @@
                 <label for="plan-price">Price</label>
                 <input type="number" id="plan-price" class="glass-input" required min="0" step="0.01">
             </div>
-            <div>
+            <div class="modal-field">
                 <label for="plan-currency">Currency</label>
-                <select id="plan-currency" class="glass-input">
-                    <option value="INR">INR (₹)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
-                    <option value="GBP">GBP (£)</option>
-                    <option value="JPY">JPY (¥)</option>
-                    <option value="AUD">AUD (A$)</option>
-                    <option value="CAD">CAD (C$)</option>
-                    <option value="SGD">SGD (S$)</option>
-                    <option value="AED">AED (د.إ)</option>
-                    <option value="BRL">BRL (R$)</option>
-                </select>
+                <div class="ui-select">
+                    <select id="plan-currency" class="ui-select-native">
+                        <option value="INR">INR (₹)</option>
+                        <option value="LKR">LKR (Rs)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="AUD">AUD (A$)</option>
+                        <option value="CAD">CAD (C$)</option>
+                        <option value="SGD">SGD (S$)</option>
+                        <option value="AED">AED (د.إ)</option>
+                        <option value="BRL">BRL (R$)</option>
+                    </select>
+                    <button type="button" class="glass-select ui-select-trigger">
+                        <span class="ui-select-label">INR (₹)</span>
+                        <i class="fa-solid fa-chevron-down ui-select-chevron"></i>
+                    </button>
+                    <div class="ui-select-panel hidden" role="listbox"></div>
+                </div>
             </div>
 
-            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-2">
                 <button type="button" onclick="closePlanModal()" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold">
                     Cancel
                 </button>
@@ -555,17 +568,20 @@
 <!-- User Action Modal -->
 <div id="user-modal" class="fixed inset-0 hidden z-50 modal-backdrop items-center justify-center p-4">
     <div class="modal-glass">
-        <div class="flex items-start justify-between gap-4 mb-5">
-            <div>
-                <h3 class="text-xl font-bold section-title" id="user-modal-title">Manage User</h3>
-                <div class="text-sm text-soft mt-1" id="user-modal-desc"></div>
+        <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-start gap-3 min-w-0">
+                <div class="modal-icon-badge" id="user-modal-icon-badge"><i class="fa-solid fa-user-clock" id="user-modal-icon"></i></div>
+                <div class="min-w-0">
+                    <h3 class="text-xl font-bold section-title" id="user-modal-title">Manage User</h3>
+                    <div class="text-sm text-soft mt-1" id="user-modal-desc"></div>
+                </div>
             </div>
-            <button onclick="closeUserModal()" class="glass-btn rounded-full w-10 h-10 flex items-center justify-center">
+            <button onclick="closeUserModal()" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center shrink-0">
                 <i class="fas fa-xmark"></i>
             </button>
         </div>
 
-        <form id="user-form" onsubmit="submitUserForm(event)" class="space-y-4">
+        <form id="user-form" onsubmit="submitUserForm(event)" class="space-y-3">
             <input type="hidden" id="manage-user-id">
             <input type="hidden" id="manage-action">
 
@@ -574,7 +590,7 @@
                 <input type="number" id="manage-days" class="glass-input" min="1" value="30">
             </div>
 
-            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-2">
                 <button type="button" onclick="closeUserModal()" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold">
                     Cancel
                 </button>
@@ -650,14 +666,14 @@
             }
 
             container.innerHTML = plans.map(p => `
-                <div class="plan-card p-5 sm:p-6">
+                <div class="plan-card p-4 sm:p-5">
                     <div class="plan-actions absolute right-4 top-4 flex gap-2">
                         <button onclick="openPlanModal('${p._id}', ${p.days}, ${p.price}, '${p.currency || 'INR'}')"
-                            class="glass-btn rounded-full w-9 h-9 flex items-center justify-center" title="Edit plan">
+                            class="glass-btn rounded-lg w-9 h-9 flex items-center justify-center" title="Edit plan">
                             <i class="fas fa-pen text-sm"></i>
                         </button>
                         <button onclick="deletePlan('${p._id}')"
-                            class="glass-btn glass-btn-danger rounded-full w-9 h-9 flex items-center justify-center" title="Delete plan">
+                            class="glass-btn glass-btn-danger rounded-lg w-9 h-9 flex items-center justify-center" title="Delete plan">
                             <i class="fas fa-trash text-sm"></i>
                         </button>
                     </div>
@@ -672,7 +688,7 @@
                             <div class="text-sm font-semibold section-muted">${p.days} Days Plan</div>
                             <div class="mt-1 text-3xl font-extrabold section-title tracking-tight">${currencySymbol(p.currency)}${p.price}</div>
                     <div class="text-xs text-soft mt-0.5">${(p.currency || 'INR').toUpperCase()}</div>
-                            <div class="mt-3 inline-flex items-center gap-2 text-xs font-bold rounded-full px-3 py-1"
+                            <div class="mt-3 inline-flex items-center gap-2 text-xs font-bold rounded-lg px-3 py-1"
                                  style="background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--text-sec); border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);">
                                 <i class="fas fa-bolt" style="color: var(--accent);"></i>
                                 Premium Access
@@ -692,7 +708,7 @@
     }
 
     function currencySymbol(code) {
-        const map = {INR:'₹',USD:'$',EUR:'€',GBP:'£',JPY:'¥',AUD:'A$',CAD:'C$',SGD:'S$',AED:'د.إ',BRL:'R$'};
+        const map = {INR:'₹',LKR:'Rs',USD:'$',EUR:'€',GBP:'£',JPY:'¥',AUD:'A$',CAD:'C$',SGD:'S$',AED:'د.إ',BRL:'R$'};
         return map[(code || 'INR').toUpperCase()] || ((code || 'INR') + ' ');
     }
 
@@ -745,7 +761,10 @@
     }
 
     async function deletePlan(id) {
-        if (!confirm('Delete this plan?')) return;
+        const ok = await showConfirm('This plan will no longer be available for new subscriptions.', {
+            title: 'Delete this plan?', okText: 'Delete', cancelText: 'Cancel', danger: true,
+        });
+        if (!ok) return;
 
         try {
             const res = await fetch(`/api/admin/subscriptions/plans/${id}`, { method: 'DELETE' });
@@ -972,22 +991,27 @@
         let desc = '';
         let btnClasses = 'glass-btn glass-btn-primary rounded-2xl px-5 py-3 text-sm font-bold';
         let showDays = true;
+        const badge = document.getElementById('user-modal-icon-badge');
+        const icon = document.getElementById('user-modal-icon');
 
         if (action === 'extend') {
             title = 'Extend Subscription';
             desc = `Add extra days to <b>${userName}</b>'s subscription.`;
             document.getElementById('days-action-label').innerText = 'add';
             btnClasses = 'glass-btn glass-btn-success rounded-2xl px-5 py-3 text-sm font-bold';
+            badge.className = 'modal-icon-badge success'; icon.className = 'fa-solid fa-plus';
         } else if (action === 'reduce') {
             title = 'Reduce Subscription';
             desc = `Subtract days from <b>${userName}</b>'s subscription.`;
             document.getElementById('days-action-label').innerText = 'subtract';
             btnClasses = 'glass-btn glass-btn-warning rounded-2xl px-5 py-3 text-sm font-bold';
+            badge.className = 'modal-icon-badge warning'; icon.className = 'fa-solid fa-minus';
         } else {
             title = 'Revoke Subscription';
             desc = `<b>Warning:</b> This will remove <b>${userName}</b>'s subscription access completely.`;
             showDays = false;
             btnClasses = 'glass-btn glass-btn-danger rounded-2xl px-5 py-3 text-sm font-bold';
+            badge.className = 'modal-icon-badge danger'; icon.className = 'fa-solid fa-triangle-exclamation';
         }
 
         document.getElementById('user-modal-title').innerText = title;
@@ -1059,7 +1083,10 @@
     });
 
     async function removeSubscriber(userId) {
-        if (!confirm('Remove this user from the list? This deletes their subscription record (their token access is revoked).')) return;
+        const ok = await showConfirm('This deletes their subscription record and their token access is revoked.', {
+            title: 'Remove this user from the list?', okText: 'Remove', cancelText: 'Cancel', danger: true,
+        });
+        if (!ok) return;
         try {
             const res = await fetch(`/api/admin/subscriptions/users/${userId}/manage`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'remove', days: 0 })
@@ -1086,6 +1113,78 @@
     document.addEventListener('DOMContentLoaded', () => {
         fetchPlans();
         fetchSubscribers();
+    });
+
+    /* ── Themed dropdown engine (replaces native <select> popovers) ──────── */
+    function enhanceSelect(select) {
+        const wrap = select.closest('.ui-select');
+        const trigger = wrap.querySelector('.ui-select-trigger');
+        const label = trigger.querySelector('.ui-select-label');
+        const panel = wrap.querySelector('.ui-select-panel');
+
+        function syncLabel() {
+            const opt = select.options[select.selectedIndex];
+            label.textContent = opt ? opt.textContent : '';
+        }
+
+        const nativeDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        Object.defineProperty(select, 'value', {
+            configurable: true,
+            get() { return nativeDesc.get.call(select); },
+            set(v) { nativeDesc.set.call(select, v); syncLabel(); },
+        });
+
+        new MutationObserver(syncLabel).observe(select, { childList: true });
+
+        function buildPanel() {
+            panel.innerHTML = '';
+            Array.from(select.options).forEach(opt => {
+                const row = document.createElement('div');
+                row.className = 'ui-select-option' + (opt.value === select.value ? ' selected' : '');
+                row.setAttribute('role', 'option');
+                row.innerHTML = `<span>${opt.textContent}</span><i class="fa-solid fa-check"></i>`;
+                row.addEventListener('click', () => {
+                    select.value = opt.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    closePanel();
+                });
+                panel.appendChild(row);
+            });
+        }
+
+        function openPanel() {
+            document.querySelectorAll('.ui-select.open').forEach(o => { if (o !== wrap) closeOther(o); });
+            buildPanel();
+            panel.classList.remove('hidden');
+            wrap.classList.add('open');
+        }
+        function closePanel() {
+            panel.classList.add('hidden');
+            wrap.classList.remove('open');
+        }
+        function closeOther(otherWrap) {
+            otherWrap.querySelector('.ui-select-panel').classList.add('hidden');
+            otherWrap.classList.remove('open');
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            wrap.classList.contains('open') ? closePanel() : openPanel();
+        });
+
+        syncLabel();
+        wrap._closeUiSelect = closePanel;
+    }
+
+    document.querySelectorAll('.ui-select-native').forEach(enhanceSelect);
+
+    document.addEventListener('click', (e) => {
+        document.querySelectorAll('.ui-select.open').forEach(wrap => {
+            if (!wrap.contains(e.target) && wrap._closeUiSelect) wrap._closeUiSelect();
+        });
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') document.querySelectorAll('.ui-select.open').forEach(wrap => wrap._closeUiSelect && wrap._closeUiSelect());
     });
 </script>
 {% endblock %}

@@ -32,6 +32,7 @@ templates = Jinja2Templates(directory="Backend/fastapi/templates")
 #----- Addon configuration
 ADDON_NAME = "CineFlow"
 ADDON_VERSION = __version__
+ADDON_LOGO = "https://iili.io/CsmODDQ.md.png"
 PAGE_SIZE = 15
 
 
@@ -312,7 +313,7 @@ def format_stream_details(filename: str, quality: str, size: str, is_split: bool
     try:
         parsed = PTN.parse(filename)
     except Exception:
-        return (f"Telegram {quality}", f"📁 {filename}\n{size_emoji} {size}")
+        return (f"CineFlow {quality}", f"📁 {filename}\n{size_emoji} {size}")
 
     codec_parts = []
     if parsed.get("codec"):
@@ -328,7 +329,7 @@ def format_stream_details(filename: str, quality: str, size: str, is_split: bool
 
     resolution = parsed.get("resolution", quality)
     quality_type = parsed.get("quality", "")
-    stream_name = f"Telegram {resolution} {quality_type}".strip()
+    stream_name = f"CineFlow {resolution} {quality_type}".strip()
 
     stream_title_parts = [
         f"📁 {filename}",
@@ -506,10 +507,10 @@ async def get_manifest(token: str, token_data: dict = Depends(verify_token)):
         pass
 
     return {
-        "id": f"telegram.media.{token[:8]}",
+        "id": f"cineflow.media.{token[:8]}",
         "version": addon_version,
         "name": addon_name,
-        "logo": "https://iili.io/CsmODDQ.md.png",
+        "logo": ADDON_LOGO,
         "description": addon_desc,
         "types": ["movie", "series"],
         "resources": resources,
@@ -1185,6 +1186,7 @@ async def configure_addon(token: str, request: Request):
         "expiry_str": expiry_str,
         "status_text": status_text,
         "status_color": status_color,
+        "addon_logo": ADDON_LOGO,
     })
 
 

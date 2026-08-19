@@ -1,22 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Tools — TG Stremio{% endblock %}
+{% block title %}Tools — CineFlow{% endblock %}
 
 {% block content %}
 
 <style>
 .tool-card {
-    background: color-mix(in srgb, var(--card) 94%, var(--bg));
-    border: 1px solid var(--border);
-    border-radius: 1.5rem;
-    padding: 1.5rem 1.75rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    position: relative;
+    background: color-mix(in srgb, var(--card) 92%, var(--bg));
+    border: 1px solid var(--hairline);
+    border-radius: 0.85rem;
+    padding: 1.1rem 1.25rem;
+    box-shadow: var(--shadow-soft);
+    transition: border-color .2s ease;
 }
+.tool-card:hover { border-color: color-mix(in srgb, var(--primary) 22%, var(--hairline)); }
 .tool-card h2 {
-    font-size: 1rem; font-weight: 800;
-    letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--primary); margin-bottom: 1.25rem;
-    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; font-weight: 800;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text); margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.55rem;
 }
+.tool-card h2 i:first-child { font-size: 0.95rem; flex-shrink: 0; }
 .s-label {
     display: block; font-size: 0.78rem; font-weight: 700;
     color: var(--text-sec); text-transform: uppercase;
@@ -24,25 +28,25 @@
 }
 .btn {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    padding: 0.6rem 1.25rem; border-radius: 9999px;
+    padding: 0.6rem 1.25rem; border-radius: 0.6rem;
     font-size: 0.85rem; font-weight: 700; cursor: pointer;
     border: 1px solid transparent; transition: all 0.15s; white-space: nowrap;
 }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 0 18px color-mix(in srgb,var(--primary) 40%,transparent); }
-.btn-danger  { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #ef4444; }
-.btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.25); }
-.btn-ghost   { background: color-mix(in srgb,var(--text-sec) 12%,transparent); color: var(--text); }
-.btn-warning { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.35); color: #f59e0b; }
-.btn-warning:hover:not(:disabled) { background: rgba(245,158,11,0.28); }
+.btn-danger  { background: color-mix(in srgb, var(--d-red) 12%, transparent); border-color: color-mix(in srgb, var(--d-red) 30%, transparent); color: var(--d-red); }
+.btn-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--d-red) 24%, transparent); }
+.btn-ghost   { background: var(--surface); color: var(--text); }
+.btn-warning { background: color-mix(in srgb, var(--d-orange) 14%, transparent); border-color: color-mix(in srgb, var(--d-orange) 32%, transparent); color: var(--d-orange); }
+.btn-warning:hover:not(:disabled) { background: color-mix(in srgb, var(--d-orange) 26%, transparent); }
 
 /* channel chips */
 .chip-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 240px; overflow-y: auto; }
 .chip {
     display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.7rem 1rem; border-radius: 0.9rem;
-    border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    padding: 0.65rem 0.9rem; border-radius: 0.6rem;
+    border: 1px solid var(--hairline);
+    background: var(--surface);
     cursor: pointer; transition: border-color 0.15s, background 0.15s;
 }
 .chip:hover { border-color: var(--primary); }
@@ -53,8 +57,8 @@
 
 /* progress */
 .progress-track {
-    width: 100%; height: 0.65rem; border-radius: 9999px;
-    background: color-mix(in srgb, var(--text-sec) 18%, transparent);
+    width: 100%; height: 0.6rem; border-radius: 9999px;
+    background: var(--surface-3);
     overflow: hidden;
 }
 .progress-fill {
@@ -67,41 +71,43 @@
 }
 @keyframes indet { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
 
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 0.75rem; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap: 0.5rem; }
 .stat-box {
-    background: color-mix(in srgb, var(--bg) 55%, transparent);
-    border: 1px solid var(--border); border-radius: 0.9rem;
-    padding: 0.75rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline); border-radius: 0.75rem;
+    padding: 0.7rem 0.85rem;
+    transition: border-color .15s ease, transform .15s ease;
 }
-.stat-box .v { font-size: 1.3rem; font-weight: 800; }
-.stat-box .l { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-sec); }
+.stat-box:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); transform: translateY(-1px); }
+.stat-box .v { font-size: 1.15rem; font-weight: 800; }
+.stat-box .l { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-sec); font-weight: 700; }
 
 .status-pill {
     display: inline-flex; align-items: center; gap: 0.4rem;
     padding: 0.25rem 0.8rem; border-radius: 9999px;
     font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
 }
-.status-idle      { background: color-mix(in srgb,var(--text-sec) 15%,transparent); color: var(--text-sec); }
-.status-running   { background: rgba(34,197,94,0.15);  color: #22c55e; }
-.status-paused    { background: rgba(245,158,11,0.15); color: #f59e0b; }
-.status-cancelled { background: rgba(245,158,11,0.15); color: #f59e0b; }
-.status-completed { background: rgba(34,197,94,0.15);  color: #22c55e; }
-.status-error     { background: rgba(239,68,68,0.15);  color: #ef4444; }
+.status-idle      { background: var(--surface-2); color: var(--text-sec); }
+.status-running   { background: color-mix(in srgb, var(--d-green) 16%, transparent);  color: var(--d-green); }
+.status-paused    { background: color-mix(in srgb, var(--d-orange) 16%, transparent); color: var(--d-orange); }
+.status-cancelled { background: color-mix(in srgb, var(--d-orange) 16%, transparent); color: var(--d-orange); }
+.status-completed { background: color-mix(in srgb, var(--d-green) 16%, transparent);  color: var(--d-green); }
+.status-error     { background: color-mix(in srgb, var(--d-red) 16%, transparent);    color: var(--d-red); }
 
 .dead-row {
     display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
-    padding: 0.6rem 0.9rem; border-radius: 0.75rem;
-    border: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    padding: 0.6rem 0.9rem; border-radius: 0.6rem;
+    border: 1px solid var(--hairline);
+    background: var(--surface);
 }
 .dead-list { display: flex; flex-direction: column; gap: 0.4rem; max-height: 320px; overflow-y: auto; }
-.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.divider { border: none; border-top: 1px solid var(--hairline); margin: 0.9rem 0; }
 .hint { font-size: 0.78rem; color: var(--text-sec); }
 
 .ba-cell { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 800; font-size: 0.75rem; }
-.ba-ok { color: #22c55e; }
-.ba-no { color: #ef4444; }
-.ba-warn { color: #f59e0b; }
+.ba-ok { color: var(--d-green); }
+.ba-no { color: var(--d-red); }
+.ba-warn { color: var(--d-orange); }
 .ba-muted { color: var(--text-sec); }
 .ba-locked { opacity: 0.6; }
 .ba-roles { display: inline-flex; gap: 0.25rem; flex-wrap: wrap; }
@@ -114,8 +120,8 @@
 
 .ba-ch-list { display: flex; flex-direction: column; gap: 0.6rem; }
 .ba-ch-card {
-    border: 1px solid var(--border); border-radius: 0.9rem;
-    padding: 0.85rem 1rem; background: color-mix(in srgb, var(--bg) 55%, transparent);
+    border: 1px solid var(--hairline); border-radius: 0.75rem;
+    padding: 0.85rem 1rem; background: var(--surface);
 }
 .ba-ch-card.selected { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); }
 .ba-ch-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
@@ -131,29 +137,41 @@
 .ba-bstat .n { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ba-res-row {
     display: flex; flex-direction: column; align-items: stretch; gap: 0.4rem;
-    padding: 0.6rem 0.9rem; border-radius: 0.75rem;
-    border: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 55%, transparent);
+    padding: 0.6rem 0.9rem; border-radius: 0.6rem;
+    border: 1px solid var(--hairline); background: var(--surface);
 }
 
 @media (max-width: 640px) {
-    .tool-card { padding: 1.1rem 1rem; border-radius: 1.1rem; }
+    .tool-card { padding: 1rem 0.9rem; }
     .ba-bot-grid { grid-template-columns: 1fr; }
     #ba-bots .chip { width: 100%; }
     .ba-actions .btn { width: 100%; justify-content: center; }
 }
 </style>
 
-<div class="mb-6">
-    <h1 class="text-3xl font-extrabold">Tools</h1>
-    <p class="mt-1 text-sm" style="color:var(--text-sec)">Scan, index, and maintain your library.</p>
-</div>
+<!-- Page header -->
+<header class="mb-4 surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3">
+    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
 
-<div class="space-y-6">
+    <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+            <i class="fa-solid fa-toolbox text-base" style="color:var(--primary)"></i>
+        </div>
+        <div class="min-w-0">
+            <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
+                Tools
+            </h1>
+            <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Scan, index, and maintain your library</p>
+        </div>
+    </div>
+</header>
+
+<div class="space-y-4">
 
     <!-- ══ Manual Upload Session ═════════════════════════════════════════ -->
     <div class="tool-card">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h2 style="margin-bottom:0"><i class="fa-solid fa-cloud-arrow-up"></i> Manual Upload Session</h2>
+            <h2 style="margin-bottom:0"><i class="fa-solid fa-cloud-arrow-up" style="color:var(--d-cyan)"></i> Manual Upload Session</h2>
             <span id="ms-status-pill" class="status-pill status-idle">No session</span>
         </div>
 
@@ -255,7 +273,7 @@
     <!-- ══ Channel Scanner ══════════════════════════════════════════════ -->
     <div class="tool-card">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h2 style="margin-bottom:0"><i class="fa-solid fa-satellite-dish"></i> Channel Scanner</h2>
+            <h2 style="margin-bottom:0"><i class="fa-solid fa-satellite-dish" style="color:var(--d-purple)"></i> Channel Scanner</h2>
             <span id="scan-status-pill" class="status-pill status-idle">Idle</span>
         </div>
 
@@ -314,7 +332,7 @@
     <!-- ══ Bot Admin Manager ════════════════════════════════════════════ -->
     <div class="tool-card">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h2 style="margin-bottom:0"><i class="fa-solid fa-user-shield"></i> Bot Admin Manager</h2>
+            <h2 style="margin-bottom:0"><i class="fa-solid fa-user-shield" style="color:var(--d-red)"></i> Bot Admin Manager</h2>
             <span id="ba-status-pill" class="status-pill status-idle">Idle</span>
         </div>
 
@@ -396,7 +414,7 @@
     <!-- ══ Database Check ════════════════════════════════════════════════ -->
     <div class="tool-card">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h2 style="margin-bottom:0"><i class="fa-solid fa-stethoscope"></i> Database Check &amp; Dead Links</h2>
+            <h2 style="margin-bottom:0"><i class="fa-solid fa-stethoscope" style="color:var(--d-green)"></i> Database Check &amp; Dead Links</h2>
             <span id="dbc-status-pill" class="status-pill status-idle">Idle</span>
         </div>
 
@@ -455,7 +473,7 @@
     <!-- Duplicate check & cleanup -->
     <div class="tool-card">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h2 style="margin-bottom:0"><i class="fa-solid fa-clone"></i> Duplicate Check &amp; Cleanup</h2>
+            <h2 style="margin-bottom:0"><i class="fa-solid fa-clone" style="color:var(--d-orange)"></i> Duplicate Check &amp; Cleanup</h2>
             <span id="dup-status-pill" class="status-pill status-idle">Idle</span>
         </div>
 
@@ -770,13 +788,13 @@ async function startScan(mode) {
     }
 }
 
-function confirmRescan() {
+async function confirmRescan() {
     const channels = getSelectedChannels();
     if (!channels.length) {
         showToast('Select the channels you want to rescan.', 'error', 'No channels');
         return;
     }
-    if (!confirm(`Rescan will DELETE all existing DB entries for ${channels.length} selected channel(s) and re-index from scratch.\n\nProceed?`)) return;
+    if (!(await showConfirm(`Rescan will DELETE all existing DB entries for ${channels.length} selected channel(s) and re-index from scratch.`, { title: 'Rescan channels', okText: 'Rescan', danger: true }))) return;
     startScan('rescan');
 }
 
@@ -986,7 +1004,7 @@ async function loadFlaggedDeadLinks() {
 }
 
 async function purgeDeadLinks() {
-    if (!confirm('Permanently remove these dead links from the database?')) return;
+    if (!(await showConfirm('Permanently remove these dead links from the database?', { title: 'Purge dead links', okText: 'Delete', danger: true }))) return;
     const btn = document.getElementById('purge-btn');
     btn.disabled = true;
     const body = (deadSource === 'flagged')
@@ -1156,12 +1174,12 @@ function renderDupList() {
 async function purgeDuplicates(deleteAll) {
     let body;
     if (deleteAll) {
-        if (!confirm('Keep the newest copy of every group and permanently delete the rest (including the Telegram files)?')) return;
+        if (!(await showConfirm('Keep the newest copy of every group and permanently delete the rest (including the Telegram files)?', { title: 'Delete duplicates', okText: 'Delete', danger: true }))) return;
         body = { delete_all: true };
     } else {
         const ids = Array.from(document.querySelectorAll('#dup-list .dup-cb:checked')).map(cb => cb.dataset.id);
         if (!ids.length) { showToast('Select at least one copy to delete.', 'error', 'Duplicates'); return; }
-        if (!confirm(`Permanently delete ${ids.length} selected cop${ids.length === 1 ? 'y' : 'ies'} (including the Telegram files)?`)) return;
+        if (!(await showConfirm(`Permanently delete ${ids.length} selected cop${ids.length === 1 ? 'y' : 'ies'} (including the Telegram files)?`, { title: 'Delete duplicates', okText: 'Delete', danger: true }))) return;
         body = { stream_ids: ids };
     }
     document.getElementById('dup-selected-btn').disabled = true;
@@ -1336,7 +1354,7 @@ async function applyBotAdmin() {
 
     let msg = `Add ${botIds.length} bot(s) as admin to ${channels.length} channel(s)?`;
     if (demote) msg += '\n\nOrphan bot-admins (not in your token list) will also be demoted.';
-    if (!confirm(msg)) return;
+    if (!(await showConfirm(msg, { title: 'Bot Admin' }))) return;
 
     const btn = document.getElementById('ba-apply-btn');
     btn.disabled = true;
