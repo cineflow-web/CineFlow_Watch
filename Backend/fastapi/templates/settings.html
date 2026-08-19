@@ -201,6 +201,7 @@
     transition: border-color .15s ease, transform .15s ease;
 }
 .stat-box:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); transform: translateY(-1px); }
+.stat-box i { font-size: 1rem; margin-bottom: 0.15rem; }
 .stat-box .v { font-size: 1.05rem; font-weight: 800; line-height: 1.15; }
 .stat-box .l { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sec); font-weight: 700; }
 .hint { font-size: 0.78rem; color: var(--text-sec); }
@@ -1821,9 +1822,13 @@ function rebuildDatabaseList(dbList) {
 
 /* ── System & Maintenance ───────────────────────────────────────────────── */
 const STAT_FIELDS = [
-    ['movies', 'Movies'], ['tv_shows', 'TV Shows'], ['episodes', 'Episodes'],
-    ['streams', 'Streams'], ['db_size', 'DB Size'],
-    ['auth_channels', 'AUTH Channels'], ['version', 'Version'],
+    ['movies', 'Movies', 'fa-film', 'var(--d-purple)'],
+    ['tv_shows', 'TV Shows', 'fa-tv', 'var(--d-cyan)'],
+    ['episodes', 'Episodes', 'fa-clapperboard', 'var(--d-pink)'],
+    ['streams', 'Streams', 'fa-tower-broadcast', 'var(--d-orange)'],
+    ['db_size', 'DB Size', 'fa-database', 'var(--d-green)'],
+    ['auth_channels', 'AUTH Channels', 'fa-satellite-dish', 'var(--d-yellow)'],
+    ['version', 'Version', 'fa-code-branch', 'var(--primary)'],
 ];
 let logLiveTimer = null;
 
@@ -1841,8 +1846,8 @@ async function loadDbStats(btn) {
         const data = await res.json();
         if (data.status !== 'success') throw new Error(data.message || 'failed');
         const s = data.data;
-        grid.innerHTML = STAT_FIELDS.map(([k, label]) =>
-            `<div class="stat-box"><div class="v">${escapeHtml(String(s[k] ?? '—'))}</div><div class="l">${label}</div></div>`
+        grid.innerHTML = STAT_FIELDS.map(([k, label, icon, color]) =>
+            `<div class="stat-box"><i class="fa-solid ${icon}" style="color:${color}"></i><div class="v">${escapeHtml(String(s[k] ?? '—'))}</div><div class="l">${label}</div></div>`
         ).join('');
     } catch (e) {
         grid.innerHTML = `<div class="hint" style="grid-column:1/-1;color:#ef4444">Failed to load stats.</div>`;
