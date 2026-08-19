@@ -28,6 +28,7 @@
     --hairline-strong: color-mix(in srgb, var(--text) 20%, transparent);
     --ring: color-mix(in srgb, var(--primary) 35%, transparent);
     --shadow-color: {{ '0,0,0' if theme.is_dark else '15,23,42' }};
+    --topbar-h: 4rem;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,6 +43,33 @@ body {
     align-items: flex-start;
     justify-content: center;
     padding: clamp(16px, 4vw, 40px);
+    padding-top: calc(var(--topbar-h) + clamp(16px, 4vw, 40px));
+}
+
+/* ═══════════════ Top navbar (brand only — no menu button, no profile icon) ═══════════════ */
+#topbar {
+    height: var(--topbar-h);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+#topbar .brand-link {
+    display: flex; align-items: center; gap: 0.6rem;
+    text-decoration: none; flex-shrink: 0;
+}
+#topbar .brand-link img { height: 2rem; width: auto; object-fit: contain; }
+#topbar .brand-link span {
+    font-size: 1.05rem; font-weight: 800; letter-spacing: 0.01em;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
 .wrap { width: 100%; max-width: 960px; margin: auto; }
@@ -145,6 +173,12 @@ h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 6p
 </style>
 </head>
 <body>
+<header id="topbar">
+    <a href="/" class="brand-link">
+        <img src="https://iili.io/CLM4WKX.md.png" alt="CineFlow">
+        <span>CineFlow</span>
+    </a>
+</header>
 <div class="wrap">
 <div class="layout">
 <div class="card">
