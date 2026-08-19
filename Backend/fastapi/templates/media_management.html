@@ -114,22 +114,24 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <a href="/media/manage?media_type=movie{% if custom %}&custom=1{% endif %}"
-           class="btn-ui {% if media_type == 'movie' %}btn-ghost active{% else %}btn-ghost{% endif %}">
-          <i class="fa-solid fa-film"></i> Movies
-        </a>
-        <a href="/media/manage?media_type=tv{% if custom %}&custom=1{% endif %}"
-           class="btn-ui {% if media_type == 'tv' %}btn-ghost active{% else %}btn-ghost{% endif %}">
-          <i class="fa-solid fa-tv"></i> TV
-        </a>
-        <label class="btn-ui btn-toggle {% if custom %}active{% endif %} cursor-pointer select-none">
-          <input type="checkbox" {% if custom %}checked{% endif %}
-                 onchange="window.location.href='/media/manage?media_type={{ media_type }}' + (this.checked ? '&custom=1' : '')"
-                 class="hidden">
-          <i class="fa-solid fa-star"></i> Custom
-        </label>
-        <button type="button" onclick="openManualAdd()" class="btn-ui btn-success">
+      <div class="flex flex-col gap-2 xl:w-auto xl:min-w-[22rem]">
+        <div class="grid grid-cols-3 gap-2">
+          <a href="/media/manage?media_type=movie{% if custom %}&custom=1{% endif %}"
+             class="btn-ui {% if media_type == 'movie' %}btn-ghost active{% else %}btn-ghost{% endif %}" style="padding:.55rem .5rem;">
+            <i class="fa-solid fa-film"></i> Movies
+          </a>
+          <a href="/media/manage?media_type=tv{% if custom %}&custom=1{% endif %}"
+             class="btn-ui {% if media_type == 'tv' %}btn-ghost active{% else %}btn-ghost{% endif %}" style="padding:.55rem .5rem;">
+            <i class="fa-solid fa-tv"></i> TV
+          </a>
+          <label class="btn-ui btn-toggle {% if custom %}active{% endif %} cursor-pointer select-none" style="padding:.55rem .5rem;">
+            <input type="checkbox" {% if custom %}checked{% endif %}
+                   onchange="window.location.href='/media/manage?media_type={{ media_type }}' + (this.checked ? '&custom=1' : '')"
+                   class="hidden">
+            <i class="fa-solid fa-star"></i> Custom
+          </label>
+        </div>
+        <button type="button" onclick="openManualAdd()" class="btn-ui btn-success w-full" style="padding:.55rem .5rem;">
           <i class="fa-solid fa-plus"></i> Add
         </button>
       </div>
