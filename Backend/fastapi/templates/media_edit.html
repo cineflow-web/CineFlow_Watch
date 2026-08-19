@@ -970,10 +970,49 @@
     </div>
 </div>
 
+<!-- Generic confirm modal (replaces native confirm()) -->
+<div id="app-confirm-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="acCancel()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="glass-card rounded-xl w-full max-w-sm overflow-hidden">
+            <div class="flex items-center gap-2.5 px-4 py-3.5 border-b border-hairline">
+                <div id="ac-icon-wrap" class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--d-red) 15%, transparent)">
+                    <i id="ac-icon" class="fa-solid fa-triangle-exclamation text-xs" style="color:var(--d-red)"></i>
+                </div>
+                <h2 id="ac-title" class="text-sm sm:text-base font-extrabold text-text">Are you sure?</h2>
+            </div>
+            <div class="px-4 py-3.5">
+                <p id="ac-message" class="text-sm text-text-secondary"></p>
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3.5 border-t border-hairline">
+                <button onclick="acCancel()" class="btn-ui btn-ghost">Cancel</button>
+                <button id="ac-confirm-btn" onclick="acConfirm()" class="px-3.5 py-2 rounded-lg font-bold text-sm" style="background:var(--d-red); color:#fff">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const tmdbId = {{ tmdb_id }};
     const dbIndex = {{ db_index }};
     const mediaType = '{{ media_type }}';
+
+    let acResolve = null;
+    function acCancel() {
+        document.getElementById('app-confirm-modal').classList.add('hidden');
+        if (acResolve) { acResolve(false); acResolve = null; }
+    }
+    function acConfirm() {
+        document.getElementById('app-confirm-modal').classList.add('hidden');
+        if (acResolve) { acResolve(true); acResolve = null; }
+    }
+    function appConfirm(message, opts = {}) {
+        document.getElementById('ac-title').textContent = opts.title || 'Are you sure?';
+        document.getElementById('ac-message').textContent = message;
+        document.getElementById('ac-confirm-btn').textContent = opts.confirmLabel || 'Delete';
+        document.getElementById('app-confirm-modal').classList.remove('hidden');
+        return new Promise(resolve => { acResolve = resolve; });
+    }
 
     let selectedRescanMatch = null;
     let latestRescanResults = [];
