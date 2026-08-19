@@ -5,13 +5,9 @@
 <style>
   .rq-shell { max-width: 1180px; margin: 0 auto; }
 
-  /* ── Square-rounded tile buttons (type tabs + status filters) ────────── */
-  .rq-tilebar { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-  .rq-tilebar + .rq-tilebar { margin-top: 0.75rem; }
-  .rq-tilelabel {
-      font-size: 0.66rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
-      color: var(--text-sec); margin-bottom: 0.5rem;
-  }
+  /* ── Tile row layout: 2 / 3 / 2, centered, per sketch ─────────────────── */
+  .rq-tilepanel { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+  .rq-tilerow { display: flex; justify-content: center; gap: 0.7rem; flex-wrap: wrap; }
 
   .rq-tile {
       position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -178,43 +174,39 @@
         </div>
     </header>
 
-    <!-- ══════════════ Tabs + filters panel ══════════════ -->
+    <!-- ══════════════ Tabs + filters panel (2 / 3 / 2 tile grid) ══════════════ -->
     <div class="settings-card mb-4">
-        <div class="flex flex-wrap items-start justify-between gap-5">
-            <div>
-                <div class="rq-tilelabel">Type</div>
-                <div class="rq-tilebar" id="rq-type-bar">
-                    <button class="rq-tile tile-movie active" data-type="movie" onclick="setType(this,'movie')">
-                        <span class="cnt" id="cnt-movie">0</span>
-                        <i class="fa-solid fa-film"></i>
-                        <span class="lbl">Movies</span>
-                    </button>
-                    <button class="rq-tile tile-tv" data-type="tv" onclick="setType(this,'tv')">
-                        <span class="cnt" id="cnt-tv">0</span>
-                        <i class="fa-solid fa-tv"></i>
-                        <span class="lbl">TV Shows</span>
-                    </button>
-                </div>
+        <div class="rq-tilepanel" id="rq-tilepanel">
+            <div class="rq-tilerow">
+                <button class="rq-tile tile-movie active" data-type="movie" onclick="setType(this,'movie')">
+                    <span class="cnt" id="cnt-movie">0</span>
+                    <i class="fa-solid fa-film"></i>
+                    <span class="lbl">Movies</span>
+                </button>
+                <button class="rq-tile tile-tv" data-type="tv" onclick="setType(this,'tv')">
+                    <span class="cnt" id="cnt-tv">0</span>
+                    <i class="fa-solid fa-tv"></i>
+                    <span class="lbl">TV Shows</span>
+                </button>
             </div>
-            <div>
-                <div class="rq-tilelabel">Status</div>
-                <div class="rq-tilebar" id="rq-status-bar">
-                    <button class="rq-tile tile-all active" data-status="" onclick="setStatusFilter(this,'')">
-                        <i class="fa-solid fa-layer-group"></i><span class="lbl">All</span>
-                    </button>
-                    <button class="rq-tile tile-pending" data-status="pending" onclick="setStatusFilter(this,'pending')">
-                        <i class="fa-solid fa-clock"></i><span class="lbl">Pending</span>
-                    </button>
-                    <button class="rq-tile tile-uploaded" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')">
-                        <i class="fa-solid fa-check"></i><span class="lbl">Uploaded</span>
-                    </button>
-                    <button class="rq-tile tile-denied" data-status="denied" onclick="setStatusFilter(this,'denied')">
-                        <i class="fa-solid fa-xmark"></i><span class="lbl">Denied</span>
-                    </button>
-                    <button class="rq-tile tile-banned" data-status="banned" onclick="setStatusFilter(this,'banned')">
-                        <i class="fa-solid fa-ban"></i><span class="lbl">Banned</span>
-                    </button>
-                </div>
+            <div class="rq-tilerow">
+                <button class="rq-tile tile-all active" data-status="" onclick="setStatusFilter(this,'')">
+                    <i class="fa-solid fa-layer-group"></i><span class="lbl">All</span>
+                </button>
+                <button class="rq-tile tile-pending" data-status="pending" onclick="setStatusFilter(this,'pending')">
+                    <i class="fa-solid fa-clock"></i><span class="lbl">Pending</span>
+                </button>
+                <button class="rq-tile tile-uploaded" data-status="uploaded" onclick="setStatusFilter(this,'uploaded')">
+                    <i class="fa-solid fa-check"></i><span class="lbl">Uploaded</span>
+                </button>
+            </div>
+            <div class="rq-tilerow">
+                <button class="rq-tile tile-denied" data-status="denied" onclick="setStatusFilter(this,'denied')">
+                    <i class="fa-solid fa-xmark"></i><span class="lbl">Denied</span>
+                </button>
+                <button class="rq-tile tile-banned" data-status="banned" onclick="setStatusFilter(this,'banned')">
+                    <i class="fa-solid fa-ban"></i><span class="lbl">Banned</span>
+                </button>
             </div>
         </div>
     </div>
@@ -238,14 +230,14 @@ function esc(s) {
 function setType(btn, type) {
   curType = type;
   curPage = 1;
-  document.querySelectorAll('#rq-type-bar .rq-tile').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rq-tile[data-type]').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
 function setStatusFilter(btn, status) {
   curStatus = status;
   curPage = 1;
-  document.querySelectorAll('#rq-status-bar .rq-tile').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rq-tile[data-status]').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
