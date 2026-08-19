@@ -822,7 +822,7 @@ async function sessAction(kind) {
 }
 
 async function sessRemove() {
-    if (!confirm('Remove the stored Telegram session? Global Search will stop working until you log in again.')) return;
+    if (!(await showConfirm('Remove the stored Telegram session? Global Search will stop working until you log in again.', { title: 'Remove session', okText: 'Remove', danger: true }))) return;
     try {
         const res = await fetch('/api/admin/settings/session', { method: 'DELETE' });
         if (!res.ok) throw new Error();
@@ -1611,7 +1611,7 @@ async function restoreBackup(input) {
     const file = input.files && input.files[0];
     input.value = '';
     if (!file) return;
-    if (!confirm('Restore this backup? It will replace your catalogs, plans and tokens, and reconnect databases / bot tokens.')) return;
+    if (!(await showConfirm('Restore this backup? It will replace your catalogs, plans and tokens, and reconnect databases / bot tokens.', { title: 'Restore backup', okText: 'Restore', danger: true }))) return;
 
     const btn = document.getElementById('restore-btn');
     const status = document.getElementById('restore-status');
@@ -1863,7 +1863,7 @@ function toggleLiveLogs() {
 }
 
 async function restartApp() {
-    if (!confirm('Restart the app now? It will pull the latest code and be unreachable for a few seconds.')) return;
+    if (!(await showConfirm('Restart the app now? It will pull the latest code and be unreachable for a few seconds.', { title: 'Restart app', okText: 'Restart', danger: true }))) return;
 
     let before = null;
     try { before = (await (await fetch('/api/admin/health')).json()).start_time; } catch (e) {}

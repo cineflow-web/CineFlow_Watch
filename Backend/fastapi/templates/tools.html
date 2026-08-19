@@ -788,13 +788,13 @@ async function startScan(mode) {
     }
 }
 
-function confirmRescan() {
+async function confirmRescan() {
     const channels = getSelectedChannels();
     if (!channels.length) {
         showToast('Select the channels you want to rescan.', 'error', 'No channels');
         return;
     }
-    if (!confirm(`Rescan will DELETE all existing DB entries for ${channels.length} selected channel(s) and re-index from scratch.\n\nProceed?`)) return;
+    if (!(await showConfirm(`Rescan will DELETE all existing DB entries for ${channels.length} selected channel(s) and re-index from scratch.`, { title: 'Rescan channels', okText: 'Rescan', danger: true }))) return;
     startScan('rescan');
 }
 
@@ -1004,7 +1004,7 @@ async function loadFlaggedDeadLinks() {
 }
 
 async function purgeDeadLinks() {
-    if (!confirm('Permanently remove these dead links from the database?')) return;
+    if (!(await showConfirm('Permanently remove these dead links from the database?', { title: 'Purge dead links', okText: 'Delete', danger: true }))) return;
     const btn = document.getElementById('purge-btn');
     btn.disabled = true;
     const body = (deadSource === 'flagged')
@@ -1174,12 +1174,12 @@ function renderDupList() {
 async function purgeDuplicates(deleteAll) {
     let body;
     if (deleteAll) {
-        if (!confirm('Keep the newest copy of every group and permanently delete the rest (including the Telegram files)?')) return;
+        if (!(await showConfirm('Keep the newest copy of every group and permanently delete the rest (including the Telegram files)?', { title: 'Delete duplicates', okText: 'Delete', danger: true }))) return;
         body = { delete_all: true };
     } else {
         const ids = Array.from(document.querySelectorAll('#dup-list .dup-cb:checked')).map(cb => cb.dataset.id);
         if (!ids.length) { showToast('Select at least one copy to delete.', 'error', 'Duplicates'); return; }
-        if (!confirm(`Permanently delete ${ids.length} selected cop${ids.length === 1 ? 'y' : 'ies'} (including the Telegram files)?`)) return;
+        if (!(await showConfirm(`Permanently delete ${ids.length} selected cop${ids.length === 1 ? 'y' : 'ies'} (including the Telegram files)?`, { title: 'Delete duplicates', okText: 'Delete', danger: true }))) return;
         body = { stream_ids: ids };
     }
     document.getElementById('dup-selected-btn').disabled = true;
@@ -1354,7 +1354,7 @@ async function applyBotAdmin() {
 
     let msg = `Add ${botIds.length} bot(s) as admin to ${channels.length} channel(s)?`;
     if (demote) msg += '\n\nOrphan bot-admins (not in your token list) will also be demoted.';
-    if (!confirm(msg)) return;
+    if (!(await showConfirm(msg, { title: 'Bot Admin' }))) return;
 
     const btn = document.getElementById('ba-apply-btn');
     btn.disabled = true;
