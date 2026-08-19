@@ -44,6 +44,22 @@ body {
     padding: clamp(16px, 4vw, 40px);
 }
 
+.navbar {
+    width: 100%; max-width: 960px; margin: 0 auto clamp(16px, 3vw, 28px);
+    display: flex; align-items: center; gap: 12px;
+}
+.navbar-logo {
+    width: 40px; height: 40px; border-radius: 9999px;
+    overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+.navbar-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.navbar-name {
+    font-size: 1.35rem; font-weight: 800; letter-spacing: 0.02em;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
 .wrap { width: 100%; max-width: 960px; margin: auto; }
 .layout { display: grid; gap: 16px; grid-template-columns: 1fr; align-items: start; }
 @media (min-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
@@ -69,20 +85,6 @@ body::before {
     text-align: center;
 }
 
-.brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; }
-.brand-logo {
-    width: 44px; height: 44px; border-radius: 9999px;
-    background: var(--primary); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 55%, transparent);
-    overflow: hidden; flex-shrink: 0;
-}
-.brand-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.brand-name {
-    font-size: 1.6rem; font-weight: 800; letter-spacing: 0.02em;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-}
 
 h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .sub-title { color: var(--text-sec); font-size: 0.85rem; margin-bottom: 26px; line-height: 1.5; }
