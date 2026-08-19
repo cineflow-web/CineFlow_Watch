@@ -32,6 +32,7 @@ templates = Jinja2Templates(directory="Backend/fastapi/templates")
 #----- Addon configuration
 ADDON_NAME = "CineFlow"
 ADDON_VERSION = __version__
+ADDON_LOGO = "https://iili.io/CsmODDQ.md.png"
 PAGE_SIZE = 15
 
 
@@ -509,7 +510,7 @@ async def get_manifest(token: str, token_data: dict = Depends(verify_token)):
         "id": f"cineflow.media.{token[:8]}",
         "version": addon_version,
         "name": addon_name,
-        "logo": "https://iili.io/CsmODDQ.md.png",
+        "logo": ADDON_LOGO,
         "description": addon_desc,
         "types": ["movie", "series"],
         "resources": resources,
@@ -1185,6 +1186,7 @@ async def configure_addon(token: str, request: Request):
         "expiry_str": expiry_str,
         "status_text": status_text,
         "status_color": status_color,
+        "addon_logo": ADDON_LOGO,
     })
 
 
