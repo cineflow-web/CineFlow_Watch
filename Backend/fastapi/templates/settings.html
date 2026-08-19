@@ -74,6 +74,15 @@
     flex-shrink: 0;
 }
 
+/* ── Badge-style section icon (matches page-header icon treatment) ─────────── */
+.settings-card-h2-badge { gap: 0.7rem !important; margin-bottom: 1.1rem !important; }
+.settings-card-icon-badge {
+    width: 2.2rem; height: 2.2rem; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 0.65rem;
+}
+.settings-card-icon-badge i { font-size: 0.95rem; }
+
 /* ── Compact icon-only action buttons (refresh / download / etc.) ──────────── */
 .icon-action {
     width: 2.15rem; height: 2.15rem; flex-shrink: 0;
@@ -223,7 +232,12 @@
 
     <!-- ── System & Maintenance ─────────────────────────────────────────── -->
     <div class="settings-card">
-        <h2><i class="fa-solid fa-server" style="color:var(--d-cyan)"></i> System &amp; Maintenance</h2>
+        <h2 class="settings-card-h2-badge">
+            <span class="settings-card-icon-badge" style="background:color-mix(in srgb, var(--d-cyan) 15%, transparent)">
+                <i class="fa-solid fa-server" style="color:var(--d-cyan)"></i>
+            </span>
+            System &amp; Maintenance
+        </h2>
 
         <!-- DB & system stats -->
         <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
