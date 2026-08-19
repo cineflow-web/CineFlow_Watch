@@ -279,34 +279,34 @@
 
   /* ── Confirm modal (delete/replace prompts) ──────────────────────────── */
   .ac-modal {
-    width: 100%; max-width: 400px;
+    width: 100%; max-width: 340px;
     background: color-mix(in srgb, var(--card) 97%, var(--bg));
     border: 1px solid var(--hairline-strong);
-    border-radius: 1.35rem;
-    padding: 2rem 1.75rem 1.75rem;
+    border-radius: 1.1rem;
+    padding: 1.35rem 1.25rem 1.1rem;
     box-shadow: var(--shadow-strong);
     text-align: center;
     animation: ac-pop 180ms cubic-bezier(.2,1,.3,1);
   }
   .ac-icon {
-    width: 4.4rem; height: 4.4rem; margin: 0 auto 1.1rem;
+    width: 3rem; height: 3rem; margin: 0 auto 0.7rem;
     border-radius: 9999px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.65rem;
+    font-size: 1.15rem;
   }
-  .ac-title { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 0.6rem; line-height: 1.3; }
-  .ac-message { font-size: 0.86rem; color: color-mix(in srgb, var(--primary) 30%, var(--text-sec)); line-height: 1.55; margin-bottom: 1.6rem; }
-  .ac-actions { display: flex; gap: 0.7rem; }
+  .ac-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 0.35rem; line-height: 1.25; }
+  .ac-message { font-size: 0.78rem; color: color-mix(in srgb, var(--primary) 30%, var(--text-sec)); line-height: 1.4; margin-bottom: 1rem; overflow-wrap: anywhere; word-break: break-all; }
+  .ac-actions { display: flex; gap: 0.5rem; }
   .ac-btn {
-    flex: 1; padding: 0.8rem 1rem; border-radius: 0.9rem;
-    font-size: 0.88rem; font-weight: 800; cursor: pointer;
+    flex: 1; padding: 0.55rem 0.8rem; border-radius: 0.65rem;
+    font-size: 0.8rem; font-weight: 800; cursor: pointer;
     border: 1px solid var(--hairline); transition: filter .15s ease, background .15s ease;
   }
   .ac-cancel { background: var(--surface); color: var(--text); }
   .ac-cancel:hover { background: var(--surface-2); }
-  .ac-danger { background: var(--d-red); color: #fff; border-color: transparent; box-shadow: 0 10px 26px color-mix(in srgb, var(--d-red) 55%, transparent); }
+  .ac-danger { background: var(--d-red); color: #fff; border-color: transparent; box-shadow: 0 6px 16px color-mix(in srgb, var(--d-red) 50%, transparent); }
   .ac-danger:hover { filter: brightness(1.08); }
-  .ac-primary { background: var(--primary); color: #fff; border-color: transparent; box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 40%, transparent); }
+  .ac-primary { background: var(--primary); color: #fff; border-color: transparent; box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent); }
   .ac-primary:hover { filter: brightness(1.08); }
   @keyframes ac-pop { from { opacity: 0; transform: scale(0.94) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
@@ -1046,13 +1046,13 @@
         if (danger) {
             iconWrap.style.background = 'color-mix(in srgb, var(--d-red) 18%, transparent)';
             iconWrap.style.color = 'var(--d-red)';
-            iconWrap.style.boxShadow = '0 0 0 10px color-mix(in srgb, var(--d-red) 9%, transparent)';
+            iconWrap.style.boxShadow = '0 0 0 6px color-mix(in srgb, var(--d-red) 9%, transparent)';
             icon.className = 'fa-solid fa-triangle-exclamation';
             okBtn.className = 'ac-btn ac-danger';
         } else {
             iconWrap.style.background = 'color-mix(in srgb, var(--primary) 15%, transparent)';
             iconWrap.style.color = 'var(--primary)';
-            iconWrap.style.boxShadow = '0 0 0 10px color-mix(in srgb, var(--primary) 7%, transparent)';
+            iconWrap.style.boxShadow = '0 0 0 6px color-mix(in srgb, var(--primary) 7%, transparent)';
             icon.className = 'fa-solid fa-circle-question';
             okBtn.className = 'ac-btn ac-primary';
         }
