@@ -262,10 +262,11 @@ function renderCatalogs() {
     document.getElementById('cfg-catalogs').innerHTML = cfgCatalogs.map((c, i) => {
         const key = catKey(c);
         const hidden = cfg.hidden_catalogs.includes(key) || cfg.hidden_catalogs.includes(c.id);
-        const tag = c.type === 'series' ? '📺 TV' : '🎬 Movie';
+        const tagIcon = c.type === 'series' ? 'fa-tv' : 'fa-film';
+        const tagLabel = c.type === 'series' ? 'TV' : 'Movie';
         return `<div class="cfg-cat ${hidden ? 'hidden-cat' : ''}">
             <button class="cfg-eye" title="Show/hide" onclick="toggleHide(${i})"><i class="fa-solid fa-eye${hidden ? '-slash' : ''}"></i></button>
-            <span class="nm">${escapeCfg(c.name)} <small style="opacity:.6">· ${tag}</small></span>
+            <span class="nm">${escapeCfg(c.name)} <small style="opacity:.6">· <i class="fa-solid ${tagIcon}"></i> ${tagLabel}</small></span>
             <button class="cfg-arr" ${i === 0 ? 'disabled' : ''} onclick="moveCat(${i}, -1)">▲</button>
             <button class="cfg-arr" ${i === cfgCatalogs.length - 1 ? 'disabled' : ''} onclick="moveCat(${i}, 1)">▼</button>
         </div>`;

@@ -14,6 +14,8 @@
       transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
   .rq-tab span { opacity: .7; margin-left: .3rem; }
+  .rq-tab i { margin-right: .4rem; opacity: .85; }
+  .rq-count { display: inline-flex; align-items: center; gap: .3rem; }
   .rq-tab:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--text); }
   .rq-tab.active { background: var(--primary); color: var(--bg); border-color: var(--primary); }
 
@@ -115,8 +117,8 @@
     <div class="settings-card mb-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="rq-tabs">
-                <button class="rq-tab active" data-type="movie" onclick="setType(this,'movie')">🎬 Movies <span id="cnt-movie">0</span></button>
-                <button class="rq-tab" data-type="tv" onclick="setType(this,'tv')">📺 TV Shows <span id="cnt-tv">0</span></button>
+                <button class="rq-tab active" data-type="movie" onclick="setType(this,'movie')"><i class="fa-solid fa-film"></i>Movies <span id="cnt-movie">0</span></button>
+                <button class="rq-tab" data-type="tv" onclick="setType(this,'tv')"><i class="fa-solid fa-tv"></i>TV Shows <span id="cnt-tv">0</span></button>
             </div>
             <div class="rq-filters">
                 <button class="rq-chip active" data-status="" onclick="setStatusFilter(this,'')"><i class="fa-solid fa-layer-group"></i> All</button>
@@ -190,7 +192,7 @@ function cardHtml(r) {
   return `<div class="rq-card">
     <div class="rq-poster">
       ${poster}
-      <span class="rq-count">👥 ${esc(r.request_count || 0)}</span>
+      <span class="rq-count"><i class="fa-solid fa-users"></i> ${esc(r.request_count || 0)}</span>
       <span class="rq-badge b-${esc(r.status)}">${esc(r.status)}</span>
     </div>
     <div class="rq-body">

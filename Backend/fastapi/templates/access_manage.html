@@ -5,28 +5,20 @@
 <style>
     .access-shell { display: flex; flex-direction: column; gap: 1.5rem; }
 
-    .page-hero, .section-panel, .table-shell, .stat-card, .mobile-token-card, .empty-state, .modal-glass {
-        background: color-mix(in srgb, var(--card) 50%, transparent);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+    .section-panel, .table-shell, .mobile-token-card, .empty-state {
+        background: color-mix(in srgb, var(--card) 92%, var(--bg));
+        border: 1px solid var(--hairline);
+        box-shadow: var(--shadow-soft);
     }
-    .page-hero, .section-panel, .table-shell, .stat-card, .mobile-token-card, .empty-state { border-radius: 1.5rem; }
+    .section-panel, .table-shell, .mobile-token-card, .empty-state { border-radius: 1.25rem; }
 
-    .hero-glow { position: relative; overflow: hidden; isolation: isolate; }
-    .hero-glow::before {
-        content: ""; position: absolute; inset: -30% auto auto -10%;
-        width: 16rem; height: 16rem; border-radius: 9999px;
-        background: color-mix(in srgb, var(--primary) 18%, transparent);
-        filter: blur(52px); z-index: -1; pointer-events: none;
+    .section-panel h2 {
+        font-size: 0.85rem; font-weight: 800;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        color: var(--text); margin-bottom: 0.25rem;
+        display: flex; align-items: center; gap: 0.55rem;
     }
-    .hero-glow::after {
-        content: ""; position: absolute; inset: auto -4% -34% auto;
-        width: 14rem; height: 14rem; border-radius: 9999px;
-        background: color-mix(in srgb, var(--accent) 16%, transparent);
-        filter: blur(52px); z-index: -1; pointer-events: none;
-    }
+    .section-panel h2 i { font-size: 0.95rem; color: var(--primary); flex-shrink: 0; }
 
     .section-title { color: var(--text); }
     .section-muted { color: var(--text-sec); }
@@ -61,18 +53,22 @@
         box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent);
     }
 
-    .stat-card { padding: 1.25rem; text-align: center; position: relative; overflow: hidden; }
-    .stat-card::before {
-        content: ""; position: absolute; width: 7rem; height: 7rem; border-radius: 9999px;
-        filter: blur(42px); top: -25%; right: -10%; opacity: 0.7; pointer-events: none;
+    .stat-card {
+        background: color-mix(in srgb, var(--card) 92%, var(--bg));
+        border: 1px solid var(--hairline); border-radius: 1.25rem;
+        padding: 1.1rem; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; text-align: center; gap: 0.4rem;
+        transition: border-color 0.2s ease;
     }
-    .stat-primary::before { background: color-mix(in srgb, var(--primary) 24%, transparent); }
-    .stat-success::before { background: color-mix(in srgb, #22c55e 24%, transparent); }
-    .stat-danger::before { background: color-mix(in srgb, #ef4444 24%, transparent); }
-    .stat-value { font-size: 1.9rem; font-weight: 800; line-height: 1; position: relative; z-index: 1; }
+    .stat-card:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); }
+    .stat-icon {
+        width: 2.4rem; height: 2.4rem; border-radius: 0.85rem;
+        display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .stat-value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
     .stat-label {
-        margin-top: 0.55rem; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em;
-        text-transform: uppercase; color: var(--text-sec); position: relative; z-index: 1;
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+        text-transform: uppercase; color: var(--text-sec);
     }
 
     .table-shell { overflow: hidden; }
@@ -124,7 +120,7 @@
     @media (max-width: 767px) {
         .desktop-table-wrap { display: none; }
         .mobile-grid { display: block; }
-        .page-hero, .section-panel { padding: 1rem; border-radius: 1.35rem; }
+        .section-panel { padding: 1rem; border-radius: 1.1rem; }
         .pagination-shell { flex-direction: column; align-items: stretch; }
         .pagination-shell .controls { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.6rem; align-items: center; }
         .pagination-btn { width: 100%; }
@@ -132,42 +128,52 @@
 </style>
 
 <div class="access-shell py-2 sm:py-4">
-    <section class="page-hero hero-glow p-5 sm:p-6 lg:p-8">
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-                <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-1 text-xs font-bold tracking-[0.18em] uppercase mb-3"
-                     style="border-color: color-mix(in srgb, var(--primary) 28%, var(--border)); color: var(--text-sec); background: color-mix(in srgb, var(--primary) 10%, transparent);">
-                    <i class="fas fa-shield-halved text-[11px]" style="color: var(--primary);"></i>
-                    Access Control Hub
-                </div>
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight section-title">Tokens &amp; Access</h1>
-                <p class="mt-2 text-sm sm:text-base section-muted max-w-2xl">
-                    One place for everything: create addon tokens, set data limits, mark lifetime access, link users and manage subscriptions.
-                </p>
-            </div>
+    <header class="surface-card relative overflow-hidden p-4 sm:p-5 flex items-center justify-between gap-3 flex-wrap">
+        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary"></div>
 
-            <div class="flex flex-wrap gap-3">
-                <button onclick="openCreateModal()" class="glass-btn glass-btn-primary rounded-2xl px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
-                    <i class="fas fa-plus"></i> New Token
-                </button>
-                <button onclick="loadTokens()" class="glass-btn rounded-2xl px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
-                    <i class="fas fa-rotate-right"></i> Refresh
-                </button>
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:color-mix(in srgb, var(--primary) 15%, transparent)">
+                <i class="fa-solid fa-key text-base" style="color:var(--primary)"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="gradient-text text-lg sm:text-2xl font-extrabold tracking-tight truncate" style="--grad-from:var(--primary); --grad-to:var(--accent)">
+                    Tokens &amp; Access
+                </h1>
+                <p class="text-text-secondary text-[10px] sm:text-xs mt-0.5 truncate">Create addon tokens, set data limits, link users and manage subscriptions</p>
             </div>
         </div>
-    </section>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="loadTokens()" title="Refresh" class="icon-btn">
+                <i class="fa-solid fa-arrows-rotate transition-transform duration-700"></i>
+            </button>
+            <button onclick="openCreateModal()" class="btn-primary flex items-center justify-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 text-sm active:scale-95">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hidden sm:inline">New Token</span>
+            </button>
+        </div>
+    </header>
 
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="stat-card stat-primary">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:color-mix(in srgb, var(--primary) 15%, transparent); color:var(--primary)">
+                <i class="fa-solid fa-key"></i>
+            </div>
             <div class="stat-value" style="color: var(--primary);" id="stat-total">–</div>
             <div class="stat-label">Total Tokens</div>
         </div>
-        <div class="stat-card stat-success">
-            <div class="stat-value" style="color: #4ade80;" id="stat-active">–</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:color-mix(in srgb, var(--d-green) 15%, transparent); color:var(--d-green)">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="stat-value" style="color: var(--d-green);" id="stat-active">–</div>
             <div class="stat-label">Active</div>
         </div>
-        <div class="stat-card stat-danger">
-            <div class="stat-value" style="color: #f87171;" id="stat-expired">–</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:color-mix(in srgb, var(--d-red) 15%, transparent); color:var(--d-red)">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="stat-value" style="color: var(--d-red);" id="stat-expired">–</div>
             <div class="stat-label">Expired / No Sub</div>
         </div>
     </section>
@@ -175,7 +181,7 @@
     <section class="section-panel p-4 sm:p-5 lg:p-6">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
             <div>
-                <h2 class="text-lg sm:text-xl font-bold section-title">Access Tokens</h2>
+                <h2 style="margin-bottom:0.25rem"><i class="fa-solid fa-list-ul"></i> Access Tokens</h2>
                 <p class="text-sm section-muted mt-1">Search, filter, and manage every token and its access.</p>
             </div>
 
@@ -237,7 +243,7 @@
                 <h3 class="text-xl font-bold section-title">Create Token</h3>
                 <p class="text-sm text-soft mt-1">Generate a new Stremio addon token.</p>
             </div>
-            <button onclick="closeModal('create-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('create-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="space-y-4">
@@ -276,7 +282,7 @@
                 <h3 class="text-xl font-bold section-title">Edit Data Limits</h3>
                 <p class="text-sm text-soft mt-1">Set 0 for unlimited.</p>
             </div>
-            <button onclick="closeModal('limits-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('limits-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <input type="hidden" id="limits-token">
         <div class="grid grid-cols-2 gap-3">
@@ -304,7 +310,7 @@
                 <h3 class="text-xl font-bold section-title" id="assign-modal-title">Assign Subscription Plan</h3>
                 <p class="text-sm text-soft mt-1" id="assign-user-label">User: –</p>
             </div>
-            <button onclick="closeModal('assign-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('assign-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <input type="hidden" id="assign-user-id">
         <input type="hidden" id="assign-token">
@@ -339,7 +345,7 @@
                 <h3 class="text-xl font-bold section-title" id="sub-action-title">Manage Subscription</h3>
                 <p class="text-sm text-soft mt-1" id="sub-action-desc"></p>
             </div>
-            <button onclick="closeModal('sub-action-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fas fa-xmark"></i></button>
+            <button onclick="closeModal('sub-action-modal')" class="glass-btn rounded-lg w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <input type="hidden" id="sub-action-user-id">
         <input type="hidden" id="sub-action-token">
@@ -390,10 +396,10 @@
     }
 
     function statusBadge(t) {
-        if (t.is_admin) return `<span class="status-badge status-gold"><i class="fas fa-crown text-[8px]"></i> Owner</span>`;
+        if (t.is_admin) return `<span class="status-badge status-gold"><i class="fa-solid fa-crown text-[8px]"></i> Owner</span>`;
         return t.is_expired
-            ? `<span class="status-badge status-expired"><i class="fas fa-circle text-[8px]"></i> Expired</span>`
-            : `<span class="status-badge status-active"><i class="fas fa-circle text-[8px]"></i> Active</span>`;
+            ? `<span class="status-badge status-expired"><i class="fa-solid fa-circle text-[8px]"></i> Expired</span>`
+            : `<span class="status-badge status-active"><i class="fa-solid fa-circle text-[8px]"></i> Active</span>`;
     }
 
     function addonHtml(t) {
@@ -405,7 +411,7 @@
             </div>`;
         }
         return t.addon_url
-            ? `<div class="addon-box"><button onclick="copyLink('${escHtml(t.addon_url)}')" class="glass-btn glass-btn-primary rounded-xl px-3 py-2 text-xs font-bold inline-flex items-center gap-2"><i class="fas fa-copy"></i> Copy Install Link</button></div>`
+            ? `<div class="addon-box"><button onclick="copyLink('${escHtml(t.addon_url)}')" class="glass-btn glass-btn-primary rounded-xl px-3 py-2 text-xs font-bold inline-flex items-center gap-2"><i class="fa-solid fa-copy"></i> Copy Install Link</button></div>`
             : `<div class="addon-box text-soft text-xs">—</div>`;
     }
 

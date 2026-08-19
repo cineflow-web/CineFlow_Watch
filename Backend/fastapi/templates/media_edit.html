@@ -346,7 +346,7 @@
                         <div class="flex flex-wrap justify-center md:justify-start items-center gap-2 sm:gap-3 mt-4">
                             {% if media_details.rating %}
                             <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-yellow-400 text-black text-sm font-extrabold shadow-sm">
-                                ⭐ {{ media_details.rating }}
+                                <i class="fa-solid fa-star"></i> {{ media_details.rating }}
                             </span>
                             {% endif %}
                             <span class="inline-flex items-center px-3 py-1 rounded-lg bg-surface-3 text-white text-sm font-semibold border border-hairline-strong">
@@ -382,11 +382,11 @@
 
     {% if media_details %}
     <div class="edit-tabs" role="tablist" id="edit-tabs">
-        <button type="button" class="edit-tab active" data-tab="details" onclick="switchEditTab('details')">📝 <span>Details</span></button>
-        <button type="button" class="edit-tab" data-tab="content" onclick="switchEditTab('content')">🎬 <span>Content</span></button>
-        <button type="button" class="edit-tab" data-tab="subtitles" onclick="switchEditTab('subtitles')">💬 <span>Subtitles</span></button>
-        <button type="button" class="edit-tab" data-tab="catalog" onclick="switchEditTab('catalog')">📚 <span>Catalog</span></button>
-        <button type="button" class="edit-tab" data-tab="rescan" onclick="switchEditTab('rescan')">🔄 <span>Rescan</span></button>
+        <button type="button" class="edit-tab active" data-tab="details" onclick="switchEditTab('details')"><i class="fa-solid fa-file-lines"></i> <span>Details</span></button>
+        <button type="button" class="edit-tab" data-tab="content" onclick="switchEditTab('content')"><i class="fa-solid fa-film"></i> <span>Content</span></button>
+        <button type="button" class="edit-tab" data-tab="subtitles" onclick="switchEditTab('subtitles')"><i class="fa-solid fa-closed-captioning"></i> <span>Subtitles</span></button>
+        <button type="button" class="edit-tab" data-tab="catalog" onclick="switchEditTab('catalog')"><i class="fa-solid fa-layer-group"></i> <span>Catalog</span></button>
+        <button type="button" class="edit-tab" data-tab="rescan" onclick="switchEditTab('rescan')"><i class="fa-solid fa-arrows-rotate"></i> <span>Rescan</span></button>
     </div>
     {% endif %}
 
@@ -411,7 +411,7 @@
                 value="{{ media_details.title if media_details else '' }}"
             >
             <button type="button" class="btn-ui btn-primary" onclick="searchRescanCandidates()">
-                🔎 Search Matches
+                <i class="fa-solid fa-magnifying-glass"></i> Search Matches
             </button>
         </div>
 
@@ -432,7 +432,7 @@
             <div class="flex flex-col sm:flex-row justify-end gap-3 mt-5">
                 <button type="button" onclick="clearRescanSelection()" class="btn-ui btn-ghost">Cancel</button>
                 <button type="button" onclick="applyRescanSelection()" class="btn-ui btn-primary">
-                    ✨ Apply Selected Match
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Apply Selected Match
                 </button>
             </div>
         </div>
@@ -455,7 +455,7 @@
                 <option value="">Loading catalogs...</option>
             </select>
             <button type="button" onclick="addCurrentMediaToCatalog()" class="btn-ui btn-primary">
-                ➕ Add to Catalog
+                <i class="fa-solid fa-plus"></i> Add to Catalog
             </button>
             <button type="button" onclick="removeCurrentMediaFromCatalog()" class="btn-ui btn-danger">
                 Remove
@@ -572,7 +572,7 @@
             <h3 class="section-title text-xl sm:text-2xl">Available Content</h3>
             <div class="flex items-center gap-2">
                 <button type="button" onclick="openAddStream()" class="btn-ui btn-success">
-                    ➕ {{ 'Add Season / Episode / Stream' if media_type == 'tv' else 'Add Stream' }}
+                    <i class="fa-solid fa-plus"></i> {{ 'Add Season / Episode / Stream' if media_type == 'tv' else 'Add Stream' }}
                 </button>
             </div>
         </div>
@@ -595,10 +595,10 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full sm:w-auto xl:min-w-[24rem]">
                         <button onclick="copyStreamLink('{{ quality.id }}', '{{ quality.name }}')" class="btn-ui btn-success w-full" title="Copy direct stream link">
-                            📋 Copy Link
+                            <i class="fa-solid fa-copy"></i> Copy Link
                         </button>
                         <button onclick="runSpeedTest('{{ quality.id }}', 'movie', '{{ quality.quality }}')" class="btn-ui btn-info w-full">
-                            🚀 Speed Test
+                            <i class="fa-solid fa-rocket"></i> Speed Test
                         </button>
                         <button onclick="deleteQuality('{{ quality.id }}', this)" class="btn-ui btn-danger w-full">
                             Delete
@@ -670,10 +670,10 @@
 
                                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full sm:w-auto xl:min-w-[22rem]">
                                                     <button onclick="copyStreamLink('{{ quality.id }}', '{{ quality.name }}')" class="btn-ui btn-success w-full text-xs sm:text-sm">
-                                                        📋 Copy
+                                                        <i class="fa-solid fa-copy"></i> Copy
                                                     </button>
                                                     <button onclick="runSpeedTest('{{ quality.id }}', 'tv', '{{ quality.quality }}')" class="btn-ui btn-info w-full text-xs sm:text-sm">
-                                                        🚀 Speed Test
+                                                        <i class="fa-solid fa-rocket"></i> Speed Test
                                                     </button>
                                                     <button onclick="deleteTVQuality({{ season.season_number }}, {{ episode.episode_number }}, '{{ quality.id }}', this)" class="btn-ui btn-danger w-full text-xs sm:text-sm">
                                                         Delete
@@ -715,7 +715,7 @@
                 <h3 class="section-title text-xl sm:text-2xl">Subtitles</h3>
                 <p class="muted text-sm mt-1">Attach subtitle files from a Telegram channel your bot can read.</p>
             </div>
-            <button type="button" onclick="openSubtitleModal()" class="btn-ui btn-success">➕ Add Subtitle</button>
+            <button type="button" onclick="openSubtitleModal()" class="btn-ui btn-success"><i class="fa-solid fa-plus"></i> Add Subtitle</button>
         </div>
         <div id="subtitle-list" class="space-y-2"></div>
         <div id="subtitle-empty" class="hidden text-center py-8"><p class="muted text-sm">No subtitles added yet.</p></div>
@@ -730,7 +730,7 @@
         <div class="glass-card speed-modal-shell rounded-2xl sm:rounded-3xl">
             <div class="flex items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline bg-surface">
                 <div class="min-w-0">
-                    <h2 class="text-base sm:text-xl font-black text-white leading-tight">🚀 DC Speed Test</h2>
+                    <h2 class="text-base sm:text-xl font-black text-white leading-tight"><i class="fa-solid fa-rocket"></i> DC Speed Test</h2>
                     <p id="st-label" class="text-[11px] sm:text-sm text-text-secondary mt-1 break-all"></p>
                 </div>
                 <button onclick="closeSpeedTest()" class="flex-shrink-0 text-text-secondary hover:text-white text-3xl leading-none transition-colors">&times;</button>
@@ -767,7 +767,7 @@
 
             <div class="flex flex-col sm:flex-row justify-end gap-3 px-4 sm:px-6 py-4 border-t border-hairline bg-surface">
                 <button id="st-rerun-btn" onclick="rerunSpeedTest()" class="hidden btn-ui btn-primary">
-                    🔄 Re-run
+                    <i class="fa-solid fa-arrows-rotate"></i> Re-run
                 </button>
                 <button onclick="closeSpeedTest()" class="btn-ui btn-ghost">
                     Close
@@ -797,7 +797,7 @@
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="glass-card w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[90dvh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline">
-                <h2 class="text-base sm:text-xl font-black text-text">➕ Add Stream</h2>
+                <h2 class="text-base sm:text-xl font-black text-text"><i class="fa-solid fa-plus"></i> Add Stream</h2>
                 <button onclick="closeAddStream()" class="text-text-secondary hover:text-text text-3xl leading-none">&times;</button>
             </div>
 
@@ -860,7 +860,7 @@
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="glass-card w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[90dvh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-hairline">
-                <h2 class="text-base sm:text-xl font-black text-text">➕ Add Subtitle</h2>
+                <h2 class="text-base sm:text-xl font-black text-text"><i class="fa-solid fa-plus"></i> Add Subtitle</h2>
                 <button onclick="closeSubtitleModal()" class="text-text-secondary hover:text-text text-3xl leading-none">&times;</button>
             </div>
             <div class="px-4 sm:px-6 py-5 space-y-4 overflow-y-auto flex-1 min-h-0">
@@ -1417,9 +1417,9 @@
         box.innerHTML = inList.map(c => {
             const hidden = (c.visibility === 'owner') || (c.visible === false);
             const kind = c.auto ? 'auto' : (hidden ? 'hidden' : 'custom');
-            const icon = c.auto ? '✨' : (hidden ? '🔒' : '🎯');
+            const icon = c.auto ? '<i class="fa-solid fa-wand-magic-sparkles"></i>' : (hidden ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-key"></i>');
             const label = c.auto ? 'Auto' : (hidden ? 'Hidden' : 'Custom');
-            const excl = c.exclusive ? ' · 🔐' : '';
+            const excl = c.exclusive ? ' · <i class="fa-solid fa-lock"></i>' : '';
             return `<span class="me-chip me-chip-${kind}" title="${escapeHtml(label)} catalog">${icon} ${escapeHtml(c.name)}${excl}</span>`;
         }).join('');
     }
@@ -1669,7 +1669,7 @@
             if (!summaryEl) return;
 
             if (best) {
-                summaryEl.textContent = `🏆 Fastest: DC ${best.dc_id} — ${best.speed_mbps.toFixed(2)} MB/s | ${completedCount}/${totalCount} client(s) done`;
+                summaryEl.textContent = `Fastest: DC ${best.dc_id} — ${best.speed_mbps.toFixed(2)} MB/s | ${completedCount}/${totalCount} client(s) done`;
             } else {
                 summaryEl.textContent = `${completedCount}/${totalCount} client(s) done`;
             }
@@ -1704,7 +1704,7 @@
                     const tr = document.createElement('tr');
                     tr.className = 'animate-pulse';
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-text-secondary">🔄 Bot ${i + 1}</td>
+                        <td class="px-4 py-3 font-medium text-text-secondary"><i class="fa-solid fa-arrows-rotate"></i> Bot ${i + 1}</td>
                         <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
                         <td class="px-4 py-3"><span class="text-muted">testing…</span></td>
                         <td class="px-4 py-3 text-muted">—</td>
@@ -1769,7 +1769,7 @@
                 for (let i = 0; i < allResults.length; i++) {
                     const r = allResults[i];
                     const isErr = !!r.error && !r.speed_mbps;
-                    const medal = i === 0 && !isErr ? '🥇 ' : '';
+                    const medal = i === 0 && !isErr ? '<i class="fa-solid fa-medal" style="color:var(--d-yellow)"></i> ' : '';
                     const dc = `Bot ${r.client_index + 1} <span class="text-xs text-text-secondary">(DC ${r.dc_id})</span>`;
                     const ping = r.ping_ms !== null ? `<span class="${_pingClass(r.ping_ms)}">${r.ping_ms} ms</span>` : '<span class="text-text-secondary">—</span>';
                     const speed = r.speed_mbps !== null

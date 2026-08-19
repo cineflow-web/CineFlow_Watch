@@ -391,7 +391,7 @@
   <div class="glass-card hero-card rounded-3xl p-5 sm:p-7 lg:p-8">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
       <div class="flex flex-col sm:flex-row sm:items-center gap-5">
-        <div class="hero-orb text-3xl">🎞️</div>
+        <div class="hero-orb text-3xl"><i class="fa-solid fa-clapperboard"></i></div>
         <div>
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <span class="pill">Custom Stremio sections</span>
@@ -423,14 +423,14 @@
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div>
         <div class="flex flex-wrap gap-2 mb-3">
-          <span class="pill">✨ Auto catalogs</span>
+          <span class="pill"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto catalogs</span>
           <span id="auto-sync-status" class="pill">Checking status...</span>
         </div>
         <h2 class="section-title text-xl sm:text-3xl">Auto Catalogs</h2>
         <p class="muted text-sm mt-2">Toggles save instantly. Sync rebuilds them across your library.</p>
       </div>
       <div class="flex flex-col sm:flex-row gap-3">
-        <button id="auto-sync-btn" onclick="runAutoSync()" class="btn-ui btn-primary lg:w-auto">⚡ Sync</button>
+        <button id="auto-sync-btn" onclick="runAutoSync()" class="btn-ui btn-primary lg:w-auto"><i class="fa-solid fa-bolt"></i> Sync</button>
       </div>
     </div>
 
@@ -448,7 +448,7 @@
         <h2 class="section-title text-xl sm:text-2xl">Catalog Order</h2>
         <p class="muted text-sm mt-1">Arrange how catalogs appear in Stremio.</p>
       </div>
-      <button id="save-order-btn" onclick="saveCatalogOrder()" class="btn-ui btn-primary sm:w-auto hidden">💾 Save Order</button>
+      <button id="save-order-btn" onclick="saveCatalogOrder()" class="btn-ui btn-primary sm:w-auto hidden"><i class="fa-solid fa-floppy-disk"></i> Save Order</button>
     </div>
     <div id="catalog-order-list" class="space-y-2">
       <div class="skeleton"></div>
@@ -488,7 +488,7 @@
             <div id="catalog-token-picker" class="token-picker"></div>
           </div>
 
-          <button class="btn-ui btn-primary w-full" type="submit">➕ Create Catalog</button>
+          <button class="btn-ui btn-primary w-full" type="submit"><i class="fa-solid fa-plus"></i> Create Catalog</button>
         </form>
       </div>
 
@@ -524,7 +524,7 @@
       </div>
 
       <div id="catalog-empty-guide" class="empty-state p-6 sm:p-8 text-center">
-        <div class="text-4xl mb-3">📚</div>
+        <div class="text-4xl mb-3"><i class="fa-solid fa-layer-group"></i></div>
         <h3 class="section-title text-xl">No catalog selected</h3>
         <p class="muted mt-2 text-sm leading-6">Create a catalog or select an existing one. Then search from your existing media library and add titles instantly.</p>
       </div>
@@ -550,7 +550,7 @@
           <div id="ws-exclusive-wrap" class="hidden mt-3 space-y-2">
             <label class="toggle-row">
               <span class="min-w-0">
-                <span class="font-bold text-sm block">🔒 Only visible in this catalog</span>
+                <span class="font-bold text-sm block"><i class="fa-solid fa-lock"></i> Only visible in this catalog</span>
                 <span class="muted text-xs block">Removed from Default, Auto and other catalogs.</span>
               </span>
               <input type="checkbox" id="ws-exclusive" class="switch-input hidden" onchange="onExclusiveChange()">
@@ -559,7 +559,7 @@
             <div id="ws-search-wrap" class="hidden">
               <label class="toggle-row">
                 <span class="min-w-0">
-                  <span class="font-bold text-sm block">🔎 Allow search</span>
+                  <span class="font-bold text-sm block"><i class="fa-solid fa-magnifying-glass"></i> Allow search</span>
                   <span class="muted text-xs block">Let allowed users find these titles via search.</span>
                 </span>
                 <input type="checkbox" id="ws-searchable" class="switch-input hidden">
@@ -584,7 +584,7 @@
                 <option value="tv">Series</option>
               </select>
             </div>
-            <button onclick="searchMedia()" class="btn-ui btn-primary sm:w-auto">🔎 Search</button>
+            <button onclick="searchMedia()" class="btn-ui btn-primary sm:w-auto"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
           </div>
         </div>
 
@@ -619,9 +619,9 @@ let subscriptionOn = false;
 let availableTokens = [];
 
 const VIS_META = {
-  public: { icon: '🌐', chip: 'vis-public' },
-  tokens: { icon: '🎯', chip: 'vis-tokens' },
-  owner:  { icon: '🔒', chip: 'vis-owner' },
+  public: { icon: '<i class="fa-solid fa-globe"></i>', chip: 'vis-public' },
+  tokens: { icon: '<i class="fa-solid fa-key"></i>', chip: 'vis-tokens' },
+  owner:  { icon: '<i class="fa-solid fa-lock"></i>', chip: 'vis-owner' },
 };
 
 function publicLabel() { return subscriptionOn ? 'Active subscribers' : 'Everyone'; }
@@ -779,7 +779,7 @@ async function loadCatalogs() {
     renderCatalogs();
     updateSelectedHeader();
   } catch (error) {
-    box.innerHTML = emptyState('⚠️', 'Unable to load catalogs', error.message || 'Please refresh and try again.');
+    box.innerHTML = emptyState('<i class="fa-solid fa-triangle-exclamation"></i>', 'Unable to load catalogs', error.message || 'Please refresh and try again.');
     showToast(error.message || 'Unable to load catalogs', 'error', 'Error');
   }
 }
@@ -790,7 +790,7 @@ function renderCatalogs() {
   const wrapper = document.getElementById('catalog-list-wrapper');
 
   if (!catalogs.length) {
-    box.innerHTML = emptyState('✨', 'No custom catalog yet', 'Create your first curated Stremio section above.');
+    box.innerHTML = emptyState('<i class="fa-solid fa-wand-magic-sparkles"></i>', 'No custom catalog yet', 'Create your first curated Stremio section above.');
     if (expandBtn) expandBtn.classList.add('hidden');
     if (wrapper) wrapper.classList.remove('collapsed');
     return;
@@ -804,13 +804,13 @@ function renderCatalogs() {
     return `<div class="catalog-card p-4 ${isActive ? 'active' : ''}">
       <button class="text-left w-full min-w-0" onclick="selectCatalog('${c._id}')">
         <div class="flex items-center gap-2 min-w-0">
-          <span class="text-xl">${c.auto ? '✨' : meta.icon}</span>
+          <span class="text-xl">${c.auto ? '<i class="fa-solid fa-wand-magic-sparkles"></i>' : meta.icon}</span>
           <h3 class="font-black truncate">${escapeHtml(c.name)}</h3>
           ${c.auto ? '<span class="pill text-[0.62rem] px-2 py-0.5">Auto</span>' : ''}
         </div>
         <div class="flex items-center gap-2 mt-2 flex-wrap">
           <span class="vis-chip ${meta.chip}">${meta.icon} ${escapeHtml(visibilityLabel(mode))}</span>
-          ${c.exclusive ? `<span class="vis-chip vis-owner">🔒 Exclusive${c.searchable ? ' · 🔎' : ''}</span>` : ''}
+          ${c.exclusive ? `<span class="vis-chip vis-owner"><i class="fa-solid fa-lock"></i> Exclusive${c.searchable ? ' · <i class="fa-solid fa-magnifying-glass"></i>' : ''}</span>` : ''}
           <span class="muted text-xs">${count} title${count === 1 ? '' : 's'}</span>
         </div>
       </button>
@@ -936,9 +936,9 @@ async function searchMedia() {
     const results = data.results || [];
     box.innerHTML = results.length
       ? results.map(item => mediaCard(item, `<button class="btn-ui btn-primary px-3 py-2 text-sm" onclick="addItem(${item.tmdb_id}, ${item.db_index}, '${item.media_type}')">Add</button>`)).join('')
-      : emptyState('🔍', 'No title found', 'Try a shorter title or change movie/series type.');
+      : emptyState('<i class="fa-solid fa-magnifying-glass"></i>', 'No title found', 'Try a shorter title or change movie/series type.');
   } catch (error) {
-    box.innerHTML = emptyState('⚠️', 'Search failed', error.message || 'Please try again.');
+    box.innerHTML = emptyState('<i class="fa-solid fa-triangle-exclamation"></i>', 'Search failed', error.message || 'Please try again.');
   }
 }
 
@@ -969,9 +969,9 @@ async function loadCatalogItems() {
     const items = data.items || [];
     box.innerHTML = items.length
       ? items.map(item => mediaCard(item, `<button class="btn-ui btn-danger px-3 py-2 text-sm" onclick="removeItem(${item.tmdb_id}, ${item.db_index}, '${item.media_type}')">Remove</button>`)).join('')
-      : emptyState('➕', 'No titles added yet', 'Use search above to add media to this catalog.');
+      : emptyState('<i class="fa-solid fa-plus"></i>', 'No titles added yet', 'Use search above to add media to this catalog.');
   } catch (error) {
-    box.innerHTML = emptyState('⚠️', 'Unable to load titles', error.message || 'Please try again.');
+    box.innerHTML = emptyState('<i class="fa-solid fa-triangle-exclamation"></i>', 'Unable to load titles', error.message || 'Please try again.');
   }
 }
 
@@ -1079,9 +1079,9 @@ const ORDER_GROUP_CLASS = { 'Default Movies': 'vis-tokens', 'Default TV': 'vis-t
 
 function renderCatalogOrder() {
   const box = document.getElementById('catalog-order-list');
-  if (!catalogOrder.length) { box.innerHTML = emptyState('📚', 'No catalogs', 'Create catalogs to reorder them.'); return; }
+  if (!catalogOrder.length) { box.innerHTML = emptyState('<i class="fa-solid fa-layer-group"></i>', 'No catalogs', 'Create catalogs to reorder them.'); return; }
   box.innerHTML = catalogOrder.map((e, i) => {
-    const typeLabel = e.type === 'series' ? '📺 TV' : '🎬 Movie';
+    const typeLabel = e.type === 'series' ? '<i class="fa-solid fa-tv"></i> TV' : '<i class="fa-solid fa-film"></i> Movie';
     return `<div class="order-row">
       <span class="drag-idx">${i + 1}</span>
       <span class="min-w-0 flex-1">

@@ -59,7 +59,8 @@
   .rp-type { position: absolute; top: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.65); color: #fff;
              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
   .rp-count { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--primary); color: var(--bg);
-              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; }
+              padding: 0.15rem 0.55rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800;
+              display: inline-flex; align-items: center; gap: 0.3rem; }
   .rp-body { padding: 0.65rem 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
   .rp-title { font-weight: 700; font-size: 0.9rem; line-height: 1.25; }
   .rp-btn {
@@ -128,7 +129,7 @@ function resultCard(r, idx) {
 
 function popularCard(r) {
   const yr = r.year ? ` (${esc(r.year)})` : '';
-  const count = `<span class="rp-count">👥 ${esc(r.request_count || 0)}</span>`;
+  const count = `<span class="rp-count"><i class="fa-solid fa-users"></i> ${esc(r.request_count || 0)}</span>`;
   return `<div class="rp-card">
     ${posterHtml(r, count)}
     <div class="rp-body"><div class="rp-title">${esc(r.title)}${yr}</div></div>
@@ -168,12 +169,12 @@ async function sendRequest(idx) {
     });
     const data = await res.json();
     const map = {
-      created:            ['🎉 Request submitted! We\'ll try to add it soon.', 'success', 'Requested'],
-      added:              ['👍 Added your vote — this was already requested.', 'success', 'Requested'],
-      reopened:           ['🔄 Request re-opened. Thanks!', 'success', 'Requested'],
-      already_available:  ['✅ Good news — this is already in the library!', 'info', 'Available'],
-      banned:             ['🚫 This title has been banned and can\'t be requested.', 'error', 'Not allowed'],
-      invalid:            ['⚠️ Could not identify this title.', 'error', 'Error'],
+      created:            ['Request submitted! We\'ll try to add it soon.', 'success', 'Requested'],
+      added:              ['Added your vote — this was already requested.', 'success', 'Requested'],
+      reopened:           ['Request re-opened. Thanks!', 'success', 'Requested'],
+      already_available:  ['Good news — this is already in the library!', 'info', 'Available'],
+      banned:             ['This title has been banned and can\'t be requested.', 'error', 'Not allowed'],
+      invalid:            ['Could not identify this title.', 'error', 'Error'],
     };
     const m = map[data.reason] || (data.ok ? ['Request submitted!', 'success', 'Requested']
                                             : ['Something went wrong.', 'error', 'Error']);

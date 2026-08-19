@@ -413,7 +413,8 @@
       .ins-v { font-size: 1.5rem; font-weight: 800; }
       .ins-l { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-sec); margin-top: 0.2rem; }
       .ins-col { background: var(--surface, rgba(255,255,255,0.03)); border: 1px solid var(--hairline, rgba(255,255,255,0.08)); border-radius: 1rem; padding: 1rem; }
-      .ins-h { font-weight: 800; font-size: 0.95rem; margin-bottom: 0.85rem; }
+      .ins-h { font-weight: 800; font-size: 0.95rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem; }
+      .ins-h i { color: var(--primary); font-size: 0.85rem; }
       .ins-list { display: flex; flex-direction: column; gap: 0.55rem; }
       .ins-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.85rem; }
       .ins-row .name { color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -438,9 +439,9 @@
                 <div class="ins-stat"><div class="ins-v" id="ins-active-users">—</div><div class="ins-l">Active Viewers</div></div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="ins-col"><h3 class="ins-h">🔥 Top Titles</h3><div id="ins-top-titles" class="ins-list"></div></div>
-                <div class="ins-col"><h3 class="ins-h">👤 Top Viewers</h3><div id="ins-top-users" class="ins-list"></div></div>
-                <div class="ins-col"><h3 class="ins-h">📅 Last 14 Days</h3><div id="ins-per-day" class="ins-list"></div></div>
+                <div class="ins-col"><h3 class="ins-h"><i class="fa-solid fa-fire"></i> Top Titles</h3><div id="ins-top-titles" class="ins-list"></div></div>
+                <div class="ins-col"><h3 class="ins-h"><i class="fa-solid fa-user"></i> Top Viewers</h3><div id="ins-top-users" class="ins-list"></div></div>
+                <div class="ins-col"><h3 class="ins-h"><i class="fa-solid fa-calendar-days"></i> Last 14 Days</h3><div id="ins-per-day" class="ins-list"></div></div>
             </div>
         </div>
     </div>

@@ -280,7 +280,7 @@
     function createMediaCard(item) {
     const title = item.title || item.name || 'Unknown Title';
     const year = item.release_year || 'Unknown Year';
-    const rating = item.rating ? `⭐ ${parseFloat(item.rating).toFixed(1)}` : '';
+    const rating = item.rating ? `<i class="fa-solid fa-star" style="color:var(--d-yellow)"></i> ${parseFloat(item.rating).toFixed(1)}` : '';
     const poster = item.poster || 'https://via.placeholder.com/300x450/e5e7eb/9ca3af?text=No+Image';
 
     // Escape title for data attribute safety

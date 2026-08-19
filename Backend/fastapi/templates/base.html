@@ -840,7 +840,7 @@ function showConfirm(message, opts = {}) {
             if (s && s.tmdb_id !== undefined && s.tmdb_id !== null) {
                 const label = s.title ? `"${s.title}"` : 'a title';
                 showToast(`Uploads are being added to ${label}. Open Tools to stop it if you're done.`,
-                          'error', '⚠ Upload session active', 5000);
+                          'error', 'Upload session active', 5000);
             }
         } catch (e) { /* ignore */ }
     }
