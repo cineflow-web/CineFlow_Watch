@@ -1,249 +1,577 @@
-<!DOCTYPE html>
-<html lang="en" class="{{ 'dark' if theme.is_dark else 'light' }}">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Install CineFlow Addon</title>
+{% extends "base.html" %}
+{% block title %}Install CineFlow Addon{% endblock %}
 
-<link rel="icon" type="image/png" href="{{ addon_logo }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+{% block content %}
 <style>
-:root {
-    color-scheme: {{ 'dark' if theme.is_dark else 'light' }};
-    --primary: {{ theme.colors.primary }};
-    --secondary: {{ theme.colors.secondary }};
-    --accent: {{ theme.colors.accent }};
-    --bg: {{ theme.colors.background }};
-    --card: {{ theme.colors.card }};
-    --border: {{ theme.colors.border }};
-    --text: {{ theme.colors.text }};
-    --text-sec: {{ theme.colors.text_secondary }};
-    --surface: color-mix(in srgb, var(--text) 5%, transparent);
-    --surface-2: color-mix(in srgb, var(--text) 9%, transparent);
-    --hairline: color-mix(in srgb, var(--text) 12%, transparent);
-    --hairline-strong: color-mix(in srgb, var(--text) 20%, transparent);
-    --ring: color-mix(in srgb, var(--primary) 35%, transparent);
-    --shadow-color: {{ '0,0,0' if theme.is_dark else '15,23,42' }};
-    --topbar-h: 4rem;
-}
+  .cf-shell { max-width: 1100px; margin: 0 auto; }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ── Hero (matches Settings / Dashboard / Request header pattern) ────── */
+  .cf-hero {
+      position: relative; overflow: hidden; text-align: center;
+      padding: 2rem 1.25rem 2.25rem;
+  }
+  .cf-hero-icon {
+      width: 4.25rem; height: 4.25rem; margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+  }
+  .cf-hero-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .cf-hero h1 {
+      font-size: clamp(1.5rem, 4vw, 2.15rem); font-weight: 900; letter-spacing: -0.02em;
+      background: linear-gradient(120deg, var(--primary), var(--accent, var(--primary)));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .cf-hero p { color: var(--text-sec); margin-top: 0.45rem; font-size: 0.92rem; }
+  .cf-card.cf-hero { padding: 2rem 1.25rem 1.15rem; text-align: center; }
+  .cf-hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1.1rem; }
+  .cf-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.74rem; font-weight: 800; padding: 0.4rem 0.85rem;
+      border-radius: 0.75rem; border: 1px solid var(--hairline);
+      background: var(--surface); color: var(--text-sec);
+  }
+  .cf-pill i { font-size: 0.72rem; }
+  .cf-pill.status { background: {{ status_color }}1c; color: {{ status_color }}; border-color: {{ status_color }}33; }
 
-body {
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    background-color: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: clamp(16px, 4vw, 40px);
-    padding-top: calc(var(--topbar-h) + clamp(16px, 4vw, 40px));
-}
+  /* ── Section titles ────────────────────────────────────────────────── */
+  .cf-section-title {
+      font-size: 0.85rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--text); margin: 0 0 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.55rem;
+  }
+  .cf-section-title .lbl { display: flex; align-items: center; gap: 0.55rem; }
+  .cf-section-title i:first-child { font-size: 0.95rem; }
+  .cf-section-title .tag { font-size: 0.68rem; font-weight: 800; color: var(--text-sec); text-transform: none; letter-spacing: 0; }
 
-/* ═══════════════ Top navbar (brand only — no menu button, no profile icon) ═══════════════ */
-#topbar {
-    height: var(--topbar-h);
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0 1rem;
-    border-bottom: 1px solid var(--hairline);
-    background: color-mix(in srgb, var(--card) 88%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-}
-#topbar .brand-link {
-    display: flex; align-items: center;
-    text-decoration: none; flex-shrink: 0;
-}
-#topbar .brand-link img { height: 2rem; width: auto; object-fit: contain; display: block; }
+  /* ── Cards (square-rounded, matches surface-card) ─────────────────── */
+  .cf-card {
+      position: relative;
+      background: color-mix(in srgb, var(--card) 92%, var(--bg));
+      border: 1px solid var(--hairline);
+      border-radius: 1.15rem;
+      padding: 1.15rem 1.25rem;
+      box-shadow: var(--shadow-soft);
+      transition: border-color .2s ease;
+  }
+  .cf-card:hover { border-color: color-mix(in srgb, var(--primary) 20%, var(--hairline)); }
 
-.wrap { width: 100%; max-width: 960px; margin: auto; }
-.layout { display: grid; gap: 16px; grid-template-columns: 1fr; align-items: start; }
-@media (min-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  /* ── Stat strip ────────────────────────────────────────────────────── */
+  .cf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
+  @media (min-width: 640px) { .cf-stats { grid-template-columns: repeat(6, 1fr); } }
+  .cf-stat {
+      background: color-mix(in srgb, var(--card) 92%, var(--bg));
+      border: 1px solid var(--hairline); border-radius: 1rem;
+      padding: 0.75rem 0.5rem; text-align: center; aspect-ratio: 1 / 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem;
+      transition: border-color .2s ease;
+  }
+  .cf-stat:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); }
+  .cf-stat i { font-size: 1.05rem; }
+  .cf-stat .lb { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-sec); }
+  .cf-stat .vl { font-size: 0.82rem; font-weight: 800; color: var(--text); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-        radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 40%),
-        radial-gradient(circle at 85% 85%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 40%);
-}
+  /* ── Charts row ────────────────────────────────────────────────────── */
+  .cf-chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .cf-chart-head h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 800; }
+  .cf-chart-head span { font-size: 0.68rem; font-weight: 800; color: var(--text-sec); }
+  .cf-chart-box { position: relative; height: 168px; }
+  .cf-usage-legend { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 0.8rem; font-size: 0.72rem; font-weight: 700; color: var(--text-sec); }
+  .cf-usage-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .cf-usage-legend i { font-size: 0.5rem; }
 
-.card {
-    background: color-mix(in srgb, var(--card) 90%, var(--bg));
-    border: 1px solid var(--hairline);
-    border-radius: 1.75rem;
-    box-shadow: 0 24px 60px rgba(var(--shadow-color), {{ '0.45' if theme.is_dark else '0.16' }});
-    padding: clamp(24px, 4vw, 36px);
-    width: 100%;
-    text-align: center;
-}
+  /* ── Two-column layout for install / personalize ─────────────────────── */
 
-h1 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-.sub-title { color: var(--text-sec); font-size: 0.85rem; margin-bottom: 26px; line-height: 1.5; }
+  .cf-btn-install {
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      width: 100%; margin: 1.2rem 0 0.7rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary, var(--accent)));
+      color: var(--bg); font-weight: 800; font-size: 0.95rem;
+      padding: 0.85rem 1.25rem; border-radius: 1rem; border: none;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 32%, transparent);
+      transition: filter .2s ease, transform .12s ease;
+  }
+  .cf-btn-install:hover { filter: brightness(1.08); }
+  .cf-btn-install:active { transform: scale(.98); }
 
-.info-row {
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--surface); border: 1px solid var(--hairline);
-    border-radius: 0.85rem; padding: 12px 16px; margin-bottom: 10px; font-size: 0.88rem;
-}
-.info-label { color: var(--text-sec); font-weight: 500; }
-.info-val { font-weight: 700; color: var(--text); }
-.status-badge {
-    display: inline-flex; align-items: center; gap: 0.35rem;
-    padding: 3px 12px; border-radius: 9999px; font-size: 0.78rem; font-weight: 700;
-    background: {{ status_color }}22; color: {{ status_color }};
-}
+  .cf-btn-web { display: block; color: var(--primary); font-size: 0.8rem; font-weight: 700; text-decoration: none; text-align: center; margin-bottom: 0.6rem; }
+  .cf-btn-web:hover { text-decoration: underline; }
 
-.btn-install {
-    display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-    width: 100%; margin: 26px 0 12px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff; font-weight: 700; font-size: 0.98rem;
-    padding: 14px 24px; border-radius: 1rem; border: none;
-    cursor: pointer; text-decoration: none;
-    box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 32%, transparent);
-    transition: filter .2s ease, transform .12s ease;
-}
-.btn-install:hover { filter: brightness(1.08); }
-.btn-install:active { transform: scale(.98); }
+  .cf-steps {
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-radius: 0.85rem; padding: 0.85rem 1.05rem; margin: 0.9rem 0;
+      font-size: 0.83rem; color: var(--text-sec);
+      text-align: left;
+  }
+  .cf-steps b { color: var(--text); }
+  .cf-steps ol { margin-top: 0.5rem; margin-left: 1.1rem; line-height: 1.85; }
 
-.btn-web {
-    display: block; color: var(--primary); font-size: 0.82rem;
-    font-weight: 600; text-decoration: none; margin-bottom: 22px;
-}
-.btn-web:hover { text-decoration: underline; }
+  .cf-url-box {
+      background: color-mix(in srgb, var(--bg) 70%, var(--card));
+      border: 1px solid var(--hairline); border-radius: 0.75rem;
+      padding: 0.65rem 0.9rem; font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.72rem; color: var(--text-sec);
+      word-break: break-all; margin-top: 0.9rem;
+      text-align: left;
+  }
 
-.steps {
-    background: var(--surface); border: 1px solid var(--hairline);
-    border-radius: 0.85rem; padding: 14px 18px; margin: 16px 0;
-    text-align: left; font-size: 0.85rem; color: var(--text-sec);
-}
-.steps b { color: var(--text); }
-.steps ol { margin-top: 8px; margin-left: 18px; line-height: 1.9; }
+  .cf-btn-copy {
+      margin-top: 0.6rem; width: 100%; padding: 0.65rem;
+      background: var(--surface); border: 1px solid var(--hairline); color: var(--text-sec);
+      border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; font-weight: 700;
+      transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .cf-btn-copy:hover { background: var(--surface-2); color: var(--text); border-color: var(--hairline-strong); }
 
-.url-box {
-    background: color-mix(in srgb, var(--bg) 70%, var(--card));
-    border: 1px solid var(--hairline); border-radius: 0.7rem;
-    padding: 10px 14px; font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 0.72rem; color: var(--text-sec);
-    word-break: break-all; text-align: left; margin-top: 16px;
-}
+  /* ── Personalize block ────────────────────────────────────────────── */
+  .cf-block { margin: 0.9rem 0; }
+  .cf-block-title { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sec); margin-bottom: 0.55rem; }
+  .cf-hint { font-size: 0.72rem; color: var(--text-sec); margin-top: 0.5rem; }
+  .cf-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .cf-qchip { padding: 0.5rem 0.95rem; border-radius: 0.75rem; border: 1px solid var(--hairline); background: var(--surface); color: var(--text); font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease; }
+  .cf-qchip.on { background: linear-gradient(135deg, var(--primary), var(--accent)); color: var(--bg); border-color: transparent; }
+  .cf-catalogs { display: flex; flex-direction: column; gap: 0.45rem; }
+  .cf-cat { display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.65rem; border: 1px solid var(--hairline); border-radius: 0.85rem; background: var(--surface); transition: opacity .15s ease; }
+  .cf-cat.hidden-cat { opacity: 0.5; }
+  .cf-cat .nm { flex: 1; min-width: 0; font-weight: 700; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cf-eye, .cf-arr { width: 1.9rem; height: 1.75rem; border-radius: 0.6rem; border: 1px solid var(--hairline); background: var(--bg); color: var(--text); cursor: pointer; font-size: 0.72rem; transition: background .15s ease, color .15s ease; }
+  .cf-eye:hover, .cf-arr:hover:not(:disabled) { background: var(--surface-2); color: var(--primary); }
+  .cf-arr:disabled { opacity: 0.35; cursor: not-allowed; }
+  .cf-seg { display: flex; gap: 0.4rem; background: var(--surface); border: 1px solid var(--hairline); border-radius: 0.9rem; padding: 0.3rem; }
+  .cf-seg-btn { flex: 1; padding: 0.6rem; border-radius: 0.65rem; border: none; background: transparent; color: var(--text-sec); font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .cf-seg-btn.active { background: var(--primary); color: var(--bg); }
 
-.btn-copy {
-    margin-top: 10px; width: 100%; padding: 10px;
-    background: var(--surface); border: 1px solid var(--hairline); color: var(--text-sec);
-    border-radius: 0.7rem; cursor: pointer; font-size: 0.85rem; font-weight: 600;
-    transition: background .2s ease, color .2s ease, border-color .2s ease;
-}
-.btn-copy:hover { background: var(--surface-2); color: var(--text); border-color: var(--hairline-strong); }
+  /* ── Request a title ──────────────────────────────────────────────── */
+  .cf-req-search { display: flex; gap: 0.6rem; }
+  .cf-req-input-wrap { position: relative; flex: 1; }
+  .cf-req-input-wrap input {
+      width: 100%; background: color-mix(in srgb, var(--card) 88%, var(--bg));
+      border: 1px solid var(--hairline); color: var(--text);
+      border-radius: 0.85rem; padding: 0.75rem 2.7rem 0.75rem 1rem; font-size: 0.9rem; outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .cf-req-input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+  .cf-req-clear-mask {
+      position: absolute; right: 1px; top: 1px; bottom: 1px; width: 2.6rem;
+      display: none; align-items: center; justify-content: flex-end;
+      border-radius: 0 0.8rem 0.8rem 0; pointer-events: none;
+      background: linear-gradient(to right, transparent, color-mix(in srgb, var(--card) 88%, var(--bg)) 45%, color-mix(in srgb, var(--card) 88%, var(--bg)) 100%);
+  }
+  .cf-req-clear-mask.show { display: flex; }
+  .cf-req-clear {
+      position: absolute; right: 0.7rem; top: 50%; transform: translateY(-50%);
+      display: none; align-items: center; justify-content: center;
+      width: 1.5rem; height: 1.5rem; border-radius: 9999px; border: none !important;
+      background: transparent !important; color: var(--text-sec); cursor: pointer; font-size: 0.85rem;
+      transition: color .15s ease; box-shadow: none !important;
+  }
+  .cf-req-clear:hover { color: var(--primary); }
+  .cf-req-clear.show { display: flex; }
+  .cf-req-submit {
+      background: var(--primary); color: var(--bg); border: none; border-radius: 0.85rem;
+      padding: 0 1.35rem; font-weight: 800; cursor: pointer; font-size: 0.95rem;
+      box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 30%, transparent);
+      transition: filter .2s ease;
+  }
+  .cf-req-submit:hover { filter: brightness(1.08); }
+  .cf-req-hint { color: var(--text-sec); font-size: 0.76rem; margin-top: 0.6rem; }
+
+  .cf-req-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.85rem; margin-top: 1rem; }
+  .cf-req-card {
+      background: color-mix(in srgb, var(--card) 92%, var(--bg));
+      border: 1px solid var(--hairline); border-radius: 1rem;
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: border-color .15s ease, transform .15s ease;
+  }
+  .cf-req-card:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); transform: translateY(-3px); }
+  .cf-req-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, color-mix(in srgb, var(--text) 8%, var(--bg)), var(--bg)); }
+  .cf-req-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cf-req-poster .noimg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: var(--text-sec); }
+  .cf-req-type { position: absolute; top: 0.4rem; left: 0.4rem; background: rgba(0,0,0,0.65); color: #fff;
+             padding: 0.12rem 0.5rem; border-radius: 9999px; font-size: 0.64rem; font-weight: 700; text-transform: uppercase; }
+  .cf-req-count { position: absolute; top: 0.4rem; right: 0.4rem; background: var(--primary); color: var(--bg);
+              padding: 0.12rem 0.5rem; border-radius: 9999px; font-size: 0.66rem; font-weight: 800;
+              display: inline-flex; align-items: center; gap: 0.28rem; }
+  .cf-req-body { padding: 0.6rem 0.65rem; display: flex; flex-direction: column; gap: 0.45rem; flex: 1; }
+  .cf-req-title { font-weight: 700; font-size: 0.83rem; line-height: 1.25; }
+  .cf-req-btn {
+      margin-top: auto; border: none; border-radius: 0.6rem; padding: 0.45rem;
+      font-weight: 800; font-size: 0.76rem; cursor: pointer;
+      background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary);
+      transition: background .15s ease, color .15s ease;
+  }
+  .cf-req-btn:hover { background: var(--primary); color: var(--bg); }
+  .cf-req-empty { text-align: center; color: var(--text-sec); padding: 1.5rem 1rem; grid-column: 1/-1; }
+  .cf-req-spinner { text-align: center; color: var(--text-sec); padding: 1.5rem; grid-column: 1/-1; }
+
+  /* ── Billing / plans ───────────────────────────────────────────────── */
+  .cf-bill-status {
+      display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--hairline);
+      border-radius: 0.95rem; padding: 0.85rem 1.05rem; margin-bottom: 1.1rem;
+  }
+  .cf-bill-status .icn {
+      width: 2.6rem; height: 2.6rem; border-radius: 0.8rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+  }
+  .cf-bill-status .info { flex: 1; min-width: 0; }
+  .cf-bill-status .info .t1 { font-weight: 800; font-size: 0.92rem; color: var(--text); }
+  .cf-bill-status .info .t2 { font-size: 0.78rem; color: var(--text-sec); margin-top: 0.15rem; }
+
+  .cf-pending-banner {
+      display: flex; align-items: center; gap: 0.7rem;
+      background: color-mix(in srgb, var(--d-orange, #f97316) 12%, var(--surface));
+      border: 1px solid color-mix(in srgb, var(--d-orange, #f97316) 30%, var(--hairline));
+      border-radius: 0.9rem; padding: 0.75rem 1rem; margin-bottom: 1.1rem;
+      font-size: 0.82rem; color: var(--text);
+  }
+  .cf-pending-banner i { color: var(--d-orange, #f97316); font-size: 1rem; }
+  .cf-pending-banner b { font-weight: 800; }
+
+  .cf-plans-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.85rem;
+  }
+  .cf-plan-card {
+      position: relative;
+      background: color-mix(in srgb, var(--card) 92%, var(--bg));
+      border: 1px solid var(--hairline); border-radius: 1.1rem;
+      padding: 1.15rem 1.05rem 1rem; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      transition: border-color .2s ease, transform .15s ease;
+  }
+  .cf-plan-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); }
+  .cf-plan-card.best {
+      border-color: color-mix(in srgb, var(--primary) 45%, var(--hairline));
+      background: linear-gradient(160deg, color-mix(in srgb, var(--primary) 8%, var(--card)), color-mix(in srgb, var(--card) 92%, var(--bg)));
+  }
+  .cf-plan-badge {
+      position: absolute; top: -0.6rem; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--primary), var(--accent, var(--primary)));
+      color: var(--bg); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em;
+      text-transform: uppercase; padding: 0.28rem 0.7rem; border-radius: 9999px;
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent);
+      white-space: nowrap;
+  }
+  .cf-plan-days { font-size: 0.8rem; font-weight: 800; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.3rem; }
+  .cf-plan-price { font-size: 1.6rem; font-weight: 900; color: var(--text); letter-spacing: -0.02em; }
+  .cf-plan-per-day { font-size: 0.72rem; color: var(--text-sec); margin-bottom: 0.4rem; }
+  .cf-plan-btn {
+      width: 100%; margin-top: 0.4rem; padding: 0.65rem; border: none; border-radius: 0.75rem;
+      font-weight: 800; font-size: 0.83rem; cursor: pointer;
+      background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary);
+      transition: background .15s ease, color .15s ease, opacity .15s ease;
+  }
+  .cf-plan-btn:hover:not(:disabled) { background: linear-gradient(135deg, var(--primary), var(--accent, var(--primary))); color: var(--bg); }
+  .cf-plan-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .cf-plan-card.best .cf-plan-btn { background: linear-gradient(135deg, var(--primary), var(--accent, var(--primary))); color: var(--bg); }
+  .cf-plans-empty { text-align: center; color: var(--text-sec); padding: 1.2rem; grid-column: 1/-1; }
+
+  .cf-pay-instructions {
+      padding: 0.15rem 0.05rem 0.2rem; font-size: 0.79rem; color: var(--text-sec);
+      text-align: left; margin-top: 0.85rem; line-height: 1.45;
+      /* ── Only this box scrolls when payment instructions are long — the rest
+           of the modal (header, amount, QR, CTA button) stays put. ────────── */
+      flex: 1 1 auto; min-height: 0; max-height: 40vh; overflow-y: auto;
+  }
+  .cf-pay-instructions b, .cf-pay-instructions strong { color: var(--text); font-weight: 800; }
+  .cf-pay-instructions code {
+      background: color-mix(in srgb, var(--bg) 70%, var(--card)); border: 1px solid var(--hairline);
+      border-radius: 0.4rem; padding: 0.08rem 0.4rem; font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.76rem; color: var(--primary);
+  }
+  .cf-pay-instructions a { color: var(--primary); text-decoration: underline; }
+
+  /* ── Free-standing text (intro / thank-you lines outside any method card) ── */
+  .cf-pay-note { font-size: 0.79rem; color: var(--text-sec); line-height: 1.5; margin: 0.4rem 0.15rem; }
+  .cf-pay-note:first-child { margin-top: 0; }
+
+  .cf-copy-chip {
+      display: inline-flex; align-items: center; gap: 0.35rem; vertical-align: middle;
+      background: color-mix(in srgb, var(--bg) 70%, var(--card)); border: 1px solid var(--hairline);
+      border-radius: 0.5rem; padding: 0.15rem 0.2rem 0.15rem 0.55rem;
+  }
+  .cf-copy-chip code { background: none; border: none; padding: 0; }
+  .cf-copy-btn {
+      width: 1.4rem; height: 1.4rem; flex-shrink: 0; border-radius: 0.35rem;
+      border: none; background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary);
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+      font-size: 0.62rem; padding: 0; transition: background .15s ease, color .15s ease;
+  }
+  .cf-copy-btn:hover { background: color-mix(in srgb, var(--primary) 24%, transparent); }
+  .cf-copy-btn.copied { background: color-mix(in srgb, #22c55e 20%, transparent); color: #22c55e; }
+
+  /* ── Payment method cards: icon + title (+ open button) header, details below ── */
+  .cf-pay-card {
+      background: var(--surface); border: 1px solid var(--hairline); border-radius: 0.9rem;
+      padding: 0.7rem 0.8rem; margin: 0 0.05rem 0.6rem;
+  }
+  .cf-pay-card:last-child { margin-bottom: 0.15rem; }
+  .cf-pay-card-head { display: flex; align-items: center; gap: 0.6rem; }
+  .cf-pay-card-title {
+      flex: 1 1 auto; min-width: 0; font-weight: 700; color: var(--text);
+      font-size: 0.84rem; line-height: 1.35; word-break: break-word;
+  }
+  .cf-pay-card-body {
+      margin-top: 0.6rem; padding-top: 0.55rem; border-top: 1px dashed var(--hairline);
+      display: flex; flex-direction: column; gap: 0.45rem;
+  }
+  .cf-pay-detail { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; font-size: 0.78rem; }
+  .cf-pay-detail-label { color: var(--text-sec); font-weight: 600; flex-shrink: 0; }
+  .cf-pay-detail-note { font-size: 0.78rem; color: var(--text-sec); line-height: 1.45; }
+
+  .cf-pay-icon {
+      width: 1.9rem; height: 1.9rem; flex-shrink: 0; border-radius: 0.6rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  }
+  .cf-pay-icon svg { width: 60%; height: 60%; }
+  .cf-pay-icon-paypal   { background: #0a3a8c; }
+  .cf-pay-icon-binance  { background: #181a20; color: #F0B90B; }
+  .cf-pay-icon-bank     { background: color-mix(in srgb, var(--primary) 75%, #1e293b); }
+  .cf-pay-icon-upi      { background: #097939; }
+  .cf-pay-icon-gpay     { background: #fff; color: #4285F4; border: 1px solid var(--hairline); }
+  .cf-pay-icon-payoneer { background: #FF4800; }
+  .cf-pay-icon-wise     { background: #9FE870; color: #163300; }
+  .cf-pay-icon-usdt     { background: #26A17B; }
+  .cf-pay-icon-btc      { background: #181a20; color: #F7931A; }
+  .cf-pay-icon-eth      { background: #181a20; color: #A9B9F0; }
+  .cf-pay-icon-crypto   { background: #f7931a; }
+  .cf-open-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem; flex-shrink: 0;
+      border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--hairline)); border-radius: 0.5rem;
+      background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--primary);
+      font-size: 0.68rem; font-weight: 700; padding: 0.32rem 0.6rem; cursor: pointer;
+      transition: background .15s ease, transform .1s ease; font-family: inherit;
+  }
+  .cf-open-btn:hover { background: color-mix(in srgb, var(--primary) 22%, transparent); }
+  .cf-open-btn:active { transform: scale(0.96); }
+  .cf-open-btn i { font-size: 0.65rem; }
+  .cf-pay-qr { display: block; max-width: 150px; margin: 0.7rem auto 0; border-radius: 0.75rem; border: 1px solid var(--hairline); }
+  .cf-pay-summary { text-align: center; }
+  .cf-pay-summary .amt { font-size: 1.35rem; font-weight: 900; color: var(--text); }
+  .cf-pay-summary .dur { font-size: 0.76rem; color: var(--text-sec); margin-top: 0.1rem; }
+
+  /* ── Payment modal shell (self-contained: base.html's .modal-* classes are
+       defined per-page, not globally, so this page needs its own) ───────── */
+  .cf-modal-backdrop {
+      background: rgba(4, 8, 18, 0.6);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .cf-modal-box {
+      width: min(92vw, 26rem); max-height: 85vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      background: color-mix(in srgb, var(--card) 97%, var(--bg));
+      border: 1px solid var(--hairline); border-radius: 1.25rem;
+      padding: 1rem; box-shadow: var(--shadow-strong, 0 20px 60px rgba(0,0,0,0.35));
+  }
+  /* Everything except .cf-pay-instructions stays fixed in place; the modal
+     itself never scrolls — only the instructions box grows/scrolls. */
+  .cf-modal-box > *:not(.cf-pay-instructions) { flex-shrink: 0; }
+  .cf-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.9rem; }
+  .cf-modal-head-l { display: flex; align-items: flex-start; gap: 0.75rem; min-width: 0; }
+  .cf-modal-icon {
+      width: 2.5rem; height: 2.5rem; border-radius: 0.85rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary);
+  }
+  .cf-modal-title { font-size: 1.15rem; font-weight: 800; color: var(--text); }
+  .cf-modal-sub { font-size: 0.8rem; color: var(--text-sec); margin-top: 0.2rem; }
+  .cf-modal-close {
+      width: 2.35rem; height: 2.35rem; flex-shrink: 0; border-radius: 0.75rem;
+      border: 1px solid var(--hairline); background: var(--surface); color: var(--text);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+  }
+  .cf-modal-close:hover { background: var(--surface-2); color: var(--primary); }
+
+  /* This is a token-holder landing page — hide the public navbar's sign-in link. */
+  #topbar .pub-nav-signin { display: none !important; }
 </style>
-</head>
-<body>
-<header id="topbar">
-    <a href="/" class="brand-link">
-        <img src="https://iili.io/CLM4WKX.md.png" alt="CineFlow">
-    </a>
-</header>
-<div class="wrap">
-<div class="layout">
-<div class="card">
-    <h1>Install / Update Addon</h1>
-    <p class="sub-title">Add or refresh your personal Telegram library inside Stremio.</p>
 
-    <div class="info-row">
-        <span class="info-label">User</span>
-        <span class="info-val">{{ user_name }}</span>
-    </div>
-    <div class="info-row">
-        <span class="info-label">Status</span>
-        <span class="status-badge">{{ status_text }}</span>
-    </div>
-    <div class="info-row">
-        <span class="info-label">Expires</span>
-        <span class="info-val">{{ expiry_str }}</span>
+<div class="cf-shell">
+
+  <!-- ══════════════ 1. Install ══════════════ -->
+  <div class="cf-card cf-hero mb-4">
+    <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-accent to-secondary" style="border-radius:1.15rem 1.15rem 0 0"></div>
+
+    <div class="cf-hero-icon"><img src="{{ addon_logo }}" alt="CineFlow"></div>
+    <h1>Install CineFlow Addon</h1>
+    <p>Add or refresh your personal Telegram library inside Stremio.</p>
+
+    <div class="cf-hero-badges">
+      <span class="cf-pill"><i class="fa-solid fa-user"></i> {{ user_name }}</span>
+      <span class="cf-pill status"><i class="fa-solid fa-circle"></i> {{ status_text }}</span>
+      <span class="cf-pill"><i class="fa-solid fa-calendar"></i> Expires {{ expiry_str }}</span>
+      <span class="cf-pill"><i class="fa-solid fa-code-branch"></i> v{{ addon_version }}</span>
     </div>
 
-    <a href="{{ web_install_url }}" class="btn-install" target="_blank">
-        <i class="fa-solid fa-bolt"></i> Install / Update in Stremio
+    <a href="{{ web_install_url }}" class="cf-btn-install" target="_blank" style="margin-top:1.4rem">
+      <i class="fa-solid fa-bolt"></i> Install / Update in Stremio
     </a>
 
-    <div class="steps">
-        <b>Prefer to do it manually?</b>
-        <ol>
-            <li>Open Stremio and go to the <b>Add-ons</b> tab</li>
-            <li>Click the <b>Search / URL</b> field</li>
-            <li>Paste the URL below and press Enter</li>
-        </ol>
+    <div class="cf-steps">
+      <b>Prefer to do it manually?</b>
+      <ol>
+        <li>Open Stremio and go to the <b>Add-ons</b> tab</li>
+        <li>Click the <b>Search / URL</b> field</li>
+        <li>Paste the URL below and press Enter</li>
+      </ol>
     </div>
 
-    <div class="url-box" id="murl">{{ manifest_url }}</div>
-    <button onclick="copyUrl()" class="btn-copy"><i class="fa-solid fa-copy"></i> Copy URL</button>
-</div>
+    <div class="cf-url-box" id="murl">{{ manifest_url }}</div>
+    <button onclick="copyUrl()" class="cf-btn-copy"><i class="fa-solid fa-copy"></i> Copy URL</button>
+  </div>
 
-<div class="card" style="text-align:left">
-    <h1 style="text-align:center"><i class="fa-solid fa-sliders"></i> Personalize</h1>
-    <p class="sub-title" style="text-align:center">Tune quality and catalogs for your install. Re-install after saving.</p>
+  <!-- ══════════════ Your Plan / Billing ══════════════ -->
+  <div class="cf-card mb-4" id="cf-billing-section" style="display:none">
+    <h2 class="cf-section-title"><span class="lbl"><i class="fa-solid fa-crown" style="color:var(--primary)"></i> Your Plan</span></h2>
 
-    <div class="cfg-block">
-        <div class="cfg-title">Stream quality order</div>
-        <div class="seg" id="cfg-sort">
-            <button type="button" data-val="desc" class="seg-btn active" onclick="setSort('desc')">Highest first</button>
-            <button type="button" data-val="asc" class="seg-btn" onclick="setSort('asc')">Lowest first</button>
+    <div id="cf-bill-status" class="cf-bill-status"></div>
+    <div id="cf-bill-pending" style="display:none"></div>
+
+    <div id="cf-plans-wrap">
+      <div class="cf-section-title" style="margin:0.2rem 0 0.7rem"><span class="lbl"><i class="fa-solid fa-layer-group" style="color:var(--primary)"></i> Available Plans</span></div>
+      <div id="cf-plans-grid" class="cf-plans-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ Payment modal ══════════════ -->
+  <div id="cf-pay-modal" class="cf-modal-backdrop modal-backdrop fixed inset-0 hidden z-50 items-center justify-center p-4">
+    <div class="cf-modal-box">
+      <div class="cf-modal-head">
+        <div class="cf-modal-head-l">
+          <div class="cf-modal-icon"><i class="fa-solid fa-qrcode"></i></div>
+          <div class="min-w-0">
+            <h3 class="cf-modal-title">Complete Your Payment</h3>
+            <p class="cf-modal-sub">Pay, then send the screenshot to the bot for approval.</p>
+          </div>
         </div>
+        <button onclick="closeModal('cf-pay-modal')" class="cf-modal-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="cf-pay-summary">
+        <div class="amt" id="cf-pay-amt">—</div>
+        <div class="dur" id="cf-pay-dur">—</div>
+      </div>
+      <img id="cf-pay-qr" class="cf-pay-qr" style="display:none" alt="Payment QR code">
+      <div id="cf-pay-instructions" class="cf-pay-instructions"></div>
+
+      <a id="cf-pay-bot-link" href="#" target="_blank" class="cf-btn-install" style="margin-top:1rem">
+        <i class="fa-brands fa-telegram"></i> Send Screenshot on Telegram
+      </a>
+
+      <p class="cf-hint" style="text-align:center">The admin will approve it shortly after review.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ 2. Request a title ══════════════ -->
+  <div class="cf-card mb-4">
+    <h2 class="cf-section-title"><span class="lbl"><i class="fa-solid fa-clapperboard" style="color:var(--primary)"></i> Request a Movie or Show</span></h2>
+    <p class="cf-hint" style="margin:-0.4rem 0 0.9rem">Can't find something in the library? Search below and send a request.</p>
+
+    <form class="cf-req-search" onsubmit="cfDoSearch(event)">
+      <div class="cf-req-input-wrap">
+        <input id="cf-req-q" type="text" placeholder="Search by name, IMDb ID (tt…) or TMDB ID" autocomplete="off" oninput="cfToggleClear()">
+        <div class="cf-req-clear-mask" id="cf-req-clear-mask"></div>
+        <button type="button" class="cf-req-clear" id="cf-req-clear" onclick="cfClearSearch()" title="Clear search"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <button type="submit" class="cf-req-submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+    <p class="cf-req-hint">Examples: <b>Inception</b> · <b>tt1375666</b> · <b>27205</b></p>
+
+    <div id="cf-req-results-wrap" style="display:none">
+      <div class="cf-section-title" style="margin:1.1rem 0 0.6rem"><span class="lbl"><i class="fa-solid fa-list" style="color:var(--primary)"></i> Search results</span></div>
+      <div id="cf-req-results" class="cf-req-grid"></div>
     </div>
 
-    <div class="cfg-block">
-        <div class="cfg-title">Show only these qualities</div>
-        <div class="chips" id="cfg-quality"></div>
-        <p class="cfg-hint">Leave all off to show every quality.</p>
+    <div id="cf-req-popular-wrap">
+      <div class="cf-section-title" style="margin:1.1rem 0 0.6rem"><span class="lbl"><i class="fa-solid fa-fire" style="color:var(--d-orange)"></i> Most Requested</span></div>
+      <div id="cf-req-popular" class="cf-req-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ Quick stat strip ══════════════ -->
+  <div class="cf-stats">
+    <div class="cf-stat">
+      <i class="fa-solid fa-film" style="color:var(--d-green)"></i>
+      <p class="lb">Movies</p>
+      <p class="vl tabular">{{ total_movies or 0 }}</p>
+    </div>
+    <div class="cf-stat">
+      <i class="fa-solid fa-tv" style="color:var(--d-orange)"></i>
+      <p class="lb">TV Shows</p>
+      <p class="vl tabular">{{ total_tv_shows or 0 }}</p>
+    </div>
+    <div class="cf-stat">
+      <i class="fa-solid fa-layer-group" style="color:var(--d-cyan)"></i>
+      <p class="lb">Catalogs</p>
+      <p class="vl tabular" id="stat-catalogs">{{ catalogs_count or 0 }}</p>
+    </div>
+    <div class="cf-stat">
+      <i class="fa-solid fa-eye" style="color:var(--d-purple)"></i>
+      <p class="lb">Visible</p>
+      <p class="vl tabular" id="stat-visible">—</p>
+    </div>
+    <div class="cf-stat">
+      <i class="fa-solid fa-shield-halved" style="color:{{ status_color }}"></i>
+      <p class="lb">Status</p>
+      <p class="vl">{{ status_text }}</p>
+    </div>
+    <div class="cf-stat">
+      <i class="fa-solid fa-database" style="color:var(--d-pink)"></i>
+      <p class="lb">Used Today</p>
+      <p class="vl tabular">{{ usage_daily_readable }}</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ Data Usage chart ══════════════ -->
+  <div class="cf-card mb-4">
+    <div class="cf-chart-head">
+      <h3><i class="fa-solid fa-database" style="color:var(--d-pink)"></i> Data Usage</h3>
+      <span class="tabular">{{ usage_total_readable }} all-time</span>
+    </div>
+    <div class="cf-chart-box" style="height:190px">
+      <canvas id="chart-usage"></canvas>
+    </div>
+    <div class="cf-usage-legend">
+      <span><i class="fa-solid fa-square" style="color:var(--d-pink)"></i> Used</span>
+      <span id="usage-daily-lbl"><i class="fa-solid fa-square" style="color:var(--surface-3)"></i> Today: {{ usage_daily_readable }}</span>
+      <span id="usage-monthly-lbl"><i class="fa-solid fa-square" style="color:var(--surface-3)"></i> This month: {{ usage_monthly_readable }}</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ Personalize ══════════════ -->
+  <div class="cf-card">
+    <h2 class="cf-section-title"><span class="lbl"><i class="fa-solid fa-sliders" style="color:var(--primary)"></i> Personalize</span></h2>
+    <p class="cf-hint" style="margin:-0.4rem 0 0.9rem">Tune quality and catalogs for your install. Re-install after saving.</p>
+
+    <div class="cf-block">
+      <div class="cf-block-title">Stream quality order</div>
+      <div class="cf-seg" id="cfg-sort">
+        <button type="button" data-val="desc" class="cf-seg-btn active" onclick="setSort('desc')">Highest first</button>
+        <button type="button" data-val="asc" class="cf-seg-btn" onclick="setSort('asc')">Lowest first</button>
+      </div>
     </div>
 
-    <div class="cfg-block">
-        <div class="cfg-title">Catalogs</div>
-        <div id="cfg-catalogs" class="cfg-catalogs"></div>
-        <p class="cfg-hint">Toggle to hide a catalog; use arrows to reorder.</p>
+    <div class="cf-block">
+      <div class="cf-block-title">Show only these qualities</div>
+      <div class="cf-chips" id="cfg-quality"></div>
+      <p class="cf-hint">Leave all off to show every quality.</p>
     </div>
 
-    <button onclick="saveConfig()" class="btn-install" id="cfg-save" style="margin-top:8px">
-        <i class="fa-solid fa-floppy-disk"></i> Save preferences
+    <div class="cf-block">
+      <div class="cf-block-title">Catalogs</div>
+      <div id="cfg-catalogs" class="cf-catalogs"></div>
+      <p class="cf-hint">Toggle to hide a catalog; use arrows to reorder.</p>
+    </div>
+
+    <button onclick="saveConfig()" class="cf-btn-install" id="cfg-save" style="margin-top:0.4rem">
+      <i class="fa-solid fa-floppy-disk"></i> Save preferences
     </button>
-    <p id="cfg-state" class="cfg-hint" style="text-align:center"></p>
-</div>
-</div>
+    <p id="cfg-state" class="cf-hint" style="text-align:center"></p>
+  </div>
 </div>
 
-<style>
-.cfg-block { margin: 14px 0; }
-.cfg-title { font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--text-sec); margin-bottom: 8px; }
-.cfg-hint { font-size: .72rem; color: var(--text-sec); margin-top: 6px; }
-.seg { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--hairline); border-radius: .8rem; padding: 4px; }
-.seg-btn { flex: 1; padding: 9px; border-radius: .6rem; border: none; background: transparent; color: var(--text-sec); font-weight: 700; font-size: .82rem; cursor: pointer; }
-.seg-btn.active { background: var(--primary); color: #fff; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.qchip { padding: 7px 14px; border-radius: 9999px; border: 1px solid var(--hairline); background: var(--surface); color: var(--text); font-weight: 800; font-size: .8rem; cursor: pointer; }
-.qchip.on { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: transparent; }
-.cfg-catalogs { display: flex; flex-direction: column; gap: 6px; }
-.cfg-cat { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--hairline); border-radius: .7rem; background: var(--surface); }
-.cfg-cat.hidden-cat { opacity: .5; }
-.cfg-cat .nm { flex: 1; min-width: 0; font-weight: 700; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cfg-eye, .cfg-arr { width: 30px; height: 26px; border-radius: .5rem; border: 1px solid var(--hairline); background: var(--bg); color: var(--text); cursor: pointer; font-size: .72rem; }
-.cfg-arr:disabled { opacity: .35; cursor: not-allowed; }
-</style>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 const QUALITIES = ['480p', '720p', '1080p', '4K'];
 let cfg = { quality_sort: 'desc', quality_filter: [], hidden_catalogs: [], catalog_order: [] };
@@ -251,12 +579,12 @@ let cfgCatalogs = [];
 
 function setSort(v) {
     cfg.quality_sort = v;
-    document.querySelectorAll('#cfg-sort .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === v));
+    document.querySelectorAll('#cfg-sort .cf-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === v));
 }
 
 function renderQuality() {
     document.getElementById('cfg-quality').innerHTML = QUALITIES.map(q =>
-        `<button type="button" class="qchip ${cfg.quality_filter.includes(q) ? 'on' : ''}" onclick="toggleQuality('${q}')">${q}</button>`
+        `<button type="button" class="cf-qchip ${cfg.quality_filter.includes(q) ? 'on' : ''}" onclick="toggleQuality('${q}')">${q}</button>`
     ).join('');
 }
 
@@ -268,19 +596,33 @@ function toggleQuality(q) {
 
 function catKey(c) { return c.key || (c.id + '::' + (c.type || 'movie')); }
 
+function isHidden(c) {
+    const key = catKey(c);
+    return cfg.hidden_catalogs.includes(key) || cfg.hidden_catalogs.includes(c.id);
+}
+
 function renderCatalogs() {
     document.getElementById('cfg-catalogs').innerHTML = cfgCatalogs.map((c, i) => {
-        const key = catKey(c);
-        const hidden = cfg.hidden_catalogs.includes(key) || cfg.hidden_catalogs.includes(c.id);
+        const hidden = isHidden(c);
         const tagIcon = c.type === 'series' ? 'fa-tv' : 'fa-film';
         const tagLabel = c.type === 'series' ? 'TV' : 'Movie';
-        return `<div class="cfg-cat ${hidden ? 'hidden-cat' : ''}">
-            <button class="cfg-eye" title="Show/hide" onclick="toggleHide(${i})"><i class="fa-solid fa-eye${hidden ? '-slash' : ''}"></i></button>
+        return `<div class="cf-cat ${hidden ? 'hidden-cat' : ''}">
+            <button class="cf-eye" title="Show/hide" onclick="toggleHide(${i})"><i class="fa-solid fa-eye${hidden ? '-slash' : ''}"></i></button>
             <span class="nm">${escapeCfg(c.name)} <small style="opacity:.6">· <i class="fa-solid ${tagIcon}"></i> ${tagLabel}</small></span>
-            <button class="cfg-arr" ${i === 0 ? 'disabled' : ''} onclick="moveCat(${i}, -1)">▲</button>
-            <button class="cfg-arr" ${i === cfgCatalogs.length - 1 ? 'disabled' : ''} onclick="moveCat(${i}, 1)">▼</button>
+            <button class="cf-arr" ${i === 0 ? 'disabled' : ''} onclick="moveCat(${i}, -1)">▲</button>
+            <button class="cf-arr" ${i === cfgCatalogs.length - 1 ? 'disabled' : ''} onclick="moveCat(${i}, 1)">▼</button>
         </div>`;
-    }).join('') || '<p class="cfg-hint">No catalogs available.</p>';
+    }).join('') || '<p class="cf-hint">No catalogs available.</p>';
+    updateCatalogStats();
+}
+
+function updateCatalogStats() {
+    const total = cfgCatalogs.length;
+    const visible = cfgCatalogs.filter(c => !isHidden(c)).length;
+    const visEl = document.getElementById('stat-visible');
+    const statCatalogs = document.getElementById('stat-catalogs');
+    if (visEl) visEl.textContent = total ? `${visible}/${total}` : '—';
+    if (statCatalogs) statCatalogs.textContent = total;
 }
 
 function toggleHide(i) {
@@ -333,18 +675,554 @@ async function saveConfig() {
     }
 }
 
-loadConfig();
-</script>
-
-<script>
 function copyUrl() {
     const url = document.getElementById('murl').textContent.trim();
     navigator.clipboard.writeText(url).then(() => {
-        const b = document.querySelector('.btn-copy');
+        const b = document.querySelector('.cf-btn-copy');
         b.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
         setTimeout(() => b.innerHTML = '<i class="fa-solid fa-copy"></i> Copy URL', 2000);
     });
 }
+
+/* ── Charts ─────────────────────────────────────────────────────────── */
+function themeVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function initUsageChart() {
+    const ctx = document.getElementById('chart-usage');
+    if (!ctx || typeof Chart === 'undefined') return;
+    const gridColor = 'color-mix(in srgb, ' + themeVar('--text') + ' 8%, transparent)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = themeVar('--text-sec');
+
+    const dailyBytes = {{ usage_daily_bytes or 0 }};
+    const monthlyBytes = {{ usage_monthly_bytes or 0 }};
+    const totalBytes = {{ usage_total_bytes or 0 }};
+    const dailyLimit = {{ daily_limit_bytes or 0 }};
+    const monthlyLimit = {{ monthly_limit_bytes or 0 }};
+
+    const toGB = b => +(b / 1024 / 1024 / 1024).toFixed(2);
+    const labels = ['Today', 'This Month', 'All-time'];
+    const used = [toGB(dailyBytes), toGB(monthlyBytes), toGB(totalBytes)];
+    const limits = [toGB(dailyLimit), toGB(monthlyLimit), null];
+    const hasLimits = dailyLimit > 0 || monthlyLimit > 0;
+
+    const datasets = [{
+        label: 'Used',
+        data: used,
+        backgroundColor: themeVar('--d-pink'),
+        borderRadius: 8,
+        maxBarThickness: 44
+    }];
+    if (hasLimits) {
+        datasets.push({
+            label: 'Limit',
+            data: limits,
+            backgroundColor: 'color-mix(in srgb, ' + themeVar('--text') + ' 14%, transparent)',
+            borderRadius: 8,
+            maxBarThickness: 44
+        });
+    }
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: hasLimits, position: 'bottom', labels: { boxWidth: 10, padding: 14, font: { weight: 700, size: 11 } } },
+                tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y} GB` } }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { weight: 700 } } },
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { callback: v => v + ' GB' } }
+            }
+        }
+    });
+}
+
+initUsageChart();
+loadConfig();
+loadBilling();
+
+/* ── Billing / plans ───────────────────────────────────────────────── */
+let cfPlans = [];
+
+function openModal(id) {
+    const m = document.getElementById(id);
+    m.classList.remove('hidden'); m.classList.add('flex');
+}
+function closeModal(id) {
+    const m = document.getElementById(id);
+    m.classList.add('hidden'); m.classList.remove('flex');
+}
+['cf-pay-modal'].forEach(id => {
+    const m = document.getElementById(id);
+    if (m) m.addEventListener('click', function (e) { if (e.target === this) closeModal(id); });
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal('cf-pay-modal');
+});
+
+function cfStatusIcon(statusText) {
+    const t = String(statusText || '').toLowerCase();
+    if (t === 'active') return 'fa-solid fa-circle-check';
+    if (t === 'admin') return 'fa-solid fa-crown';
+    return 'fa-solid fa-circle-exclamation';
+}
+
+function renderBillStatus(data) {
+    const box = document.getElementById('cf-bill-status');
+    const color = data.status_color || 'var(--primary)';
+    const cp = data.current_plan;
+    const planLine = cp
+        ? `<div class="t2">Current plan: <b>${escapeCfg(cp.duration)} Days</b> (${escapeCfg(cp.currency_symbol)}${escapeCfg(cp.price)})</div>`
+        : '';
+    box.innerHTML = `
+        <div class="icn" style="background:${color}1c; color:${color}"><i class="${cfStatusIcon(data.status_text)}"></i></div>
+        <div class="info">
+            <div class="t1">${escapeCfg(data.status_text || 'Unknown')}</div>
+            ${planLine}
+            <div class="t2">${data.sub_active ? 'Renews / expires' : 'Expired'} on ${escapeCfg(data.expiry_str || 'N/A')}</div>
+        </div>`;
+
+    const pendBox = document.getElementById('cf-bill-pending');
+    if (data.pending_payment) {
+        const p = data.pending_payment;
+        pendBox.style.display = '';
+        pendBox.innerHTML = `<div class="cf-pending-banner">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <span>Payment for <b>${p.duration} days</b> (${escapeCfg(p.currency_symbol)}${p.price}) is awaiting admin approval.</span>
+        </div>`;
+    } else {
+        pendBox.style.display = 'none';
+        pendBox.innerHTML = '';
+    }
+}
+
+//----- Current plan -> "Renew". No active plan yet -> "Subscribe". Otherwise the
+//----- user already has an active plan and is looking at a different one, so
+//----- call it out as an "Upgrade" (longer plan) or "Downgrade" (shorter plan).
+function cfPlanBtnLabel(subActive, isCurrent, currentPlan, p) {
+    if (isCurrent) return 'Renew';
+    if (!subActive || !currentPlan) return 'Subscribe';
+    return (p.days || 0) > (currentPlan.duration || 0) ? 'Upgrade' : 'Downgrade';
+}
+
+function renderPlans(plans, subActive, currentPlan) {
+    const grid = document.getElementById('cf-plans-grid');
+    if (!plans.length) {
+        grid.innerHTML = '<p class="cf-plans-empty">No plans are available right now. Please check back later.</p>';
+        return;
+    }
+    const bestDays = Math.max(...plans.map(p => p.days || 0));
+    grid.innerHTML = plans.map(p => {
+        const isBest = p.days === bestDays && plans.length > 1;
+        const isCurrent = subActive && currentPlan && currentPlan.duration === p.days;
+        const perDay = p.days ? (p.price / p.days).toFixed(2) : p.price;
+        return `<div class="cf-plan-card ${isBest ? 'best' : ''}">
+            ${isCurrent ? '<span class="cf-plan-badge" style="background:var(--d-green,#22c55e)">Current Plan</span>' : (isBest ? '<span class="cf-plan-badge">Best Value</span>' : '')}
+            <div class="cf-plan-days">${p.days} Days</div>
+            <div class="cf-plan-price">${escapeCfg(p.currency_symbol)}${p.price}</div>
+            <div class="cf-plan-per-day">${escapeCfg(p.currency_symbol)}${perDay} / day</div>
+            <button class="cf-plan-btn" onclick="selectPlan('${p.id}')"><i class="fa-solid fa-bolt"></i> ${cfPlanBtnLabel(subActive, isCurrent, currentPlan, p)}</button>
+        </div>`;
+    }).join('');
+}
+
+/* ── Poll so Approve/Reject on Telegram shows up here without a manual
+     reload — the page has no other way to learn the admin acted. ────────── */
+let cfPollTimer = null;
+let cfWasPending = false;
+
+function cfStopPoll() {
+    if (cfPollTimer) { clearInterval(cfPollTimer); cfPollTimer = null; }
+}
+
+function cfStartPoll() {
+    if (cfPollTimer) return;
+    cfPollTimer = setInterval(() => { if (!document.hidden) loadBilling(); }, 6000);
+}
+
+//----- Refresh immediately when the person comes back (e.g. switching back
+//----- from the Telegram app after sending their screenshot).
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) loadBilling();
+});
+
+async function loadBilling() {
+    const section = document.getElementById('cf-billing-section');
+    try {
+        const res = await fetch('plans');
+        const data = await res.json();
+        if (!data.enabled || !data.billable) { section.style.display = 'none'; cfStopPoll(); return; }
+        section.style.display = '';
+        renderBillStatus(data);
+        cfPlans = data.plans || [];
+        renderPlans(cfPlans, data.sub_active, data.current_plan);
+
+        //----- Transition from pending -> resolved: tell the person what happened
+        //----- and stop polling. Transition into pending: start polling.
+        const isPending = !!data.pending_payment;
+        if (cfWasPending && !isPending) {
+            closeModal('cf-pay-modal');
+            if (data.sub_active) {
+                showToast('🎉 Your payment was approved — subscription is active!', 'success');
+            } else {
+                showToast('❌ Your payment was rejected. Please contact the admin.', 'error');
+            }
+        }
+        cfWasPending = isPending;
+        if (isPending) cfStartPoll(); else cfStopPoll();
+    } catch (e) {
+        if (section) section.style.display = 'none';
+    }
+}
+
+async function selectPlan(planId) {
+    const btns = document.querySelectorAll('.cf-plan-btn');
+    btns.forEach(b => b.disabled = true);
+    try {
+        const res = await fetch('plans/select', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan_id: planId })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Could not select plan.');
+        openPaymentModal(data);
+        loadBilling();
+    } catch (e) {
+        showToast(e.message || 'Could not select plan. Please try again.', 'error', 'Error');
+    } finally {
+        btns.forEach(b => b.disabled = false);
+    }
+}
+
+function openPaymentModal(data) {
+    const plan = data.plan || {};
+    document.getElementById('cf-pay-amt').textContent = `${plan.currency_symbol || ''}${plan.price}`;
+    document.getElementById('cf-pay-dur').textContent = `${plan.days} days · new expiry ${data.expiry_preview || ''}`;
+
+    const instr = document.getElementById('cf-pay-instructions');
+    //----- payment_instructions is admin-authored Telegram-HTML (same field the bot sends
+    //----- with parse_mode=HTML), so render it as HTML here too instead of showing raw tags.
+    const raw = data.payment_instructions
+        || `Pay ${plan.currency_symbol || ''}${plan.price} to the admin, then send the screenshot in Telegram.`;
+    instr.innerHTML = cfFormatPayInstructions(raw);
+
+    const qr = document.getElementById('cf-pay-qr');
+    if (data.payment_qr_url) { qr.src = data.payment_qr_url; qr.style.display = ''; }
+    else { qr.style.display = 'none'; }
+
+    const botLink = document.getElementById('cf-pay-bot-link');
+    botLink.href = data.bot_url || '#';
+
+    openModal('cf-pay-modal');
+}
+
+//----- Known payment methods: icon markup + whether the row gets a tap-to-open button.
+//----- "open" builds the URL/action cfOpenPay() runs when that button is tapped.
+//----- Specific coins (USDT/BTC/ETH) are matched before the generic "crypto" fallback
+//----- so each gets its own brand icon/colour; all of them copy the address on tap
+//----- since there's no reliable universal deep link for a wallet address.
+const CF_PAY_METHODS = [
+    { key: 'paypal',   icon: '<i class="fa-brands fa-paypal"></i>',            re: /^paypal\b/i,                         open: true  },
+    { key: 'binance',  icon: '<i class="fa-solid fa-coins"></i>',              re: /^binance/i,                          open: true  },
+    { key: 'gpay',     icon: '<i class="fa-brands fa-google-pay"></i>',        re: /^(google\s*pay|gpay)\b/i,            open: true  },
+    { key: 'payoneer', icon: '<i class="fa-solid fa-money-bill-transfer"></i>',re: /^payoneer\b/i,                       open: true  },
+    { key: 'wise',     icon: '<i class="fa-solid fa-money-bill-transfer"></i>',re: /^(wise|transferwise)\b/i,            open: true  },
+    { key: 'usdt',     icon: '<i class="fa-solid fa-dollar-sign"></i>',        re: /^usdt\b/i,                           open: true  },
+    { key: 'btc',      icon: '<i class="fa-brands fa-bitcoin"></i>',           re: /^(bitcoin|btc)\b/i,                  open: true  },
+    { key: 'eth',      icon: '<i class="fa-brands fa-ethereum"></i>',          re: /^eth(ereum)?\b/i,                    open: true  },
+    { key: 'crypto',   icon: '<i class="fa-solid fa-coins"></i>',              re: /^crypto\b/i,                        open: true  },
+    { key: 'upi',      icon: '<i class="fa-solid fa-indian-rupee-sign"></i>',  re: /^upi\b/i,                             open: false },
+    { key: 'bank',     icon: '<i class="fa-solid fa-building-columns"></i>',   re: /bank\b/i,                             open: false },
+];
+//----- Methods whose "open" action only copies the address (no reliable wallet deep link) —
+//----- these get a "Copy" button instead of "Open".
+const CF_COPY_ONLY_METHODS = new Set(['usdt', 'btc', 'eth', 'crypto']);
+
+//----- Strip a leading emoji/bullet/symbol run (e.g. "🅿️", "🟡", "🏦", "- ") so it
+//----- can be swapped for a consistent brand icon instead. Matches the glyph run
+//----- whether it sits before the first tag ("🏦 <b>Bank</b>") or just inside it
+//----- ("<b>🏦 Bank</b>") — admin-authored HTML uses both — without touching the tag.
+function cfStripLeadingGlyph(html) {
+    const glyph = '[\\u{1F000}-\\u{1FFFF}\\u{2190}-\\u{2BFF}\\u{2600}-\\u{27BF}\\uFE0F\\u200D*•\\-–>]';
+    return html.replace(new RegExp('(^|<[^>]+>)\\s*' + glyph + '+\\s*', 'u'), '$1');
+}
+
+//----- Detect a "PaymentMethod: value" line (plain text, tags stripped) and
+//----- match it against CF_PAY_METHODS. Returns the method def or null.
+function cfMatchPayMethod(plainLine) {
+    const cleaned = cfStripLeadingGlyph(plainLine).trim();
+    for (const m of CF_PAY_METHODS) {
+        if (m.re.test(cleaned)) return m;
+    }
+    return null;
+}
+
+//----- Compact + enrich admin-authored payment instructions before rendering.
+//----- Each recognised payment-method line (PayPal, Binance, bank, UPI, ...)
+//----- opens a self-contained card with a branded icon + optional "open"
+//----- button; every line that follows it (Name/Account/Branch, etc.) is
+//----- grouped into that same card until a "====" divider or the next method
+//----- line closes it. Anything outside a card (intro/thank-you text) renders
+//----- as a plain paragraph. Every <code> value gets a tap-to-copy chip.
+function cfFormatPayInstructions(raw) {
+    let text = String(raw || '');
+    text = text.replace(/\n[ \t]*\n+/g, '\n');
+    text = text.replace(/<b>\s*=[=\s]{2,}\s*<\/b>/gi, '\n\u0000SEP\u0000\n');
+    text = text.replace(/(^|\n)[ \t]*={5,}[ \t]*(?=\n|$)/g, '$1\n\u0000SEP\u0000\n');
+    // Drop Telegram-style <blockquote> wrappers — cards replace that grouping.
+    text = text.replace(/<\/?blockquote[^>]*>/gi, '');
+
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+    let out = '';
+    let card = null; // { head, body: [] }
+    const closeCard = () => {
+        if (!card) return;
+        out += `<div class="cf-pay-card"><div class="cf-pay-card-head">${card.head}</div>`;
+        if (card.body.length) out += `<div class="cf-pay-card-body">${card.body.join('')}</div>`;
+        out += `</div>`;
+        card = null;
+    };
+
+    for (const line of lines) {
+        if (line === '\u0000SEP\u0000') { closeCard(); continue; }
+
+        const plain = line.replace(/<[^>]+>/g, '').trim();
+        const method = plain ? cfMatchPayMethod(plain) : null;
+
+        if (method) {
+            closeCard();
+            const stripped = cfStripLeadingGlyph(line);
+            // Pull out a value to open/copy: prefer a <code>…</code>, else text after ':'.
+            let value = '';
+            const codeMatch = stripped.match(/<code>([^<]*)<\/code>/);
+            if (codeMatch) value = codeMatch[1].trim();
+            else {
+                const colonMatch = plain.match(/:\s*(.+)$/);
+                if (colonMatch) value = colonMatch[1].trim();
+            }
+            let openBtn = '';
+            if (method.open && value) {
+                const attr = value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+                const isCopyOnly = CF_COPY_ONLY_METHODS.has(method.key);
+                const btnIcon = isCopyOnly ? 'fa-solid fa-copy' : 'fa-solid fa-arrow-up-right-from-square';
+                const btnLabel = isCopyOnly ? 'Copy' : 'Open';
+                openBtn = `<button type="button" class="cf-open-btn" data-open-method="${method.key}" data-open-value="${attr}" onclick="cfOpenPay(this)"><i class="${btnIcon}"></i> ${btnLabel}</button>`;
+            }
+            card = {
+                head: `<span class="cf-pay-icon cf-pay-icon-${method.key}">${method.icon}</span><span class="cf-pay-card-title">${stripped}</span>${openBtn}`,
+                body: [],
+            };
+            continue;
+        }
+
+        // "Label: value" line inside a card -> tidy label/value row.
+        const detailMatch = card && line.match(/^([^:<>]{1,24}):\s*(.+)$/);
+        if (card && detailMatch) {
+            card.body.push(`<div class="cf-pay-detail"><span class="cf-pay-detail-label">${detailMatch[1].trim()}</span>${detailMatch[2].trim()}</div>`);
+        } else if (card) {
+            card.body.push(`<div class="cf-pay-detail-note">${line}</div>`);
+        } else {
+            out += `<p class="cf-pay-note">${line}</p>`;
+        }
+    }
+    closeCard();
+
+    out = out.replace(/<code>([^<]*)<\/code>/g, (m, val) => {
+        const attr = val.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        return `<span class="cf-copy-chip"><code>${val}</code><button type="button" class="cf-copy-btn" data-copy="${attr}" onclick="cfCopyText(this)" title="Copy"><i class="fa-solid fa-copy"></i></button></span>`;
+    });
+    return out;
+}
+
+function cfCopyText(btn) {
+    const text = btn.getAttribute('data-copy') || '';
+    navigator.clipboard.writeText(text).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'fa-solid fa-check';
+        btn.classList.add('copied');
+        setTimeout(() => { icon.className = 'fa-solid fa-copy'; btn.classList.remove('copied'); }, 1400);
+    }).catch(() => showToast('Could not copy.', 'error'));
+}
+
+//----- Tap-to-open for methods that have a real deep link (PayPal, Binance, …).
+//----- Where no reliable prefill link exists (e.g. Binance Pay ID), the value
+//----- is copied to the clipboard first so it can be pasted straight into the app.
+function cfOpenPay(btn) {
+    const method = btn.getAttribute('data-open-method');
+    const value = btn.getAttribute('data-open-value') || '';
+    let url = '';
+    let copyFirst = false;
+
+    switch (method) {
+        case 'paypal':
+            url = value.includes('@')
+                ? `https://www.paypal.com/myaccount/transfer/homepage/pay?recipient=${encodeURIComponent(value)}`
+                : `https://paypal.me/${encodeURIComponent(value)}`;
+            break;
+        case 'binance':
+            url = 'https://app.binance.com/en/pay';
+            copyFirst = true;
+            break;
+        case 'gpay':
+            url = value.includes('@')
+                ? `upi://pay?pa=${encodeURIComponent(value)}`
+                : `https://pay.google.com`;
+            copyFirst = true;
+            break;
+        case 'payoneer':
+            url = 'https://myaccount.payoneer.com/';
+            copyFirst = true;
+            break;
+        case 'wise':
+            url = 'https://wise.com/pay';
+            copyFirst = true;
+            break;
+        case 'usdt':
+        case 'btc':
+        case 'eth':
+        case 'crypto':
+            //----- No reliable universal deep link for an arbitrary wallet address —
+            //----- just copy it so it can be pasted into whatever wallet app is used.
+            url = '';
+            copyFirst = true;
+            break;
+        default:
+            url = '';
+    }
+
+    const openIt = () => { if (url) window.open(url, '_blank', 'noopener'); };
+    if (copyFirst && value) {
+        navigator.clipboard.writeText(value).then(() => {
+            showToast(url ? 'Copied — paste it in the app that opens.' : 'Address copied — paste it in your wallet app.', 'success');
+            openIt();
+        }).catch(openIt);
+    } else {
+        openIt();
+    }
+}
+
+/* ── Request a title ───────────────────────────────────────────────── */
+let cfReqResults = [];
+
+function cfEsc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function cfPosterHtml(r, extra) {
+    const img = r.poster ? `<img src="${cfEsc(r.poster)}" loading="lazy" alt="">`
+                          : `<div class="noimg"><i class="fa-solid fa-film"></i></div>`;
+    const type = r.media_type === 'tv' ? 'TV' : 'Movie';
+    return `<div class="cf-req-poster">${img}<span class="cf-req-type">${type}</span>${extra || ''}</div>`;
+}
+
+function cfResultCard(r, idx) {
+    const yr = r.year ? ` (${cfEsc(r.year)})` : '';
+    return `<div class="cf-req-card">
+        ${cfPosterHtml(r)}
+        <div class="cf-req-body">
+            <div class="cf-req-title">${cfEsc(r.title)}${yr}</div>
+            <button class="cf-req-btn" onclick="cfSendRequest(${idx})"><i class="fa-solid fa-paper-plane"></i> Request</button>
+        </div>
+    </div>`;
+}
+
+function cfPopularCard(r) {
+    const yr = r.year ? ` (${cfEsc(r.year)})` : '';
+    const count = `<span class="cf-req-count"><i class="fa-solid fa-users"></i> ${cfEsc(r.request_count || 0)}</span>`;
+    return `<div class="cf-req-card">
+        ${cfPosterHtml(r, count)}
+        <div class="cf-req-body"><div class="cf-req-title">${cfEsc(r.title)}${yr}</div></div>
+    </div>`;
+}
+
+function cfToggleClear() {
+    const q = document.getElementById('cf-req-q').value;
+    const show = q.length > 0;
+    document.getElementById('cf-req-clear').classList.toggle('show', show);
+    document.getElementById('cf-req-clear-mask').classList.toggle('show', show);
+}
+
+function cfClearSearch() {
+    const input = document.getElementById('cf-req-q');
+    input.value = '';
+    cfToggleClear();
+    document.getElementById('cf-req-results-wrap').style.display = 'none';
+    document.getElementById('cf-req-results').innerHTML = '';
+    input.focus();
+}
+
+async function cfDoSearch(e) {
+    if (e) e.preventDefault();
+    const q = document.getElementById('cf-req-q').value.trim();
+    if (q.length < 2) { showToast('Type at least 2 characters.', 'info'); return; }
+    const wrap = document.getElementById('cf-req-results-wrap');
+    const box = document.getElementById('cf-req-results');
+    wrap.style.display = '';
+    box.innerHTML = `<div class="cf-req-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Searching…</div>`;
+    try {
+        const res = await fetch('/api/request/search?q=' + encodeURIComponent(q));
+        const data = await res.json();
+        cfReqResults = data.data || [];
+        box.innerHTML = cfReqResults.length
+            ? cfReqResults.map((r, i) => cfResultCard(r, i)).join('')
+            : `<div class="cf-req-empty">No matches found. Try a different name or an IMDb/TMDB ID.</div>`;
+    } catch (err) {
+        box.innerHTML = `<div class="cf-req-empty" style="color:var(--d-red)">Search failed. Please try again.</div>`;
+    }
+}
+
+async function cfSendRequest(idx) {
+    const r = cfReqResults[idx];
+    if (!r) return;
+    try {
+        const res = await fetch('/api/request/submit', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                media_type: r.media_type, tmdb_id: r.tmdb_id, imdb_id: r.imdb_id || null,
+                title: r.title, year: r.year, poster: r.poster,
+            }),
+        });
+        const data = await res.json();
+        const map = {
+            created:            ['Request submitted! We\'ll try to add it soon.', 'success', 'Requested'],
+            added:              ['Added your vote — this was already requested.', 'success', 'Requested'],
+            reopened:           ['Request re-opened. Thanks!', 'success', 'Requested'],
+            already_available:  ['Good news — this is already in the library!', 'info', 'Available'],
+            banned:             ['This title has been banned and can\'t be requested.', 'error', 'Not allowed'],
+            invalid:            ['Could not identify this title.', 'error', 'Error'],
+        };
+        const m = map[data.reason] || (data.ok ? ['Request submitted!', 'success', 'Requested']
+                                                : ['Something went wrong.', 'error', 'Error']);
+        showToast(m[0], m[1], m[2]);
+        if (data.ok) cfLoadPopular();
+    } catch (err) {
+        showToast('Request failed. Please try again.', 'error', 'Error');
+    }
+}
+
+async function cfLoadPopular() {
+    const box = document.getElementById('cf-req-popular');
+    const wrap = document.getElementById('cf-req-popular-wrap');
+    try {
+        const res = await fetch('/api/request/popular');
+        const data = await res.json();
+        const items = data.data || [];
+        if (!items.length) { wrap.style.display = 'none'; return; }
+        wrap.style.display = '';
+        box.innerHTML = items.map(cfPopularCard).join('');
+    } catch (err) {
+        wrap.style.display = 'none';
+    }
+}
+
+cfLoadPopular();
 </script>
-</body>
-</html>
+{% endblock %}
