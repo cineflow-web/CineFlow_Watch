@@ -25,7 +25,7 @@ from Backend.helper.split_files import parse_combined_episodes, combined_name_ke
 from Backend.helper.settings_manager import SettingsManager
 from Backend.helper.subtitles import get_subtitles_for, stremio_subtitle_entries
 from Backend.logger import LOGGER
-from Backend.pyrofork.bot import StreamBot, get_streambot_url, get_streambot_pay_url
+from Backend.pyrofork.bot import StreamBot, get_streambot_url, get_streambot_pay_url, get_streambot_join_url
 
 router = APIRouter(prefix="/stremio", tags=["Stremio Addon"])
 templates = Jinja2Templates(directory="Backend/fastapi/templates")
@@ -934,6 +934,24 @@ async def _is_subscription_member(user_id: int) -> bool:
     return result
 
 
+#----- Always-on status entry: plan + expiry at a glance, tap opens this
+#----- token's own web user panel directly (never the Telegram bot).
+#----- Used in every get_streams() response — success or gated — so the
+#----- panel is always one tap away regardless of subscription state.
+async def _status_stream_entry(token: str, token_data: dict) -> dict | None:
+    try:
+        bctx = await _billing_context(token_data)
+        panel_url = f"{SettingsManager.current().base_url}/stremio/{token}/configure"
+        return {
+            "name": f"🧭 Account: {bctx['status_text']}",
+            "title": f"Plan expires: {bctx['expiry_str']}\nTap to open your user panel.",
+            "externalUrl": panel_url
+        }
+    except Exception as e:
+        LOGGER.warning(f"[USER PANEL] status entry failed for token {token}: {e}")
+        return None
+
+
 #----- Resolve playable streams for a title (Telegram library or Global Search)
 @router.get("/{token}/stream/{media_type}/{id}.json")
 async def get_streams(
@@ -952,15 +970,16 @@ async def get_streams(
     ))
 
     if token_data.get("subscription_expired"):
-        return {
-            "streams": [
-                {
-                    "name": "🚫 Plan Expired",
-                    "title": "Your plan is expired.\nRenew it from the bot to continue watching.",
-                    "url": get_streambot_url()
-                }
-            ]
+        gate_entry = {
+            "name": "🚫 Plan Expired",
+            "title": "Your plan is expired.\nTap to open the bot and renew to continue watching.",
+            #----- externalUrl (not url) tells Stremio/Nuvio this isn't a
+            #----- playable video — tap opens the link directly instead of
+            #----- trying (and failing) to stream it.
+            "externalUrl": get_streambot_pay_url()
         }
+        status_entry = await _status_stream_entry(token, token_data)
+        return {"streams": [status_entry, gate_entry] if status_entry else [gate_entry]}
 
     #----- Subscription users must currently be members of the configured group.
     #----- Admin, lifetime and admin-set token-expiry grants skip this check.
@@ -970,15 +989,17 @@ async def get_streams(
             and not token_data.get("expires_at")):
         user_id = token_data.get("user_id")
         if user_id and not await _is_subscription_member(int(user_id)):
-            return {
-                "streams": [
-                    {
-                        "name": "📢 Join Required",
-                        "title": "First join the channel to stream it.\nThen wait for 2 min for verification",
-                        "url": get_streambot_url()
-                    }
-                ]
+            #----- externalUrl uses the ?start=join deep-link so the bot's
+            #----- /start always fires (even with prior chat history) and
+            #----- opens the bot chat directly, which replies with the
+            #----- inline "Join Channel" + "Verify" buttons.
+            gate_entry = {
+                "name": "📢 Join Required",
+                "title": "First join the channel to stream it.\nThen wait for 2 min for verification.",
+                "externalUrl": get_streambot_join_url()
             }
+            status_entry = await _status_stream_entry(token, token_data)
+            return {"streams": [status_entry, gate_entry] if status_entry else [gate_entry]}
 
     if token_data.get("limit_exceeded"):
         limit_type = token_data["limit_exceeded"]
@@ -989,15 +1010,13 @@ async def get_streams(
             else "🚫 Monthly Limit Reached – Upgrade Required"
         )
 
-        return {
-            "streams": [
-                {
-                    "name": "Limit Reached",
-                    "title": title,
-                    "url": f"tg://user?id={Telegram.OWNER_ID}"
-                }
-            ]
+        gate_entry = {
+            "name": "Limit Reached",
+            "title": title,
+            "externalUrl": f"tg://user?id={Telegram.OWNER_ID}"
         }
+        status_entry = await _status_stream_entry(token, token_data)
+        return {"streams": [status_entry, gate_entry] if status_entry else [gate_entry]}
 
     try:
         parsed = _parse_stremio_id(id)
@@ -1087,9 +1106,6 @@ async def get_streams(
         if filtered:
             streams = filtered
 
-    if not streams:
-        return {"streams": []}
-
     ascending = config.get("quality_sort") == "asc"
     if is_combined:
         streams.sort(key=lambda s: s.get("episode_start", 0))
@@ -1109,6 +1125,15 @@ async def get_streams(
         if name_count[s["name"]] > 1:
             seen[s["name"]] = seen.get(s["name"], 0) + 1
             s["name"] = f"{s['name']} ({seen[s['name']]})"
+
+    #----- Always-on status entry pinned to the top of the list: plan + expiry
+    #----- at a glance, tap opens this token's own web user panel directly
+    #----- (replaces the old "Open User Panel" bot button flow). Added after
+    #----- sorting/dedup so it always stays first regardless of quality sort.
+    status_entry = await _status_stream_entry(token, token_data)
+    if status_entry:
+        streams.insert(0, status_entry)
+
     return {"streams": streams}
 
 #----- Currency code -> display symbol (mirrors Backend/pyrofork/plugins/subscription.py)

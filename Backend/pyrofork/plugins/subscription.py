@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from pyrogram import Client, filters
 from pyrogram.types import (
@@ -270,10 +270,12 @@ async def admin_review(client: Client, callback_query: CallbackQuery):
                 addon_url = None
 
             try:
+                #----- Timezone-aware UTC — see start.py's _send_join_gate for why
+                #----- datetime.utcnow() silently breaks this on non-UTC servers.
                 invite_link = await client.create_chat_invite_link(
                     chat_id=SettingsManager.current().subscription_group_id,
                     member_limit=1,
-                    expire_date=datetime.utcnow() + timedelta(days=1)
+                    expire_date=datetime.now(timezone.utc) + timedelta(days=1)
                 )
                 invite_text = f"\n\n🔗 <b>Group Invite:</b> {invite_link.invite_link}"
             except Exception as e:

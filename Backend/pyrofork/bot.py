@@ -74,6 +74,17 @@ def get_streambot_pay_url() -> str:
     return f"{base}?start=pay"
 
 
+#----- Same idea as get_streambot_pay_url(), but for the "join the channel"
+#----- gate: guarantees /start (with the "join" payload) fires every time,
+#----- so the bot can hand back a fresh invite link + verify button instead
+#----- of silently doing nothing on a plain t.me/<username> link.
+def get_streambot_join_url() -> str:
+    base = get_streambot_url()
+    if base == "https://t.me/":
+        return base
+    return f"{base}?start=join"
+
+
 #----- Per-client workload map ({botN: load}), busiest first; {} when idle
 def work_loads_summary() -> dict:
     if not work_loads:

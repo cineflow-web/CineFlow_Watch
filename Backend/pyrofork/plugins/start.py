@@ -1,15 +1,133 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from pyrogram import Client, enums, filters
-from pyrogram.types import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.enums import ChatMemberStatus
+from pyrogram.errors import UserNotParticipant
+from pyrogram.types import (
+    CallbackQuery,
+    ForceReply,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
 
 from Backend import db
 from Backend.config import Telegram
+from Backend.fastapi.routes.stremio_routes import invalidate_membership_cache
 from Backend.helper.settings_manager import SettingsManager
 from Backend.logger import LOGGER
 
 def _currency_symbol(code):
     return {"INR": "₹", "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "AUD": "A$", "CAD": "C$", "SGD": "S$", "AED": "د.إ", "BRL": "R$"}.get((code or "INR").upper(), f"{(code or 'INR')} ")
+
+
+#----- Fail-open membership check, mirrors _is_subscription_member() in stremio_routes
+async def _check_group_member(client: Client, group_id: int, user_id: int) -> bool:
+    try:
+        member = await client.get_chat_member(group_id, user_id)
+        return member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.BANNED)
+    except UserNotParticipant:
+        return False
+    except Exception as e:
+        LOGGER.warning(f"[JOIN GATE] membership check failed for {user_id}: {e}")
+        return True
+
+
+#----- Pin the join-gate message so it always stays at the top of the chat
+#----- instead of getting buried — best-effort, never blocks the reply.
+async def _pin_silently(client: Client, message: Message):
+    try:
+        await client.pin_chat_message(message.chat.id, message.id, disable_notification=True)
+    except Exception as e:
+        LOGGER.warning(f"[JOIN GATE] pin failed for {message.chat.id}: {e}")
+
+
+#----- Deep-linked from the "📢 Join Required" stream entry (?start=join).
+#----- Hands back a fresh, single-use invite link + a Verify button instead of
+#----- the generic welcome text, so the tap actually gets the user unblocked.
+#----- The user panel link itself is no longer offered here — it's now the
+#----- always-on status entry in the Nuvio/Stremio stream list instead.
+async def _send_join_gate(client: Client, message: Message, user_id: int, group_id: int):
+    if await _check_group_member(client, group_id, user_id):
+        invalidate_membership_cache(user_id)
+        sent = await message.reply_text(
+            "✅ <b>Verification Complete!</b>\n\n"
+            "You're already a member — go back to the app and reload the stream, it'll play now.",
+            quote=True,
+            parse_mode=enums.ParseMode.HTML
+        )
+        await _pin_silently(client, sent)
+        return sent
+
+    try:
+        #----- Must be timezone-aware UTC, not datetime.utcnow(). Pyrofork calls
+        #----- .timestamp() on this internally, and Python's .timestamp() on a
+        #----- *naive* datetime assumes the server's LOCAL timezone, not UTC.
+        #----- datetime.utcnow() is naive but holds UTC wall-clock values, so
+        #----- on any server not set to UTC, that mismatch silently shifts the
+        #----- resulting expiry by the server's UTC offset — which is exactly
+        #----- why links were showing "Expired" seconds after being created.
+        invite_link = await client.create_chat_invite_link(
+            chat_id=group_id,
+            member_limit=1,
+            expire_date=datetime.now(timezone.utc) + timedelta(hours=1)
+        )
+    except Exception as e:
+        LOGGER.error(f"[JOIN GATE] invite link creation failed for {user_id}: {e}")
+        return await message.reply_text(
+            "⚠️ <b>Couldn't generate a join link right now.</b>\n\n"
+            "Please contact the admin for access, or try again in a moment.",
+            quote=True,
+            parse_mode=enums.ParseMode.HTML
+        )
+
+    rows = [
+        [InlineKeyboardButton("📢 Join Channel", url=invite_link.invite_link)],
+        [InlineKeyboardButton("✅ I've Joined — Verify", callback_data="verify_join")],
+    ]
+
+    sent = await message.reply_text(
+        "📢 <b>Join Required</b>\n\n"
+        "1️⃣ Tap <b>Join Channel</b> below\n"
+        "2️⃣ Come back and tap <b>I've Joined — Verify</b>\n\n"
+        "Once verified, go back to the app and reload the stream.",
+        reply_markup=InlineKeyboardMarkup(rows),
+        quote=True,
+        parse_mode=enums.ParseMode.HTML
+    )
+    await _pin_silently(client, sent)
+    return sent
+
+
+#----- "✅ I've Joined — Verify" button from the join-gate message above
+@Client.on_callback_query(filters.regex(r"^verify_join$"))
+async def verify_join_callback(client: Client, callback_query: CallbackQuery):
+    try:
+        user_id = callback_query.from_user.id
+        group_id = SettingsManager.current().subscription_group_id
+        if not group_id:
+            return await callback_query.answer("Nothing to verify.", show_alert=True)
+
+        if await _check_group_member(client, group_id, user_id):
+            invalidate_membership_cache(user_id)
+            await callback_query.answer("✅ Verified! You're in.", show_alert=True)
+            try:
+                await callback_query.message.edit_text(
+                    "✅ <b>Verification Complete!</b>\n\n"
+                    "Go back to the app and reload the stream — it'll play now.",
+                    parse_mode=enums.ParseMode.HTML
+                )
+            except Exception:
+                pass
+        else:
+            #----- "Try again" — still not detected, keep the buttons up
+            await callback_query.answer(
+                "❌ Not detected yet. Join the channel first, then tap this again.",
+                show_alert=True
+            )
+    except Exception as e:
+        LOGGER.error(f"[JOIN GATE] verify_join callback failed: {e}")
+        await callback_query.answer("⚠️ Something went wrong. Please try again.", show_alert=True)
 
 
 
@@ -20,6 +138,12 @@ async def send_start_message(client: Client, message: Message):
         user_id = (message.from_user.id if message.from_user else None) or (message.sender_chat.id if message.sender_chat else None) or message.chat.id
         base_url = SettingsManager.current().base_url
         addon_url = f"{base_url}/stremio/manifest.json"
+
+        #----- Came from the "📢 Join Required" stream entry's ?start=join deep-link
+        start_payload = message.command[1] if len(message.command) > 1 else None
+        group_id = SettingsManager.current().subscription_group_id
+        if start_payload == "join" and SettingsManager.current().subscription and group_id:
+            return await _send_join_gate(client, message, user_id, group_id)
 
         #----- No subscription mode: owner-only, single personal token
         if not SettingsManager.current().subscription:
