@@ -28,6 +28,7 @@ def _base_context(request: Request) -> dict:
         "theme": get_theme(theme_name),
         "themes": get_all_themes(),
         "current_theme": theme_name,
+        "app_version": __version__,
     }
 
 

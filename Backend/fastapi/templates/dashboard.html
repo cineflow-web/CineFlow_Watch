@@ -30,7 +30,7 @@
     <div id="setup-card" class="mb-4"></div>
 
     <!-- ══════════════ Compact stat strip ══════════════ -->
-    <div class="grid grid-cols-3 sm:grid-cols-3 xl:grid-cols-6 gap-2 mb-4">
+    <div class="home-stat-grid mb-4">
         <div class="surface-card rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1 aspect-square hover:border-primary/30 transition-colors">
             <i class="fa-solid fa-clock text-base sm:text-lg" style="color:var(--primary)"></i>
             <p class="text-[8px] sm:text-[9px] uppercase font-bold text-text-secondary tracking-widest">Uptime</p>
@@ -382,6 +382,15 @@
     .stream-badge-recent {
         background: color-mix(in srgb, var(--accent) 16%, transparent);
         color: var(--accent);
+    }
+
+    /* Home stat strip: fixed 3-up on phone, then fluid auto-fit tiles on
+       PC/tablet — same method as the settings page's .stat-grid, so tiles
+       fill the wider desktop row instead of being stuck at a fixed count
+       until the xl breakpoint. */
+    .home-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    @media (min-width: 640px) {
+        .home-stat-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
     }
 </style>
 

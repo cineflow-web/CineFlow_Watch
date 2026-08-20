@@ -385,6 +385,16 @@
 
   /* This is a token-holder landing page — hide the public navbar's sign-in link. */
   #topbar .pub-nav-signin { display: none !important; }
+  /* Token users can't reach "/" (it's gated behind login/admin), so the brand
+     logo on this page must not act as a home link or open anything on tap. */
+  #topbar a.cf-navlogo-inert { cursor: default; pointer-events: none; }
+  /* The public navbar's logo <img> (unlike the logged-in one) has no long-press
+     guard, so mobile Chrome pops its native "Copy/Download/Share image" sheet
+     on long-press. Lock that down on this page too. */
+  #topbar a.cf-navlogo-inert img {
+      -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+      pointer-events: none;
+  }
 </style>
 
 <div class="cf-shell">
@@ -573,6 +583,28 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+//----- This page is reached via a share-token link (no login). The public navbar's
+//----- brand logo normally points at "/", but a token user can't access that (it's
+//----- the admin home) — so on this page the logo just sits there inert: no
+//----- navigation, no popup, nothing happens on tap.
+(function () {
+    const brand = document.querySelector('#topbar a[href="/"]');
+    if (!brand) return;
+    brand.classList.add('cf-navlogo-inert');
+    brand.removeAttribute('href');
+    brand.setAttribute('aria-disabled', 'true');
+    brand.addEventListener('click', e => e.preventDefault());
+
+    //----- Match the logged-in navbar logo's long-press guard (draggable=false +
+    //----- oncontextmenu block) so mobile Chrome doesn't offer to copy/download/
+    //----- share the logo image, or open it in the browser, on long-press.
+    const img = brand.querySelector('img');
+    if (img) {
+        img.setAttribute('draggable', 'false');
+        img.addEventListener('contextmenu', e => e.preventDefault());
+    }
+})();
+
 const QUALITIES = ['480p', '720p', '1080p', '4K'];
 let cfg = { quality_sort: 'desc', quality_filter: [], hidden_catalogs: [], catalog_order: [] };
 let cfgCatalogs = [];
