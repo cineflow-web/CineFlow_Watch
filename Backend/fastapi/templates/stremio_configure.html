@@ -953,6 +953,20 @@ function cfStripLeadingGlyph(html) {
     return html.replace(new RegExp('(^|<[^>]+>)\\s*' + glyph + '+\\s*', 'u'), '$1');
 }
 
+//----- Strip a single matching pair of <b>/<strong> tags wrapping the WHOLE line
+//----- (repeated, in case an admin double-bolds), so "Label: value" lines that are
+//----- entirely bolded — e.g. "<b>Name: <code>x</code></b>" — can still be split on
+//----- the colon. Leaves inner tags (like <code>) intact.
+function cfUnwrapOuterTags(line) {
+    let s = line;
+    for (let i = 0; i < 3; i++) {
+        const m = s.match(/^<(b|strong)>([\s\S]*)<\/\1>$/i);
+        if (!m) break;
+        s = m[2];
+    }
+    return s;
+}
+
 //----- Detect a "PaymentMethod: value" line (plain text, tags stripped) and
 //----- match it against CF_PAY_METHODS. Returns the method def or null.
 function cfMatchPayMethod(plainLine) {
@@ -1022,8 +1036,11 @@ function cfFormatPayInstructions(raw) {
             continue;
         }
 
-        // "Label: value" line inside a card -> tidy label/value row.
-        const detailMatch = card && line.match(/^([^:<>]{1,24}):\s*(.+)$/);
+        // "Label: value" line inside a card -> tidy label/value row. Admin-authored
+        // lines are often bolded whole ("<b>Name: <code>x</code></b>"), so unwrap a
+        // matching outer <b>/<strong> pair first or the colon split never triggers.
+        const unwrapped = cfUnwrapOuterTags(line);
+        const detailMatch = card && unwrapped.match(/^([^:<>]{1,24}):\s*(.+)$/);
         if (card && detailMatch) {
             card.body.push(`<div class="cf-pay-detail"><span class="cf-pay-detail-label">${detailMatch[1].trim()}</span>${detailMatch[2].trim()}</div>`);
         } else if (card) {
