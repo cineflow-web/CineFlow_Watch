@@ -311,8 +311,9 @@ class Database:
         if not user or "pending_payment" not in user:
             return None
 
-        duration = user["pending_payment"]["duration"]
-        
+        pending = user["pending_payment"]
+        duration = pending["duration"]
+
         #----- Calculate new expiry
         current_expiry = user.get("subscription_expiry")
         now = datetime.utcnow()
@@ -321,10 +322,22 @@ class Database:
         else:
             new_expiry = now + timedelta(days=duration)
 
+        #----- Remember which plan is currently active so the bot/web UI can show it
+        current_plan = {
+            "duration": duration,
+            "price": pending.get("price", 0),
+            "currency": pending.get("currency", "INR"),
+            "approved_at": now,
+        }
+
         await self.dbs["tracking"]["users"].update_one(
             {"_id": user_id},
             {
-                "$set": {"subscription_expiry": new_expiry, "subscription_status": "active"},
+                "$set": {
+                    "subscription_expiry": new_expiry,
+                    "subscription_status": "active",
+                    "current_plan": current_plan,
+                },
                 "$unset": {"pending_payment": ""}
             }
         )

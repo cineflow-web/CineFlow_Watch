@@ -20,11 +20,12 @@ from Backend.helper.fanart import fanart_artwork
 from Backend.helper.global_search import global_search, is_global_search_enabled
 from Backend.helper.metadata.providers.cinemeta import get_detail, get_season
 from Backend.helper.metadata import resolve_cover_url, COMBINED_SEASON, COMBINED_EPISODE_BASE
+from Backend.helper.pyro import get_readable_file_size
 from Backend.helper.split_files import parse_combined_episodes, combined_name_key
 from Backend.helper.settings_manager import SettingsManager
 from Backend.helper.subtitles import get_subtitles_for, stremio_subtitle_entries
 from Backend.logger import LOGGER
-from Backend.pyrofork.bot import StreamBot, get_streambot_url
+from Backend.pyrofork.bot import StreamBot, get_streambot_url, get_streambot_pay_url
 
 router = APIRouter(prefix="/stremio", tags=["Stremio Addon"])
 templates = Jinja2Templates(directory="Backend/fastapi/templates")
@@ -1110,6 +1111,92 @@ async def get_streams(
             s["name"] = f"{s['name']} ({seen[s['name']]})"
     return {"streams": streams}
 
+#----- Currency code -> display symbol (mirrors Backend/pyrofork/plugins/subscription.py)
+_CURRENCY_SYMBOLS = {
+    "INR": "₹", "LKR": "Rs", "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥",
+    "AUD": "A$", "CAD": "C$", "SGD": "S$", "AED": "د.إ", "BRL": "R$",
+}
+
+
+def _currency_symbol(code: str) -> str:
+    return _CURRENCY_SYMBOLS.get((code or "INR").upper(), f"{(code or 'INR')} ")
+
+
+def _sub_expired(when) -> bool:
+    ref = datetime.utcnow()
+    try:
+        if when.tzinfo is not None:
+            ref = datetime.now(timezone.utc)
+    except AttributeError:
+        pass
+    return when < ref
+
+
+def _sub_fmt(when) -> str:
+    try:
+        return when.strftime("%d %b %Y").lstrip("0")
+    except Exception:
+        return "N/A"
+
+
+#----- Shared subscription/billing context for a token, used by the configure page + plan APIs
+async def _billing_context(token_doc: dict) -> dict:
+    ctx = {
+        "user_name": "Unknown", "expiry_str": "Never", "status_color": "#ef4444",
+        "status_text": "Unknown", "uid": None, "user": None, "is_admin": False,
+        "billable": False, "sub_active": False,
+    }
+    if not token_doc:
+        return ctx
+
+    uid = token_doc.get("user_id")
+    is_admin = bool(token_doc.get("is_admin"))
+    try:
+        is_admin = is_admin or (uid is not None and int(uid) == int(Telegram.OWNER_ID))
+    except (TypeError, ValueError):
+        pass
+
+    user = None
+    if uid:
+        try:
+            user = await db.get_user(int(uid))
+        except Exception:
+            user = None
+    if user:
+        ctx["user_name"] = user.get("first_name") or user.get("username") or f"User {uid}"
+    elif uid:
+        ctx["user_name"] = f"User {uid}"
+
+    ctx["uid"], ctx["user"], ctx["is_admin"] = uid, user, is_admin
+
+    token_expiry = token_doc.get("expires_at")
+    subscription_on = SettingsManager.current().subscription
+    if is_admin:
+        ctx["status_color"], ctx["status_text"], ctx["expiry_str"] = "#22c55e", "Admin", "Never"
+    elif token_doc.get("subscription_exempt"):
+        ctx["status_color"], ctx["status_text"], ctx["expiry_str"] = "#22c55e", "Active", "Never"
+    elif token_expiry is not None:
+        ctx["expiry_str"] = _sub_fmt(token_expiry)
+        if _sub_expired(token_expiry):
+            ctx["status_color"], ctx["status_text"] = "#ef4444", "Expired"
+        else:
+            ctx["status_color"], ctx["status_text"] = "#22c55e", "Active"
+    elif subscription_on:
+        expiry = user.get("subscription_expiry") if user else None
+        if user and user.get("subscription_status") == "active" and expiry and not _sub_expired(expiry):
+            ctx["status_color"], ctx["status_text"], ctx["expiry_str"] = "#22c55e", "Active", _sub_fmt(expiry)
+            ctx["sub_active"] = True
+        else:
+            ctx["status_color"], ctx["status_text"] = "#ef4444", "Expired"
+            ctx["expiry_str"] = _sub_fmt(expiry) if expiry else "N/A"
+        #----- Billable = real subscriber (plans/renew UI applies), not admin/exempt/fixed-lifetime token
+        ctx["billable"] = bool(uid)
+    else:
+        ctx["status_color"], ctx["status_text"], ctx["expiry_str"] = "#22c55e", "Active", "Never"
+
+    return ctx
+
+
 #----- Configure/install landing page rendered as HTML for a token
 @router.get("/{token}/configure")
 async def configure_addon(token: str, request: Request):
@@ -1117,65 +1204,33 @@ async def configure_addon(token: str, request: Request):
     web_install_url = f"https://web.stremio.com/#/?addon_manifest={quote(manifest_url, safe='')}"
 
     token_doc = await db.get_api_token(token)
-    user_name = "Unknown"
-    expiry_str = "Never"
-    status_color = "#ef4444"
-    status_text = "Unknown"
+    bctx = await _billing_context(token_doc)
+    user_name = bctx["user_name"]
+    expiry_str = bctx["expiry_str"]
+    status_color = bctx["status_color"]
+    status_text = bctx["status_text"]
 
-    def _expired(when):
-        ref = datetime.utcnow()
-        try:
-            if when.tzinfo is not None:
-                ref = datetime.now(timezone.utc)
-        except AttributeError:
-            pass
-        return when < ref
+    try:
+        db_stats = await db.get_database_stats()
+        total_movies, total_tv_shows = db.content_totals(db_stats)
+    except Exception:
+        total_movies, total_tv_shows = 0, 0
 
-    def _fmt(when):
-        try:
-            return when.strftime("%d %b %Y").lstrip("0")
-        except Exception:
-            return "N/A"
-
+    catalogs_count = 0
     if token_doc:
-        uid = token_doc.get("user_id")
-        is_admin = bool(token_doc.get("is_admin"))
         try:
-            is_admin = is_admin or (uid is not None and int(uid) == int(Telegram.OWNER_ID))
-        except (TypeError, ValueError):
-            pass
+            catalogs_count = len(await _addon_catalogs_for_token(token_doc))
+        except Exception:
+            catalogs_count = 0
 
-        user = None
-        if uid:
-            try:
-                user = await db.get_user(int(uid))
-            except Exception:
-                user = None
-        if user:
-            user_name = user.get("first_name") or user.get("username") or f"User {uid}"
-        elif uid:
-            user_name = f"User {uid}"
-
-        token_expiry = token_doc.get("expires_at")
-        if is_admin:
-            status_color, status_text, expiry_str = "#22c55e", "Admin", "Never"
-        elif token_doc.get("subscription_exempt"):
-            status_color, status_text, expiry_str = "#22c55e", "Active", "Never"
-        elif token_expiry is not None:
-            expiry_str = _fmt(token_expiry)
-            if _expired(token_expiry):
-                status_color, status_text = "#ef4444", "Expired"
-            else:
-                status_color, status_text = "#22c55e", "Active"
-        elif SettingsManager.current().subscription:
-            expiry = user.get("subscription_expiry") if user else None
-            if user and user.get("subscription_status") == "active" and expiry and not _expired(expiry):
-                status_color, status_text, expiry_str = "#22c55e", "Active", _fmt(expiry)
-            else:
-                status_color, status_text = "#ef4444", "Expired"
-                expiry_str = _fmt(expiry) if expiry else "N/A"
-        else:
-            status_color, status_text, expiry_str = "#22c55e", "Active", "Never"
+    #----- This token's bandwidth usage + configured limits (for the data-usage chart)
+    usage = (token_doc or {}).get("usage") or {}
+    limits = (token_doc or {}).get("limits") or {}
+    usage_total_bytes = usage.get("total_bytes", 0) or 0
+    usage_daily_bytes = (usage.get("daily") or {}).get("bytes", 0) or 0
+    usage_monthly_bytes = (usage.get("monthly") or {}).get("bytes", 0) or 0
+    daily_limit_bytes = int((limits.get("daily_limit_gb") or 0) * 1024 ** 3)
+    monthly_limit_bytes = int((limits.get("monthly_limit_gb") or 0) * 1024 ** 3)
 
     return templates.TemplateResponse("stremio_configure.html", {
         "request": request,
@@ -1187,7 +1242,135 @@ async def configure_addon(token: str, request: Request):
         "status_text": status_text,
         "status_color": status_color,
         "addon_logo": ADDON_LOGO,
+        "addon_version": ADDON_VERSION,
+        "total_movies": total_movies,
+        "total_tv_shows": total_tv_shows,
+        "catalogs_count": catalogs_count,
+        "usage_total_bytes": usage_total_bytes,
+        "usage_daily_bytes": usage_daily_bytes,
+        "usage_monthly_bytes": usage_monthly_bytes,
+        "daily_limit_bytes": daily_limit_bytes,
+        "monthly_limit_bytes": monthly_limit_bytes,
+        "usage_total_readable": get_readable_file_size(usage_total_bytes),
+        "usage_daily_readable": get_readable_file_size(usage_daily_bytes),
+        "usage_monthly_readable": get_readable_file_size(usage_monthly_bytes),
+        "billable": bctx["billable"],
+        "sub_active": bctx["sub_active"],
     })
+
+
+#----- Billing summary + available plans for a token's configure page (public, token-scoped)
+@router.get("/{token}/plans")
+async def get_billing_plans(token: str):
+    token_doc = await db.get_api_token(token)
+    if not token_doc:
+        raise HTTPException(status_code=404, detail="Invalid token")
+
+    if not SettingsManager.current().subscription:
+        return {"enabled": False}
+
+    bctx = await _billing_context(token_doc)
+    if not bctx["billable"]:
+        #----- Admin / exempt / fixed-lifetime tokens don't go through the plan-purchase flow
+        return {
+            "enabled": True, "billable": False,
+            "status_text": bctx["status_text"], "expiry_str": bctx["expiry_str"],
+        }
+
+    user = bctx["user"] or {}
+    pending = user.get("pending_payment")
+    pending_out = None
+    if pending:
+        pending_out = {
+            "duration": pending.get("duration"),
+            "price": pending.get("price"),
+            "currency": pending.get("currency", "INR"),
+            "currency_symbol": _currency_symbol(pending.get("currency")),
+        }
+
+    current_plan = user.get("current_plan")
+    current_plan_out = None
+    if current_plan and bctx["sub_active"]:
+        current_plan_out = {
+            "duration": current_plan.get("duration"),
+            "price": current_plan.get("price"),
+            "currency": current_plan.get("currency", "INR"),
+            "currency_symbol": _currency_symbol(current_plan.get("currency")),
+        }
+
+    plans = await db.get_subscription_plans()
+    settings = SettingsManager.current()
+    plans_out = [{
+        "id": p.get("_id"),
+        "days": p.get("days"),
+        "price": p.get("price"),
+        "currency": p.get("currency", "INR"),
+        "currency_symbol": _currency_symbol(p.get("currency")),
+    } for p in plans]
+
+    return {
+        "enabled": True,
+        "billable": True,
+        "status_text": bctx["status_text"],
+        "status_color": bctx["status_color"],
+        "expiry_str": bctx["expiry_str"],
+        "sub_active": bctx["sub_active"],
+        "pending_payment": pending_out,
+        "current_plan": current_plan_out,
+        "plans": plans_out,
+        "payment_instructions": settings.payment_instructions,
+        "payment_qr_url": settings.payment_qr_url,
+        "bot_url": get_streambot_pay_url(),
+    }
+
+
+#----- Select a plan: mirrors the bot's /start plan flow, sets pending payment for admin review
+@router.post("/{token}/plans/select")
+async def select_billing_plan(token: str, payload: dict):
+    token_doc = await db.get_api_token(token)
+    if not token_doc:
+        raise HTTPException(status_code=404, detail="Invalid token")
+
+    if not SettingsManager.current().subscription:
+        raise HTTPException(status_code=400, detail="Subscriptions are not enabled.")
+
+    bctx = await _billing_context(token_doc)
+    if not bctx["billable"] or not bctx["uid"]:
+        raise HTTPException(status_code=400, detail="This install isn't linked to a subscription.")
+
+    plan_id = str(payload.get("plan_id") or "")
+    plans = await db.get_subscription_plans()
+    plan = next((p for p in plans if p.get("_id") == plan_id), None)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Invalid plan.")
+
+    uid = int(bctx["uid"])
+    duration = int(plan.get("days") or 0)
+    price = plan.get("price", 0)
+    currency = plan.get("currency", "INR")
+
+    user = bctx["user"]
+    now = datetime.utcnow()
+    current_expiry = user.get("subscription_expiry") if user else None
+    if current_expiry and current_expiry > now:
+        new_expiry = current_expiry + timedelta(days=duration)
+    else:
+        new_expiry = now + timedelta(days=duration)
+
+    await db.set_pending_payment(uid, duration, 0, price=price, currency=currency)
+
+    settings = SettingsManager.current()
+    return {
+        "ok": True,
+        "plan": {
+            "days": duration, "price": price, "currency": currency,
+            "currency_symbol": _currency_symbol(currency),
+        },
+        "expiry_preview": _sub_fmt(new_expiry),
+        "payment_instructions": settings.payment_instructions,
+        "payment_qr_url": settings.payment_qr_url,
+        "bot_url": get_streambot_pay_url(),
+    }
 
 
 #----- Catalogs this token can see, in effective (token or global) order

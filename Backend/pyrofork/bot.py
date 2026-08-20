@@ -61,6 +61,19 @@ def get_streambot_url() -> str:
     return "https://t.me/"
 
 
+#----- Same as get_streambot_url(), but with a ?start= deep-link payload.
+#----- Plain t.me/<username> links only *open* the chat — if the user already
+#----- has history with the bot, Telegram does NOT resend /start, so anything
+#----- that depends on /start running (e.g. showing pending payment details)
+#----- silently never fires. A ?start= link always shows a Start/Restart
+#----- button that re-sends /start regardless of prior history.
+def get_streambot_pay_url() -> str:
+    base = get_streambot_url()
+    if base == "https://t.me/":
+        return base
+    return f"{base}?start=pay"
+
+
 #----- Per-client workload map ({botN: load}), busiest first; {} when idle
 def work_loads_summary() -> dict:
     if not work_loads:

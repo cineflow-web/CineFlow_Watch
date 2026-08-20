@@ -60,73 +60,81 @@ async def _apply_admin_captions(client: Client, callback_query: CallbackQuery, a
 #----- Plan button pressed: compute expiry, DM payment instructions, set pending state
 @Client.on_callback_query(filters.regex(r"^plan_([a-fA-F0-9]{24})$"))
 async def plan_selection(client: Client, callback_query: CallbackQuery):
-    if not SettingsManager.current().subscription:
-        return await callback_query.answer("Subscriptions are not enabled.", show_alert=True)
-
-    plan_id = callback_query.matches[0].group(1)
-    plans = await db.get_subscription_plans()
-    plan = next((p for p in plans if p["_id"] == plan_id), None)
-    if not plan:
-        return await callback_query.answer("Invalid plan.", show_alert=True)
-
-    duration = plan["days"]
-    await callback_query.answer()
-
-    user_id = callback_query.from_user.id if callback_query.from_user else callback_query.message.chat.id
-    first_name = callback_query.from_user.first_name if callback_query.from_user else callback_query.message.chat.title
-    username = callback_query.from_user.username if callback_query.from_user else callback_query.message.chat.username
-
-    await db.update_user_interaction(user_id, first_name, username)
-
-    user = await db.get_user(user_id)
-    now = datetime.utcnow()
-    current_expiry = user.get("subscription_expiry") if user else None
-    if current_expiry and current_expiry > now:
-        new_expiry = current_expiry + timedelta(days=int(duration))
-    else:
-        new_expiry = now + timedelta(days=int(duration))
-    expiry_str = new_expiry.strftime("%Y-%m-%d %H:%M UTC")
-
-    settings = SettingsManager.current()
-    payment_instructions = settings.payment_instructions
-    payment_qr_url = settings.payment_qr_url
-
-    text = (
-        f"<b>✅ Plan Selected: {plan['days']} Days</b>\n\n"
-        f"<b>💰 Price:</b> {_currency_symbol(plan.get('currency'))}{plan['price']}\n"
-        f"<b>📅 Expiry (if approved now):</b> {expiry_str}\n\n"
-        f"<b>📋 How to Pay:</b>\n"
-    )
-    text += f"{payment_instructions}\n\n" if payment_instructions else f"Pay {_currency_symbol(plan.get('currency'))}{plan['price']} to the admin.\n\n"
-    text += (
-        "<b>After paying:</b> send your payment screenshot directly here "
-        "(in this chat). The admin will review and activate your subscription."
-    )
-
-    await db.set_pending_payment(user_id, int(duration), 0, price=plan.get("price", 0), currency=plan.get("currency", "INR"))
-
-    #----- Prefer DMing the user so the private screenshot handler can pick it up
-    dm_sent = False
     try:
-        if payment_qr_url:
-            try:
-                await client.send_photo(chat_id=user_id, photo=payment_qr_url, caption=f"📷 Scan to pay {_currency_symbol(plan.get('currency'))}{plan['price']}")
-            except Exception as qe:
-                LOGGER.warning(f"Could not send payment QR to {user_id}: {qe}")
-        await client.send_message(chat_id=user_id, text=text, reply_markup=ForceReply(selective=True))
-        dm_sent = True
-    except Exception as e:
-        LOGGER.warning(f"Could not DM user {user_id}: {e}")
+        if not SettingsManager.current().subscription:
+            return await callback_query.answer("Subscriptions are not enabled.", show_alert=True)
 
-    if dm_sent:
-        await callback_query.answer("✅ Check your DM for payment instructions!", show_alert=True)
-    else:
-        await callback_query.message.reply_text(
-            text + "\n\n⚠️ <i>Please start a DM with the bot first by clicking its username, then send your screenshot there.</i>",
-            reply_markup=ForceReply(selective=True),
-            quote=True,
-        )
+        plan_id = callback_query.matches[0].group(1)
+        plans = await db.get_subscription_plans()
+        plan = next((p for p in plans if p["_id"] == plan_id), None)
+        if not plan:
+            return await callback_query.answer("Invalid plan.", show_alert=True)
+
+        duration = plan["days"]
         await callback_query.answer()
+
+        user_id = callback_query.from_user.id if callback_query.from_user else callback_query.message.chat.id
+        first_name = callback_query.from_user.first_name if callback_query.from_user else callback_query.message.chat.title
+        username = callback_query.from_user.username if callback_query.from_user else callback_query.message.chat.username
+
+        await db.update_user_interaction(user_id, first_name, username)
+
+        user = await db.get_user(user_id)
+        now = datetime.utcnow()
+        current_expiry = user.get("subscription_expiry") if user else None
+        if current_expiry and current_expiry > now:
+            new_expiry = current_expiry + timedelta(days=int(duration))
+        else:
+            new_expiry = now + timedelta(days=int(duration))
+        expiry_str = new_expiry.strftime("%Y-%m-%d %H:%M UTC")
+
+        settings = SettingsManager.current()
+        payment_instructions = settings.payment_instructions
+        payment_qr_url = settings.payment_qr_url
+
+        text = (
+            f"<b>✅ Plan Selected: {plan['days']} Days</b>\n\n"
+            f"<b>💰 Price:</b> {_currency_symbol(plan.get('currency'))}{plan['price']}\n"
+            f"<b>📅 Expiry (if approved now):</b> {expiry_str}\n\n"
+            f"<b>📋 How to Pay:</b>\n"
+        )
+        text += f"{payment_instructions}\n\n" if payment_instructions else f"Pay {_currency_symbol(plan.get('currency'))}{plan['price']} to the admin.\n\n"
+        text += (
+            "<b>After paying:</b> send your payment screenshot directly here "
+            "(in this chat). The admin will review and activate your subscription."
+        )
+
+        await db.set_pending_payment(user_id, int(duration), 0, price=plan.get("price", 0), currency=plan.get("currency", "INR"))
+
+        #----- Prefer DMing the user so the private screenshot handler can pick it up
+        dm_sent = False
+        try:
+            if payment_qr_url:
+                try:
+                    await client.send_photo(chat_id=user_id, photo=payment_qr_url, caption=f"📷 Scan to pay {_currency_symbol(plan.get('currency'))}{plan['price']}")
+                except Exception as qe:
+                    LOGGER.warning(f"Could not send payment QR to {user_id}: {qe}")
+            await client.send_message(chat_id=user_id, text=text, reply_markup=ForceReply(selective=True))
+            dm_sent = True
+        except Exception as e:
+            LOGGER.warning(f"Could not DM user {user_id}: {e}")
+
+        if dm_sent:
+            await callback_query.answer("✅ Check your DM for payment instructions!", show_alert=True)
+        else:
+            await callback_query.message.reply_text(
+                text + "\n\n⚠️ <i>Please start a DM with the bot first by clicking its username, then send your screenshot there.</i>",
+                reply_markup=ForceReply(selective=True),
+                quote=True,
+            )
+            await callback_query.answer()
+
+    except Exception as e:
+        LOGGER.error(f"plan_selection: unhandled error: {e}")
+        try:
+            await callback_query.answer(f"⚠️ Error: {e}", show_alert=True)
+        except Exception:
+            pass
 
 
 #----- Forward a user's payment screenshot to all approvers for review
@@ -211,76 +219,127 @@ async def handle_payment_screenshot(client: Client, message: Message):
 #----- Approver taps Approve/Reject: update subscription and all admin captions
 @Client.on_callback_query(filters.regex(r"^(approve|reject)_(\d+)$"))
 async def admin_review(client: Client, callback_query: CallbackQuery):
-    if callback_query.from_user.id not in _approver_ids():
-        return await callback_query.answer("You are not authorized to perform this action.", show_alert=True)
+    #----- Never let this handler die silently — every exit path must answer the tap.
+    try:
+        if not callback_query.from_user or callback_query.from_user.id not in _approver_ids():
+            return await callback_query.answer("You are not authorized to perform this action.", show_alert=True)
 
-    action = callback_query.matches[0].group(1)
-    target_user_id = int(callback_query.matches[0].group(2))
-    acting_admin = callback_query.from_user
-    admin_name = acting_admin.first_name or acting_admin.username or f"Admin {acting_admin.id}"
+        action = callback_query.matches[0].group(1)
+        target_user_id = int(callback_query.matches[0].group(2))
+        acting_admin = callback_query.from_user
+        admin_name = acting_admin.first_name or acting_admin.username or f"Admin {acting_admin.id}"
 
-    #----- Read admin_messages before any DB write (approve/reject clears pending_payment)
-    user_pre = await db.get_user(target_user_id)
-    if not user_pre or "pending_payment" not in user_pre:
-        return await callback_query.answer("This request has already been processed.", show_alert=True)
+        #----- Read admin_messages before any DB write (approve/reject clears pending_payment)
+        user_pre = await db.get_user(target_user_id)
+        if not user_pre or "pending_payment" not in user_pre:
+            return await callback_query.answer("This request has already been processed.", show_alert=True)
 
-    admin_messages = user_pre["pending_payment"].get("admin_messages", [])
-    duration = user_pre["pending_payment"].get("duration", "?")
-    price = user_pre["pending_payment"].get("price", "?")
+        admin_messages = user_pre["pending_payment"].get("admin_messages", [])
+        duration = user_pre["pending_payment"].get("duration", "?")
+        price = user_pre["pending_payment"].get("price", "?")
+        currency = user_pre["pending_payment"].get("currency", "INR")
 
-    if action == "approve":
-        user_data = await db.approve_payment(target_user_id)
-        if not user_data:
-            return await callback_query.answer("Could not approve — no pending payment found.", show_alert=True)
+        #----- Acknowledge the tap immediately so Telegram never shows "loading" forever,
+        #----- even if something below fails.
+        await callback_query.answer("Processing…")
 
-        try:
-            user_obj = await db.get_user(target_user_id)
-            user_name = (user_obj.get("first_name") or user_obj.get("username") or str(target_user_id)) if user_obj else str(target_user_id)
-            token_doc = await db.add_api_token(name=user_name, user_id=target_user_id)
-            await db.align_token_with_subscription(target_user_id)
-            addon_url = f"{SettingsManager.current().base_url}/stremio/{token_doc.get('token')}/manifest.json"
-        except Exception:
-            addon_url = None
+        if action == "approve":
+            try:
+                user_data = await db.approve_payment(target_user_id)
+            except Exception as e:
+                LOGGER.error(f"admin_review: approve_payment failed for {target_user_id}: {e}")
+                return await callback_query.message.reply_text(
+                    f"⚠️ Failed to approve payment for user <code>{target_user_id}</code>: {e}\n\n"
+                    f"The payment is still pending — please try again.",
+                    quote=True,
+                )
+            if not user_data:
+                return await callback_query.message.reply_text(
+                    "⚠️ Could not approve — no pending payment found (it may already have been processed).",
+                    quote=True,
+                )
 
-        try:
-            invite_link = await client.create_chat_invite_link(
-                chat_id=SettingsManager.current().subscription_group_id,
-                member_limit=1,
-                expire_date=datetime.utcnow() + timedelta(days=1)
+            try:
+                user_obj = await db.get_user(target_user_id)
+                user_name = (user_obj.get("first_name") or user_obj.get("username") or str(target_user_id)) if user_obj else str(target_user_id)
+                token_doc = await db.add_api_token(name=user_name, user_id=target_user_id)
+                await db.align_token_with_subscription(target_user_id)
+                addon_url = f"{SettingsManager.current().base_url}/stremio/{token_doc.get('token')}/manifest.json"
+            except Exception as e:
+                LOGGER.error(f"admin_review: token setup failed for {target_user_id}: {e}")
+                addon_url = None
+
+            try:
+                invite_link = await client.create_chat_invite_link(
+                    chat_id=SettingsManager.current().subscription_group_id,
+                    member_limit=1,
+                    expire_date=datetime.utcnow() + timedelta(days=1)
+                )
+                invite_text = f"\n\n🔗 <b>Group Invite:</b> {invite_link.invite_link}"
+            except Exception as e:
+                LOGGER.warning(f"admin_review: invite link failed for {target_user_id}: {e}")
+                invite_text = ""
+
+            expiry_str = user_data["subscription_expiry"].strftime("%Y-%m-%d")
+            success_text = (
+                f"🎉 <b>Payment Approved!</b>\n\n"
+                f"<b>Plan:</b> {duration} days ({_currency_symbol(currency)}{price})\n"
+                f"Your subscription is now active until <b>{expiry_str}</b>."
+                f"{invite_text}"
             )
-            invite_text = f"\n\n🔗 <b>Group Invite:</b> {invite_link.invite_link}"
+            if addon_url:
+                success_text += (
+                    f"\n\n🎬 <b>Stremio Addon — Install Link:</b>\n"
+                    f"<code>{addon_url}</code>\n\n"
+                    f"Tap the link above → <b>Install</b> in Stremio to start watching!"
+                )
+            try:
+                await client.send_message(target_user_id, success_text)
+            except Exception as e:
+                LOGGER.error(f"admin_review: could not DM approval to {target_user_id}: {e}")
+                await callback_query.message.reply_text(
+                    f"✅ Approved, but couldn't DM the user (they may not have started the bot): {e}",
+                    quote=True,
+                )
+
+            mention, username_str = await _resolve_target_info(client, target_user_id)
+            info_text = _plan_info_text(mention, username_str, target_user_id, duration, price, currency)
+            await _apply_admin_captions(client, callback_query, admin_messages, f"✅ <b>Approved by {admin_name}</b>\n\n{info_text}")
+
+        elif action == "reject":
+            try:
+                rejected = await db.reject_payment(target_user_id)
+            except Exception as e:
+                LOGGER.error(f"admin_review: reject_payment failed for {target_user_id}: {e}")
+                return await callback_query.message.reply_text(
+                    f"⚠️ Failed to reject payment for user <code>{target_user_id}</code>: {e}",
+                    quote=True,
+                )
+            if not rejected:
+                return await callback_query.message.reply_text(
+                    "⚠️ Could not reject — no pending payment found (it may already have been processed).",
+                    quote=True,
+                )
+
+            try:
+                await client.send_message(
+                    target_user_id,
+                    "❌ <b>Payment Rejected</b>\n\nYour recent payment submission was rejected by the admin. Please contact the admin or try submitting again."
+                )
+            except Exception as e:
+                LOGGER.error(f"admin_review: could not DM rejection to {target_user_id}: {e}")
+
+            mention, username_str = await _resolve_target_info(client, target_user_id)
+            info_text = _plan_info_text(mention, username_str, target_user_id, duration, price, currency)
+            await _apply_admin_captions(client, callback_query, admin_messages, f"❌ <b>Rejected by {admin_name}</b>\n\n{info_text}")
+
+    except Exception as e:
+        #----- Absolute last resort so a tap NEVER goes unanswered.
+        LOGGER.error(f"admin_review: unhandled error: {e}")
+        try:
+            await callback_query.answer(f"⚠️ Error: {e}", show_alert=True)
         except Exception:
-            invite_text = ""
-
-        expiry_str = user_data["subscription_expiry"].strftime("%Y-%m-%d")
-        success_text = (
-            f"🎉 <b>Payment Approved!</b>\n\n"
-            f"Your subscription is now active until <b>{expiry_str}</b>."
-            f"{invite_text}"
-        )
-        if addon_url:
-            success_text += (
-                f"\n\n🎬 <b>Stremio Addon — Install Link:</b>\n"
-                f"<code>{addon_url}</code>\n\n"
-                f"Tap the link above → <b>Install</b> in Stremio to start watching!"
-            )
-        await client.send_message(target_user_id, success_text)
-
-        mention, username_str = await _resolve_target_info(client, target_user_id)
-        info_text = _plan_info_text(mention, username_str, target_user_id, duration, price)
-        await _apply_admin_captions(client, callback_query, admin_messages, f"✅ <b>Approved by {admin_name}</b>\n\n{info_text}")
-
-    elif action == "reject":
-        if not await db.reject_payment(target_user_id):
-            return await callback_query.answer("Could not reject — no pending payment found.", show_alert=True)
-
-        await client.send_message(
-            target_user_id,
-            "❌ <b>Payment Rejected</b>\n\nYour recent payment submission was rejected by the admin. Please contact the admin or try submitting again."
-        )
-        mention, username_str = await _resolve_target_info(client, target_user_id)
-        info_text = _plan_info_text(mention, username_str, target_user_id, duration, price)
-        await _apply_admin_captions(client, callback_query, admin_messages, f"❌ <b>Rejected by {admin_name}</b>\n\n{info_text}")
+            pass
 
 
 #----- /status: report the caller's active subscription and time remaining
@@ -306,8 +365,15 @@ async def check_status(client: Client, message: Message):
     remaining = expiry - now
     days = remaining.days
     hours = remaining.seconds // 3600
+
+    plan_line = ""
+    plan = user.get("current_plan")
+    if plan:
+        plan_line = f"<b>Current Plan:</b> {plan.get('duration', '?')} days ({_currency_symbol(plan.get('currency'))}{plan.get('price', '?')})\n"
+
     await message.reply_text(
         f"<b>Subscription Status:</b> Active ✅\n"
+        f"{plan_line}"
         f"<b>Expiry Date:</b> {expiry.strftime('%Y-%m-%d %H:%M UTC')}\n"
         f"<b>Time Remaining:</b> {days} days and {hours} hours"
     )

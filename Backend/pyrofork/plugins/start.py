@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pyrogram import Client, enums, filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from Backend import db
 from Backend.config import Telegram
@@ -47,15 +47,78 @@ async def send_start_message(client: Client, message: Message):
         user = await db.get_user(user_id)
         now = datetime.utcnow()
 
+        #----- If a payment is already pending (e.g. plan picked on the web configure page),
+        #----- show those package details right away instead of the generic welcome text —
+        #----- this is what "Send Screenshot on Telegram" from the web page lands on.
+        pending = user.get("pending_payment") if user else None
+        if pending:
+            settings = SettingsManager.current()
+            duration = pending.get("duration", "?")
+            price = pending.get("price", 0)
+            currency = pending.get("currency", "INR")
+            sym = _currency_symbol(currency)
+
+            payment_instructions = settings.payment_instructions
+            payment_qr_url = settings.payment_qr_url
+
+            text = (
+                f"<b>📦 Pending Payment</b>\n\n"
+                f"<b>Plan:</b> {duration} Days\n"
+                f"<b>Price:</b> {sym}{price}\n\n"
+                f"<b>📋 How to Pay:</b>\n"
+            )
+            text += f"{payment_instructions}\n\n" if payment_instructions else f"Pay {sym}{price} to the admin.\n\n"
+            text += (
+                "<b>After paying:</b> send your payment screenshot directly here "
+                "(in this chat). The admin will review and activate your subscription."
+            )
+
+            if payment_qr_url:
+                try:
+                    await client.send_photo(chat_id=user_id, photo=payment_qr_url, caption=f"📷 Scan to pay {sym}{price}")
+                except Exception as e:
+                    LOGGER.warning(f"Could not send payment QR to {user_id}: {e}")
+
+            return await message.reply_text(
+                text,
+                reply_markup=ForceReply(selective=True),
+                quote=True,
+                parse_mode=enums.ParseMode.HTML
+            )
+
+        #----- Owner / admin / never-expiring (subscription_exempt) tokens don't buy
+        #----- plans — they never see plan-selection or renew buttons, no matter
+        #----- what their subscription record looks like.
+        token_doc = await db.get_api_token_by_user(user_id)
+        is_no_expiry = (
+            user_id == Telegram.OWNER_ID
+            or bool(token_doc and (token_doc.get("is_admin") or token_doc.get("subscription_exempt")))
+        )
+
+        if is_no_expiry:
+            user_name = (user.get("first_name") or user.get("username")) if user else None
+            if not token_doc:
+                token_doc = await db.ensure_api_token_for_user(user_id, user_name)
+            if token_doc and token_doc.get("token"):
+                addon_url = f"{base_url}/stremio/{token_doc['token']}/manifest.json"
+
+            return await message.reply_text(
+                '🎉 <b>Welcome back to the CineFlow Subscription Manager!</b>\n\n'
+                '🎬 <b>Stremio Addon — Install Link:</b>\n'
+                f'<code>{addon_url}</code>\n\n'
+                'Tap the link above → <b>Install</b> in Stremio to start watching!',
+                quote=True,
+                parse_mode=enums.ParseMode.HTML
+            )
+
         is_active = db.is_subscription_active(user, now)
         if not is_active and user and user.get("subscription_status") == "active":
             await db.mark_user_expired(user_id)
 
-        #----- Honour a manual token grant (never-expires or a future token expiry)
+        #----- Honour a manual token grant (a future fixed token expiry, e.g. set
+        #----- via update_token_expiry) — subscription_exempt is already handled above.
         if not is_active:
-            token_doc = await db.get_api_token_by_user(user_id)
-            if token_doc and (token_doc.get("subscription_exempt")
-                              or (token_doc.get("expires_at") and token_doc["expires_at"] > now)):
+            if token_doc and token_doc.get("expires_at") and token_doc["expires_at"] > now:
                 is_active = True
 
         if not is_active:
@@ -87,12 +150,39 @@ async def send_start_message(client: Client, message: Message):
         if token_doc and token_doc.get("token"):
             addon_url = f"{base_url}/stremio/{token_doc['token']}/manifest.json"
 
-        await message.reply_text(
+        #----- Show which plan they're on and when it expires, not just the addon link
+        expiry = user.get("subscription_expiry") if user else None
+        current_plan = user.get("current_plan") if user else None
+        status_lines = []
+        if current_plan:
+            status_lines.append(
+                f"📦 <b>Current Plan:</b> {current_plan.get('duration', '?')} days "
+                f"({_currency_symbol(current_plan.get('currency'))}{current_plan.get('price', '?')})"
+            )
+        if expiry:
+            status_lines.append(f"📅 <b>Expires:</b> {expiry.strftime('%Y-%m-%d')} UTC")
+        status_block = ("\n".join(status_lines) + "\n\n") if status_lines else ""
+
+        text = (
             '🎉 <b>Welcome back to the CineFlow Subscription Manager!</b>\n\n'
-            'Your subscription is active. Here is your personal addon link:\n\n'
+            f'{status_block}'
             '🎬 <b>Stremio Addon — Install Link:</b>\n'
             f'<code>{addon_url}</code>\n\n'
-            'Tap the link above → <b>Install</b> in Stremio to start watching!',
+            'Tap the link above → <b>Install</b> in Stremio to start watching!'
+        )
+
+        #----- Offer a Renew option even though the subscription is still active
+        keyboard = None
+        plans = await db.get_subscription_plans()
+        if plans:
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton(f"🔄 Renew — {plan['days']} Days ({_currency_symbol(plan.get('currency'))}{plan['price']})", callback_data=f"plan_{plan['_id']}")]
+                for plan in plans
+            ])
+
+        await message.reply_text(
+            text,
+            reply_markup=keyboard,
             quote=True,
             parse_mode=enums.ParseMode.HTML
         )

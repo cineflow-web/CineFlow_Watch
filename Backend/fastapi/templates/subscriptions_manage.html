@@ -606,7 +606,13 @@
     let allUsers = [];
     let subPage = 1;
 
-    function formatExpiry(expiryValue) {
+    function formatExpiry(u) {
+        //----- Owners have no real subscription record, so subscription_expiry is
+        //----- either null or a stale/creation timestamp — never a real expiry.
+        //----- Match access_manage.html's "Never expires" treatment instead of
+        //----- printing that stale date as if it meant something.
+        if (u.is_admin) return 'Never expires';
+        const expiryValue = u.subscription_expiry;
         if (!expiryValue) return 'N/A';
         const d = new Date(expiryValue);
         return d.toLocaleDateString('en-IN', {
@@ -628,8 +634,16 @@
         return name;
     }
 
-    function getStatusBadge(status) {
-        return status === 'active'
+    function getStatusBadge(u) {
+        //----- An owner isn't tracked by subscription_status at all (they don't run
+        //----- on the subscription system), so this must not fall through to the
+        //----- "expired" branch just because subscription_status isn't 'active' —
+        //----- that's what showed "Expired" next to the "Owner" crown badge even
+        //----- though the addon-access page correctly showed them as never expiring.
+        if (u.is_admin) {
+            return '<span class="metric-badge badge-active"><i class="fas fa-circle text-[8px]"></i> Active</span>';
+        }
+        return u.subscription_status === 'active'
             ? '<span class="metric-badge badge-active"><i class="fas fa-circle text-[8px]"></i> Active</span>'
             : '<span class="metric-badge badge-expired"><i class="fas fa-circle text-[8px]"></i> Expired</span>';
     }
@@ -803,10 +817,10 @@
         }
 
         tbody.innerHTML = slice.map(u => {
-            const expiry = formatExpiry(u.subscription_expiry);
+            const expiry = formatExpiry(u);
             const name = getUserDisplayName(u);
             const safeName = name.replace(/'/g, "\\'");
-            const statusBadge = getStatusBadge(u.subscription_status);
+            const statusBadge = getStatusBadge(u);
 
             return `
                 <tr>
@@ -854,10 +868,10 @@
         }
 
         mobileWrap.innerHTML = slice.map(u => {
-            const expiry = formatExpiry(u.subscription_expiry);
+            const expiry = formatExpiry(u);
             const name = getUserDisplayName(u);
             const safeName = name.replace(/'/g, "\\'");
-            const statusBadge = getStatusBadge(u.subscription_status);
+            const statusBadge = getStatusBadge(u);
 
             return `
                 <div class="mobile-user-card">

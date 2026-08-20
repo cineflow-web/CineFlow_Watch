@@ -927,22 +927,43 @@ function openPaymentModal(data) {
 //----- Specific coins (USDT/BTC/ETH) are matched before the generic "crypto" fallback
 //----- so each gets its own brand icon/colour; all of them copy the address on tap
 //----- since there's no reliable universal deep link for a wallet address.
+//----- usdt/btc/eth/binance use inline SVG monograms instead of fa-brands icons: the
+//----- fa-brands glyphs for these render visually near-identical at 0.9rem (same weight/
+//----- silhouette), so at a glance every crypto row looked like the same orange bitcoin
+//----- badge. A currentColor SVG glyph per coin, paired with each row's own
+//----- .cf-pay-icon-<key> background/color (already distinct), makes them tell apart.
+const CF_ICON_USDT = '<svg viewBox="0 0 24 24"><text x="12" y="17.5" text-anchor="middle" font-size="15" font-weight="700" font-family="Arial, Helvetica, sans-serif" fill="currentColor">\u20ae</text></svg>';
+const CF_ICON_BTC = '<svg viewBox="0 0 24 24"><text x="12" y="17.5" text-anchor="middle" font-size="15" font-weight="700" font-family="Arial, Helvetica, sans-serif" fill="currentColor">\u20bf</text></svg>';
+const CF_ICON_ETH = '<svg viewBox="0 0 24 24"><text x="12" y="17.5" text-anchor="middle" font-size="15" font-weight="700" font-family="Arial, Helvetica, sans-serif" fill="currentColor">\u039e</text></svg>';
+//----- Binance's mark is a compass of diamonds rather than a single letterform, so it
+//----- gets a small vector instead of a text glyph.
+const CF_ICON_BINANCE = '<svg viewBox="0 0 24 24" fill="currentColor">'
+    + '<rect x="9" y="2" width="6" height="6" transform="rotate(45 12 5)"/>'
+    + '<rect x="9" y="16" width="6" height="6" transform="rotate(45 12 19)"/>'
+    + '<rect x="2" y="9" width="6" height="6" transform="rotate(45 5 12)"/>'
+    + '<rect x="16" y="9" width="6" height="6" transform="rotate(45 19 12)"/>'
+    + '<rect x="9" y="9" width="6" height="6" transform="rotate(45 12 12)"/>'
+    + '</svg>';
+
 const CF_PAY_METHODS = [
     { key: 'paypal',   icon: '<i class="fa-brands fa-paypal"></i>',            re: /^paypal\b/i,                         open: true  },
-    { key: 'binance',  icon: '<i class="fa-solid fa-coins"></i>',              re: /^binance/i,                          open: true  },
+    { key: 'binance',  icon: CF_ICON_BINANCE,                                  re: /^binance/i,                          open: true  },
     { key: 'gpay',     icon: '<i class="fa-brands fa-google-pay"></i>',        re: /^(google\s*pay|gpay)\b/i,            open: true  },
     { key: 'payoneer', icon: '<i class="fa-solid fa-money-bill-transfer"></i>',re: /^payoneer\b/i,                       open: true  },
     { key: 'wise',     icon: '<i class="fa-solid fa-money-bill-transfer"></i>',re: /^(wise|transferwise)\b/i,            open: true  },
-    { key: 'usdt',     icon: '<i class="fa-solid fa-dollar-sign"></i>',        re: /^usdt\b/i,                           open: true  },
-    { key: 'btc',      icon: '<i class="fa-brands fa-bitcoin"></i>',           re: /^(bitcoin|btc)\b/i,                  open: true  },
-    { key: 'eth',      icon: '<i class="fa-brands fa-ethereum"></i>',          re: /^eth(ereum)?\b/i,                    open: true  },
+    { key: 'usdt',     icon: CF_ICON_USDT,                                     re: /^usdt\b/i,                           open: true  },
+    { key: 'btc',      icon: CF_ICON_BTC,                                      re: /^(bitcoin|btc)\b/i,                  open: true  },
+    { key: 'eth',      icon: CF_ICON_ETH,                                      re: /^eth(ereum)?\b/i,                    open: true  },
     { key: 'crypto',   icon: '<i class="fa-solid fa-coins"></i>',              re: /^crypto\b/i,                        open: true  },
     { key: 'upi',      icon: '<i class="fa-solid fa-indian-rupee-sign"></i>',  re: /^upi\b/i,                             open: false },
     { key: 'bank',     icon: '<i class="fa-solid fa-building-columns"></i>',   re: /bank\b/i,                             open: false },
 ];
-//----- Methods whose "open" action only copies the address (no reliable wallet deep link) —
-//----- these get a "Copy" button instead of "Open".
-const CF_COPY_ONLY_METHODS = new Set(['usdt', 'btc', 'eth', 'crypto']);
+//----- Methods whose "open" action only copies the address/ID (no reliable app deep
+//----- link) — these get a "Copy" button instead of "Open". Binance is here too: the
+//----- generic https://app.binance.com/en/pay universal link isn't a real pay request
+//----- (no recipient/amount), so tapping it just bounces the Binance app to a
+//----- "This link does not work" error. Copying the Pay ID/address is the reliable path.
+const CF_COPY_ONLY_METHODS = new Set(['usdt', 'btc', 'eth', 'crypto', 'binance']);
 
 //----- Strip a leading emoji/bullet/symbol run (e.g. "🅿️", "🟡", "🏦", "- ") so it
 //----- can be swapped for a consistent brand icon instead. Matches the glyph run
@@ -1022,9 +1043,16 @@ function cfFormatPayInstructions(raw) {
                 if (colonMatch) value = colonMatch[1].trim();
             }
             let openBtn = '';
-            if (method.open && value) {
+            //----- For copy-only methods (USDT/BTC/ETH/Binance/crypto), the value is
+            //----- already inside a <code> chip, and every <code> gets its own small
+            //----- tap-to-copy icon further below. Showing the big "Copy" button here
+            //----- too just duplicates that same action — so skip it whenever the
+            //----- value came from a <code> tag. Keep the button when the value is
+            //----- plain text (no chip to copy from) or for real "Open" methods
+            //----- (PayPal, Google Pay, …) which do something other than copy.
+            const isCopyOnly = CF_COPY_ONLY_METHODS.has(method.key);
+            if (method.open && value && !(isCopyOnly && codeMatch)) {
                 const attr = value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-                const isCopyOnly = CF_COPY_ONLY_METHODS.has(method.key);
                 const btnIcon = isCopyOnly ? 'fa-solid fa-copy' : 'fa-solid fa-arrow-up-right-from-square';
                 const btnLabel = isCopyOnly ? 'Copy' : 'Open';
                 openBtn = `<button type="button" class="cf-open-btn" data-open-method="${method.key}" data-open-value="${attr}" onclick="cfOpenPay(this)"><i class="${btnIcon}"></i> ${btnLabel}</button>`;
@@ -1068,9 +1096,10 @@ function cfCopyText(btn) {
     }).catch(() => showToast('Could not copy.', 'error'));
 }
 
-//----- Tap-to-open for methods that have a real deep link (PayPal, Binance, …).
-//----- Where no reliable prefill link exists (e.g. Binance Pay ID), the value
-//----- is copied to the clipboard first so it can be pasted straight into the app.
+//----- Tap-to-open for methods that have a real deep link (PayPal, Google Pay, …).
+//----- Where no reliable prefill link exists (e.g. Binance Pay ID, a bare wallet
+//----- address), the value is just copied to the clipboard — no window.open — so
+//----- the user pastes it into the app themselves instead of hitting a broken link.
 function cfOpenPay(btn) {
     const method = btn.getAttribute('data-open-method');
     const value = btn.getAttribute('data-open-value') || '';
@@ -1082,10 +1111,6 @@ function cfOpenPay(btn) {
             url = value.includes('@')
                 ? `https://www.paypal.com/myaccount/transfer/homepage/pay?recipient=${encodeURIComponent(value)}`
                 : `https://paypal.me/${encodeURIComponent(value)}`;
-            break;
-        case 'binance':
-            url = 'https://app.binance.com/en/pay';
-            copyFirst = true;
             break;
         case 'gpay':
             url = value.includes('@')
@@ -1101,6 +1126,10 @@ function cfOpenPay(btn) {
             url = 'https://wise.com/pay';
             copyFirst = true;
             break;
+        case 'binance':
+            //----- No public "pay this ID" URL scheme for Binance — the generic
+            //----- /en/pay universal link has no recipient/amount, so the Binance
+            //----- app rejects it with "This link does not work". Copy only.
         case 'usdt':
         case 'btc':
         case 'eth':
@@ -1116,8 +1145,11 @@ function cfOpenPay(btn) {
 
     const openIt = () => { if (url) window.open(url, '_blank', 'noopener'); };
     if (copyFirst && value) {
+        const copiedMsg = url
+            ? 'Copied — paste it in the app that opens.'
+            : (method === 'binance' ? 'Copied — paste it in the Binance app.' : 'Address copied — paste it in your wallet app.');
         navigator.clipboard.writeText(value).then(() => {
-            showToast(url ? 'Copied — paste it in the app that opens.' : 'Address copied — paste it in your wallet app.', 'success');
+            showToast(copiedMsg, 'success');
             openIt();
         }).catch(openIt);
     } else {
