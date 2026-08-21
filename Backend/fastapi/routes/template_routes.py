@@ -224,7 +224,11 @@ async def welcome_page(request: Request):
     ctx = _base_context(request)
     ctx.update({
         "is_authenticated": is_authenticated(request),
-        "current_user": get_current_user(request) if is_authenticated(request) else None,
+        # Always render the plain public navbar on this landing page — even
+        # when logged in — so it never shows the app sidebar/hamburger/avatar
+        # chrome. Deliberately NOT setting current_user here (base.html keys
+        # its navbar choice off it); this page doesn't otherwise use it.
+        "current_user": None,
         "hide_signin": True,
         "plans": plans,
         "bot_link": bot_link,
