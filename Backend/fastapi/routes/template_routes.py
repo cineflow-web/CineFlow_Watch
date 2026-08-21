@@ -207,6 +207,7 @@ async def public_status_page(request: Request):
     ctx = _base_context(request)
     ctx["stats"] = public_stats
     ctx["is_authenticated"] = is_authenticated(request)
+    ctx["current_user"] = get_current_user(request) if is_authenticated(request) else None
     return templates.TemplateResponse("public_status.html", ctx)
 
 
@@ -214,6 +215,7 @@ async def public_status_page(request: Request):
 async def stremio_guide_page(request: Request):
     ctx = _base_context(request)
     ctx["is_authenticated"] = is_authenticated(request)
+    ctx["current_user"] = get_current_user(request) if is_authenticated(request) else None
     return templates.TemplateResponse("stremio_guide.html", ctx)
 
 
@@ -256,7 +258,9 @@ async def welcome_page(request: Request):
     ctx = _base_context(request)
     ctx.update({
         "is_authenticated": is_authenticated(request),
-        "current_user": get_current_user(request) if is_authenticated(request) else None,
+        # Always render the public nav (no sidebar/profile icon) on this page,
+        # even for logged-in users — welcome.html is a public landing page.
+        "current_user": None,
         "plans": plans,
         "bot_link": bot_link,
         "total_content": total_content,

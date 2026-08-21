@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}CineFlow — Stremio &amp; Nuvio setup guide{% endblock %}
+
+{% block content %}
+<style>
+  .sg-shell { max-width: 900px; margin: 0 auto; }
+
+  .sg-hero { text-align: center; padding: 1.5rem 1.25rem 2.25rem; }
+  .sg-hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.9rem; border-radius: 9999px;
+      border: 1px solid var(--hairline); background: var(--surface);
+      color: var(--text-sec); font-size: 0.72rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.1rem;
+  }
+  .sg-hero-badge i { color: var(--primary); }
+  .sg-hero h1 {
+      font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 900; letter-spacing: -0.02em;
+      line-height: 1.15; max-width: 640px; margin: 0 auto;
+  }
+  .sg-hero p { color: var(--text-sec); margin: 0.85rem auto 0; max-width: 560px; font-size: 0.98rem; line-height: 1.6; }
+
+  .sg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 0.5rem; }
+  .sg-card {
+      background: color-mix(in srgb, var(--card) 92%, var(--bg)); border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+  }
+  .sg-card-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem; }
+  .sg-card-icon {
+      width: 2.6rem; height: 2.6rem; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .sg-card-head h3 { font-size: 1.05rem; font-weight: 900; }
+  .sg-list { counter-reset: sg-step; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.4rem; }
+  .sg-list li {
+      list-style: none; position: relative; padding-left: 2.2rem;
+      font-size: 0.88rem; color: var(--text-sec); line-height: 1.5;
+  }
+  .sg-list li::before {
+      counter-increment: sg-step; content: counter(sg-step);
+      position: absolute; left: 0; top: 0;
+      width: 1.5rem; height: 1.5rem; border-radius: 9999px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 800;
+      background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary);
+  }
+  .sg-list li b { color: var(--text); }
+  .sg-app-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 9999px;
+      border: 1px solid var(--hairline); color: var(--text-sec);
+      font-size: 0.75rem; font-weight: 700; transition: border-color .15s ease, color .15s ease;
+  }
+  .sg-app-link:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--primary); }
+
+  .sg-faq { margin-top: 2.5rem; }
+  .sg-faq h2 { font-size: 1.2rem; font-weight: 900; margin-bottom: 1rem; text-align: center; }
+  .sg-faq-item { border-top: 1px solid var(--hairline-soft); padding: 1rem 0; }
+  .sg-faq-item:first-child { border-top: none; }
+  .sg-faq-item b { display: block; color: var(--text); font-size: 0.92rem; margin-bottom: 0.3rem; }
+  .sg-faq-item p { color: var(--text-sec); font-size: 0.86rem; line-height: 1.55; }
+
+  .sg-cta { text-align: center; margin-top: 2.5rem; padding: 2rem 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--hairline); background: var(--surface); }
+  .sg-cta p { color: var(--text-sec); font-size: 0.9rem; margin-bottom: 1.25rem; }
+  .sg-btn-primary {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      padding: 0.85rem 1.5rem; border-radius: var(--radius-md);
+      font-weight: 800; font-size: 0.92rem;
+      background: linear-gradient(135deg, var(--primary), var(--accent, var(--primary))); color: var(--bg);
+      box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 32%, transparent);
+      transition: filter .2s ease, transform .15s ease;
+  }
+  .sg-btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+</style>
+
+<div class="sg-shell">
+
+  <section class="sg-hero">
+    <span class="sg-hero-badge"><i class="fa-solid fa-puzzle-piece"></i> Setup guide</span>
+    <h1>Getting CineFlow into Stremio or Nuvio</h1>
+    <p>A closer look at installing your addon link — step by step, for either app.</p>
+  </section>
+
+  <section class="sg-grid">
+    <div class="sg-card">
+      <div class="sg-card-head">
+        <div class="sg-card-icon" style="background:color-mix(in srgb, var(--d-purple) 16%, transparent); color:var(--d-purple)"><i class="fa-solid fa-play"></i></div>
+        <h3>Stremio</h3>
+      </div>
+      <ol class="sg-list">
+        <li>Install Stremio from <b>stremio.com</b> (desktop, Android, or Android TV) and create a free account if you don't have one.</li>
+        <li>Open the CineFlow bot on Telegram and subscribe to a plan.</li>
+        <li>The bot replies with your private, personal addon link — copy it in full.</li>
+        <li>In Stremio, open the puzzle-piece <b>Addons</b> icon in the top bar.</li>
+        <li>Paste your link into the search field at the top of the Addons page and press enter.</li>
+        <li>Click <b>Install</b> on the CineFlow addon card that appears.</li>
+        <li>Your library shows up under Discover/Board, and search results include your titles.</li>
+      </ol>
+      <a href="https://www.stremio.com" target="_blank" rel="noopener" class="sg-app-link">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Download Stremio
+      </a>
+    </div>
+
+    <div class="sg-card">
+      <div class="sg-card-head">
+        <div class="sg-card-icon" style="background:color-mix(in srgb, var(--d-cyan) 16%, transparent); color:var(--d-cyan)"><i class="fa-solid fa-mobile-screen"></i></div>
+        <h3>Nuvio</h3>
+      </div>
+      <ol class="sg-list">
+        <li>Install Nuvio on your device from <b>nuvio.to</b> (or the linked APK/store page).</li>
+        <li>Open the CineFlow bot on Telegram and subscribe to a plan.</li>
+        <li>The bot replies with your private, personal addon link — copy it in full.</li>
+        <li>In Nuvio, go to <b>Settings → Addons → Add Addon</b>.</li>
+        <li>Paste your link into the field and confirm to save it.</li>
+        <li>Your CineFlow library appears the next time you browse or search inside Nuvio.</li>
+      </ol>
+      <a href="https://nuvio.to" target="_blank" rel="noopener" class="sg-app-link">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Download Nuvio
+      </a>
+    </div>
+  </section>
+
+  <section class="sg-faq">
+    <h2>Common questions</h2>
+    <div class="sg-faq-item">
+      <b>My addon link stopped working — why?</b>
+      <p>Links are tied to your active subscription. If a plan lapses, the link is disabled until it's renewed — message the bot to check your status or renew.</p>
+    </div>
+    <div class="sg-faq-item">
+      <b>Can I use the same link on more than one device?</b>
+      <p>Yes — install it in Stremio or Nuvio on as many of your own devices as you like. It's the same catalog everywhere.</p>
+    </div>
+    <div class="sg-faq-item">
+      <b>Nothing shows up after installing — what now?</b>
+      <p>Double check the full link was pasted with nothing cut off, then restart the app. If it still doesn't appear, reach out through the Telegram bot.</p>
+    </div>
+    <div class="sg-faq-item">
+      <b>Do subtitles need to be installed separately?</b>
+      <p>No — matching subtitles are attached automatically wherever available, so playback is ready without extra addons.</p>
+    </div>
+  </section>
+
+  <section class="sg-cta">
+    <p>Ready to get your addon link?</p>
+    <a href="/welcome" class="sg-btn-primary">
+      <i class="fa-solid fa-circle-info"></i> See plans &amp; get started
+    </a>
+  </section>
+
+</div>
+{% endblock %}
