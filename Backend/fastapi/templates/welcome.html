@@ -63,12 +63,34 @@
   }
   .wl-app-link:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--primary); }
 
-  /* ── Install guide ─────────────────────────────────────────────────── */
-  .wl-install-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; max-width: 900px; margin: 0 auto; }
+  /* ── Install guide (horizontal swipe carousel) ────────────────────── */
+  .wl-install-track {
+      display: flex; gap: 1.25rem; max-width: 900px; margin: 0 auto;
+      overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 1.25rem;
+      -webkit-overflow-scrolling: touch; padding: 0.25rem 0.25rem 0.5rem;
+  }
+  .wl-install-track::-webkit-scrollbar { display: none; }
+  .wl-install-track { -ms-overflow-style: none; scrollbar-width: none; }
   .wl-install-card {
+      flex: 0 0 100%; scroll-snap-align: center;
       background: color-mix(in srgb, var(--card) 92%, var(--bg)); border: 1px solid var(--hairline);
       border-radius: var(--radius-lg); padding: 1.5rem;
   }
+  @media (min-width: 640px) {
+      .wl-install-card { flex-basis: calc(50% - 0.625rem); }
+  }
+  .wl-install-dots { display: flex; justify-content: center; gap: 0.4rem; margin-top: 1rem; }
+  .wl-install-dots span {
+      width: 0.45rem; height: 0.45rem; border-radius: 9999px;
+      background: var(--hairline); transition: background .15s ease, transform .15s ease;
+  }
+  .wl-install-dots span.active { background: var(--primary); transform: scale(1.25); }
+  @media (min-width: 640px) { .wl-install-dots { display: none; } }
+  .wl-install-swipe-hint {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-size: 0.72rem; color: var(--text-sec); margin-top: 0.6rem; font-weight: 700;
+  }
+  @media (min-width: 640px) { .wl-install-swipe-hint { display: none; } }
   .wl-install-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem; }
   .wl-install-icon {
       width: 2.6rem; height: 2.6rem; border-radius: var(--radius-md);
@@ -276,7 +298,7 @@
     <h2 class="wl-section-title">Add the addon to Stremio or Nuvio</h2>
     <p class="wl-section-sub">Full walkthrough for both apps — pick whichever you use.</p>
 
-    <div class="wl-install-grid">
+    <div class="wl-install-track" id="wl-install-track">
       <div class="wl-install-card">
         <div class="wl-install-head">
           <div class="wl-install-icon" style="background:color-mix(in srgb, var(--d-purple) 16%, transparent); color:var(--d-purple)"><i class="fa-solid fa-play"></i></div>
@@ -302,19 +324,50 @@
           <h3>Nuvio</h3>
         </div>
         <ol class="wl-install-list">
-          <li>Install Nuvio on your device from <b>nuvio.to</b> (or the linked APK/store page).</li>
+          <li>Install Nuvio on your device from <b>nuvio.tv</b> (or the linked APK/store page for your platform).</li>
           <li>Open the CineFlow bot on Telegram and subscribe to a plan.</li>
           <li>The bot replies with your private, personal addon link — copy it.</li>
-          <li>In Nuvio, go to <b>Settings → Addons → Add Addon</b>.</li>
-          <li>Paste your link into the field and confirm to save it.</li>
+          <li>In Nuvio, open <b>Settings → Addons</b> and select <b>Add Addon</b>.</li>
+          <li>Paste your link into the Addon URL field, then select <b>Install Addon</b>.</li>
           <li>Your CineFlow library now appears when you browse or search inside Nuvio.</li>
         </ol>
-        <a href="https://nuvio.to" target="_blank" rel="noopener" class="wl-app-link">
+        <a href="https://nuvio.tv" target="_blank" rel="noopener" class="wl-app-link">
           <i class="fa-solid fa-arrow-up-right-from-square"></i> Download Nuvio
         </a>
       </div>
     </div>
+
+    <div class="wl-install-dots" id="wl-install-dots">
+      <span class="active"></span>
+      <span></span>
+    </div>
+    <div class="wl-install-swipe-hint"><i class="fa-solid fa-arrows-left-right"></i> Swipe to see both</div>
   </section>
+
+  <script>
+    (function () {
+      const track = document.getElementById('wl-install-track');
+      const dots = document.getElementById('wl-install-dots');
+      if (!track || !dots) return;
+      const dotEls = Array.from(dots.children);
+      let ticking = false;
+      track.addEventListener('scroll', function () {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () {
+          const cards = Array.from(track.children);
+          const trackCenter = track.scrollLeft + track.clientWidth / 2;
+          let closest = 0, closestDist = Infinity;
+          cards.forEach(function (card, i) {
+            const dist = Math.abs((card.offsetLeft + card.offsetWidth / 2) - trackCenter);
+            if (dist < closestDist) { closestDist = dist; closest = i; }
+          });
+          dotEls.forEach(function (d, i) { d.classList.toggle('active', i === closest); });
+          ticking = false;
+        });
+      }, { passive: true });
+    })();
+  </script>
 
   <!-- ── Pricing ── -->
   <section class="wl-section" id="wl-pricing">

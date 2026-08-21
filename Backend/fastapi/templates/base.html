@@ -677,10 +677,12 @@ tailwind.config = {
         <span>How it works</span>
     </a>
 
+    {% if not hide_signin %}
     <a href="/login" class="pub-nav-signin">
         <i class="fa-solid fa-arrow-right-to-bracket"></i>
         <span class="hidden sm:inline">Sign in</span>
     </a>
+    {% endif %}
 </header>
 {% endif %}
 

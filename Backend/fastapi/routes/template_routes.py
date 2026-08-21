@@ -185,38 +185,6 @@ async def edit_media_page(request: Request, tmdb_id: int, db_index: int, media_t
     return templates.TemplateResponse("media_edit.html", ctx)
 
 
-#----- Public status page (no auth)
-async def public_status_page(request: Request):
-    try:
-        db_stats = await db.get_database_stats()
-        total_movies, total_tv_shows = db.content_totals(db_stats)
-        public_stats = {
-            "status": "operational",
-            "uptime": "99.9%",
-            "total_content": total_movies + total_tv_shows,
-            "databases_online": len(db_stats)
-        }
-    except Exception:
-        public_stats = {
-            "status": "maintenance",
-            "uptime": "N/A",
-            "total_content": 0,
-            "databases_online": 0
-        }
-
-    ctx = _base_context(request)
-    ctx["stats"] = public_stats
-    ctx["is_authenticated"] = is_authenticated(request)
-    return templates.TemplateResponse("public_status.html", ctx)
-
-
-#----- Stremio setup guide (no auth)
-async def stremio_guide_page(request: Request):
-    ctx = _base_context(request)
-    ctx["is_authenticated"] = is_authenticated(request)
-    return templates.TemplateResponse("stremio_guide.html", ctx)
-
-
 #----- Public welcome / landing page (no auth) — what CineFlow is, how it works, plans
 async def welcome_page(request: Request):
     try:
@@ -257,6 +225,7 @@ async def welcome_page(request: Request):
     ctx.update({
         "is_authenticated": is_authenticated(request),
         "current_user": get_current_user(request) if is_authenticated(request) else None,
+        "hide_signin": True,
         "plans": plans,
         "bot_link": bot_link,
         "total_content": total_content,
