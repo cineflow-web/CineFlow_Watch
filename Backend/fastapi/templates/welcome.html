@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% block title %}CineFlow — Your library, streamed through Telegram{% endblock %}
+
+{% block content %}
+<style>
+  .wl-shell { max-width: 1100px; margin: 0 auto; }
+
+  /* ── Hero ──────────────────────────────────────────────────────────── */
+  .wl-hero {
+      position: relative; overflow: hidden; text-align: center;
+      padding: 2.5rem 1.25rem 2.75rem; border-radius: var(--radius-lg);
+  }
+  .wl-hero::before {
+      content: ""; position: absolute; inset: -40% -10% auto -10%; height: 420px;
+      background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 70%);
+      pointer-events: none; z-index: 0;
+  }
+  .wl-hero > * { position: relative; z-index: 1; }
+  .wl-hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.9rem; border-radius: 9999px;
+      border: 1px solid var(--hairline); background: var(--surface);
+      color: var(--text-sec); font-size: 0.72rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.1rem;
+  }
+  .wl-hero-badge i { color: var(--primary); }
+  .wl-hero h1 {
+      font-size: clamp(1.9rem, 4.6vw, 3rem); font-weight: 900; letter-spacing: -0.02em;
+      line-height: 1.12; max-width: 780px; margin: 0 auto;
+      background: linear-gradient(120deg, var(--text), var(--text-sec));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .wl-hero h1 span {
+      background: linear-gradient(120deg, var(--primary), var(--accent, var(--primary)));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .wl-hero p { color: var(--text-sec); margin: 1rem auto 0; max-width: 620px; font-size: 1rem; line-height: 1.6; }
+  .wl-hero-ctas { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.75rem; }
+  .wl-btn-primary, .wl-btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      padding: 0.85rem 1.5rem; border-radius: var(--radius-md);
+      font-weight: 800; font-size: 0.92rem; transition: filter .2s ease, transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .wl-btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent, var(--primary))); color: var(--bg);
+      box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 32%, transparent);
+  }
+  .wl-btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .wl-btn-secondary { background: var(--surface); border: 1px solid var(--hairline); color: var(--text); }
+  .wl-btn-secondary:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--primary); }
+
+  .wl-stat-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 2.25rem; margin-top: 2.25rem; }
+  .wl-stat { text-align: center; }
+  .wl-stat b { display: block; font-size: 1.5rem; font-weight: 900; color: var(--text); }
+  .wl-stat span { font-size: 0.75rem; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+
+  .wl-app-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 1.1rem; }
+  .wl-app-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 9999px;
+      border: 1px solid var(--hairline); color: var(--text-sec);
+      font-size: 0.75rem; font-weight: 700; transition: border-color .15s ease, color .15s ease;
+  }
+  .wl-app-link:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline)); color: var(--primary); }
+
+  /* ── Install guide ─────────────────────────────────────────────────── */
+  .wl-install-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; max-width: 900px; margin: 0 auto; }
+  .wl-install-card {
+      background: color-mix(in srgb, var(--card) 92%, var(--bg)); border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+  }
+  .wl-install-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem; }
+  .wl-install-icon {
+      width: 2.6rem; height: 2.6rem; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .wl-install-head h3 { font-size: 1.05rem; font-weight: 900; }
+  .wl-install-list { counter-reset: wl-install-step; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.4rem; }
+  .wl-install-list li {
+      list-style: none; position: relative; padding-left: 2.2rem;
+      font-size: 0.85rem; color: var(--text-sec); line-height: 1.55;
+  }
+  .wl-install-list li::before {
+      counter-increment: wl-install-step; content: counter(wl-install-step);
+      position: absolute; left: 0; top: 0; width: 1.5rem; height: 1.5rem; border-radius: 9999px;
+      background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary);
+      font-weight: 800; font-size: 0.72rem; display: flex; align-items: center; justify-content: center;
+  }
+  .wl-install-list li b { color: var(--text); }
+
+  /* ── Section shell ─────────────────────────────────────────────────── */
+  .wl-section { margin-top: 3.5rem; }
+  .wl-eyebrow {
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.5rem; text-align: center;
+  }
+  .wl-section-title {
+      font-size: clamp(1.35rem, 2.6vw, 1.9rem); font-weight: 900; text-align: center;
+      letter-spacing: -0.01em; margin-bottom: 0.6rem;
+  }
+  .wl-section-sub { text-align: center; color: var(--text-sec); max-width: 620px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.6; }
+
+  /* ── Feature grid ──────────────────────────────────────────────────── */
+  .wl-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+  .wl-feature-card {
+      background: color-mix(in srgb, var(--card) 92%, var(--bg)); border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg); padding: 1.4rem; transition: border-color .15s ease, transform .15s ease;
+  }
+  .wl-feature-card:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); transform: translateY(-2px); }
+  .wl-feature-icon {
+      width: 2.6rem; height: 2.6rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 0.9rem;
+  }
+  .wl-feature-card h3 { font-size: 0.98rem; font-weight: 800; margin-bottom: 0.35rem; }
+  .wl-feature-card p { font-size: 0.85rem; color: var(--text-sec); line-height: 1.55; }
+
+  /* ── How it works ──────────────────────────────────────────────────── */
+  .wl-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.1rem; counter-reset: wl-step; }
+  .wl-step { position: relative; padding: 1.5rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); }
+  .wl-step-num {
+      width: 2.1rem; height: 2.1rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 0.9rem; background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary);
+      margin-bottom: 0.9rem;
+  }
+  .wl-step h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .wl-step p { font-size: 0.83rem; color: var(--text-sec); line-height: 1.55; }
+  .wl-step-arrow { display: none; }
+  @media (min-width: 900px) {
+      .wl-steps { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* ── Pricing ───────────────────────────────────────────────────────── */
+  .wl-plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.1rem; max-width: 900px; margin: 0 auto; }
+  .wl-plan-card {
+      position: relative; text-align: center; padding: 1.75rem 1.25rem 1.5rem;
+      background: color-mix(in srgb, var(--card) 92%, var(--bg)); border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg); transition: transform .15s ease, border-color .15s ease;
+  }
+  .wl-plan-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--primary) 30%, var(--hairline)); }
+  .wl-plan-card.best { border-color: var(--primary); box-shadow: 0 14px 34px color-mix(in srgb, var(--primary) 18%, transparent); }
+  .wl-plan-badge {
+      position: absolute; top: -0.65rem; left: 50%; transform: translateX(-50%);
+      background: var(--primary); color: var(--bg); font-size: 0.65rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.05em; padding: 0.3rem 0.8rem; border-radius: 9999px;
+  }
+  .wl-plan-days { font-size: 1rem; font-weight: 800; color: var(--text-sec); margin-bottom: 0.4rem; }
+  .wl-plan-price { font-size: 1.9rem; font-weight: 900; color: var(--text); }
+  .wl-plan-per-day { font-size: 0.78rem; color: var(--text-sec); margin: 0.3rem 0 1.25rem; }
+  .wl-plan-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;
+      padding: 0.7rem; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem;
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--hairline); transition: all .15s ease;
+  }
+  .wl-plan-card.best .wl-plan-btn { background: linear-gradient(135deg, var(--primary), var(--accent, var(--primary))); color: var(--bg); border: none; }
+  .wl-plan-btn:hover { filter: brightness(1.08); }
+  .wl-plans-empty { text-align: center; color: var(--text-sec); font-size: 0.9rem; padding: 2rem; }
+
+  /* ── Closing CTA ───────────────────────────────────────────────────── */
+  .wl-cta-banner {
+      margin-top: 3.5rem; text-align: center; padding: 2.5rem 1.5rem;
+      border-radius: var(--radius-lg); border: 1px solid var(--hairline);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, var(--card)), var(--card));
+  }
+  .wl-cta-banner h2 { font-size: clamp(1.2rem, 2.4vw, 1.6rem); font-weight: 900; margin-bottom: 0.6rem; }
+  .wl-cta-banner p { color: var(--text-sec); font-size: 0.92rem; margin-bottom: 1.4rem; }
+</style>
+
+<div class="wl-shell">
+
+  <!-- ── Hero ── -->
+  <section class="wl-hero">
+    <span class="wl-hero-badge"><i class="fa-solid fa-puzzle-piece"></i> Stremio &amp; Nuvio addon · Self-hosted</span>
+    <h1>Your movies and shows, <span>streamed straight from Telegram</span></h1>
+    <p>CineFlow turns a Telegram library into a personal streaming addon — subscribe from the bot, get a private link, and start watching in Stremio or Nuvio, whichever you already use.</p>
+
+    <div class="wl-hero-ctas">
+      {% if bot_link %}
+      <a href="{{ bot_link }}" target="_blank" rel="noopener" class="wl-btn-primary">
+        <i class="fa-brands fa-telegram"></i> Start on Telegram
+      </a>
+      {% endif %}
+      <a href="#wl-pricing" class="wl-btn-secondary">
+        <i class="fa-solid fa-tags"></i> See plans
+      </a>
+    </div>
+
+    <div class="wl-app-links">
+      <a href="https://www.stremio.com" target="_blank" rel="noopener" class="wl-app-link">
+        <i class="fa-solid fa-play"></i> Get Stremio
+      </a>
+      <a href="https://nuvio.to" target="_blank" rel="noopener" class="wl-app-link">
+        <i class="fa-solid fa-mobile-screen"></i> Get Nuvio
+      </a>
+    </div>
+
+    <div class="wl-stat-row">
+      <div class="wl-stat"><b>{{ total_content }}+</b><span>Titles in the library</span></div>
+      <div class="wl-stat"><b>4K</b><span>Quality options</span></div>
+      <div class="wl-stat"><b>1</b><span>Link, any device</span></div>
+    </div>
+  </section>
+
+  <!-- ── What it is ── -->
+  <section class="wl-section">
+    <div class="wl-eyebrow">What is CineFlow</div>
+    <h2 class="wl-section-title">One Telegram bot, one Stremio addon</h2>
+    <p class="wl-section-sub">The library lives on Telegram and CineFlow exposes it to Stremio (or Nuvio) as a private, token-protected addon — so streaming feels like any other catalog, with none of the manual file hunting.</p>
+
+    <div class="wl-feature-grid">
+      <div class="wl-feature-card">
+        <div class="wl-feature-icon" style="background:color-mix(in srgb, var(--d-cyan) 16%, transparent); color:var(--d-cyan)"><i class="fa-solid fa-clapperboard"></i></div>
+        <h3>Movies &amp; TV, organized</h3>
+        <p>Every title is catalogued with posters, quality tags, and episode breakdowns — browsable like a real streaming catalog.</p>
+      </div>
+      <div class="wl-feature-card">
+        <div class="wl-feature-icon" style="background:color-mix(in srgb, var(--d-purple) 16%, transparent); color:var(--d-purple)"><i class="fa-solid fa-link"></i></div>
+        <h3>One private link</h3>
+        <p>Your subscription gives you a personal addon link — install it once in Stremio and every new upload shows up automatically.</p>
+      </div>
+      <div class="wl-feature-card">
+        <div class="wl-feature-icon" style="background:color-mix(in srgb, var(--d-green) 16%, transparent); color:var(--d-green)"><i class="fa-solid fa-closed-captioning"></i></div>
+        <h3>Subtitles included</h3>
+        <p>Matching subtitles are attached automatically, so playback starts ready to watch without extra setup.</p>
+      </div>
+      <div class="wl-feature-card">
+        <div class="wl-feature-icon" style="background:color-mix(in srgb, var(--d-orange) 16%, transparent); color:var(--d-orange)"><i class="fa-solid fa-gauge-high"></i></div>
+        <h3>Quality control</h3>
+        <p>Pick the resolution that fits your connection — from data-friendly to full quality — right from the player.</p>
+      </div>
+      <div class="wl-feature-card">
+        <div class="wl-feature-icon" style="background:color-mix(in srgb, var(--d-pink) 16%, transparent); color:var(--d-pink)"><i class="fa-solid fa-inbox"></i></div>
+        <h3>Request what's missing</h3>
+        <p>Can't find a title? Send a request straight from the bot and it gets added to the queue for review.</p>
+      </div>
+      <div class="wl-feature-card">
+        <div class="wl-feature-icon" style="background:color-mix(in srgb, var(--d-yellow) 16%, transparent); color:var(--d-yellow)"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Private by design</h3>
+        <p>Every addon link is tied to your subscription token — nothing is public, and access can be revoked any time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How it works ── -->
+  <section class="wl-section">
+    <div class="wl-eyebrow">How it works</div>
+    <h2 class="wl-section-title">From Telegram to your screen in four steps</h2>
+    <p class="wl-section-sub">No app installs beyond Stremio itself, and no separate account to manage — Telegram is the login.</p>
+
+    <div class="wl-steps">
+      <div class="wl-step">
+        <div class="wl-step-num">1</div>
+        <h3>Open the bot</h3>
+        <p>Start a chat with the CineFlow bot on Telegram — that's the only account you need.</p>
+      </div>
+      <div class="wl-step">
+        <div class="wl-step-num">2</div>
+        <h3>Choose a plan</h3>
+        <p>Pick a subscription length from the bot menu and confirm payment with the admin.</p>
+      </div>
+      <div class="wl-step">
+        <div class="wl-step-num">3</div>
+        <h3>Get your addon link</h3>
+        <p>The bot hands you a personal, private Stremio addon link tied to your subscription.</p>
+      </div>
+      <div class="wl-step">
+        <div class="wl-step-num">4</div>
+        <h3>Install &amp; watch</h3>
+        <p>Paste the link into Stremio (or Nuvio) once — new titles then appear on their own.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Install guide ── -->
+  <section class="wl-section" id="wl-install">
+    <div class="wl-eyebrow">Installation</div>
+    <h2 class="wl-section-title">Add the addon to Stremio or Nuvio</h2>
+    <p class="wl-section-sub">Full walkthrough for both apps — pick whichever you use.</p>
+
+    <div class="wl-install-grid">
+      <div class="wl-install-card">
+        <div class="wl-install-head">
+          <div class="wl-install-icon" style="background:color-mix(in srgb, var(--d-purple) 16%, transparent); color:var(--d-purple)"><i class="fa-solid fa-play"></i></div>
+          <h3>Stremio</h3>
+        </div>
+        <ol class="wl-install-list">
+          <li>Install Stremio on your phone, TV, or computer from <b>stremio.com</b> (or your device's app store) and create a free Stremio account.</li>
+          <li>Open the CineFlow bot on Telegram and subscribe to a plan.</li>
+          <li>The bot replies with your private, personal addon link — copy it.</li>
+          <li>In Stremio, open the puzzle-piece <b>Addons</b> icon in the top bar.</li>
+          <li>Paste your link into the search field at the top of the Addons page and press enter.</li>
+          <li>Click <b>Install</b> on the CineFlow addon card that appears.</li>
+          <li>Your library now shows up under Discover/Board, and search results include your titles.</li>
+        </ol>
+        <a href="https://www.stremio.com" target="_blank" rel="noopener" class="wl-app-link">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Download Stremio
+        </a>
+      </div>
+
+      <div class="wl-install-card">
+        <div class="wl-install-head">
+          <div class="wl-install-icon" style="background:color-mix(in srgb, var(--d-cyan) 16%, transparent); color:var(--d-cyan)"><i class="fa-solid fa-mobile-screen"></i></div>
+          <h3>Nuvio</h3>
+        </div>
+        <ol class="wl-install-list">
+          <li>Install Nuvio on your device from <b>nuvio.to</b> (or the linked APK/store page).</li>
+          <li>Open the CineFlow bot on Telegram and subscribe to a plan.</li>
+          <li>The bot replies with your private, personal addon link — copy it.</li>
+          <li>In Nuvio, go to <b>Settings → Addons → Add Addon</b>.</li>
+          <li>Paste your link into the field and confirm to save it.</li>
+          <li>Your CineFlow library now appears when you browse or search inside Nuvio.</li>
+        </ol>
+        <a href="https://nuvio.to" target="_blank" rel="noopener" class="wl-app-link">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Download Nuvio
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Pricing ── -->
+  <section class="wl-section" id="wl-pricing">
+    <div class="wl-eyebrow">Plans</div>
+    <h2 class="wl-section-title">Simple, time-based subscriptions</h2>
+    <p class="wl-section-sub">Every plan unlocks the same full catalog — pick a duration that fits, and renew whenever you like from the bot.</p>
+
+    {% if plans %}
+    <div class="wl-plans-grid">
+      {% for p in plans %}
+      <div class="wl-plan-card {% if p.is_best %}best{% endif %}">
+        {% if p.is_best %}<span class="wl-plan-badge">Best Value</span>{% endif %}
+        <div class="wl-plan-days">{{ p.days }} Days</div>
+        <div class="wl-plan-price">{{ p.currency_symbol }}{{ p.price }}</div>
+        <div class="wl-plan-per-day">{{ p.currency_symbol }}{{ p.per_day }} / day</div>
+        {% if bot_link %}
+        <a href="{{ bot_link }}" target="_blank" rel="noopener" class="wl-plan-btn">
+          <i class="fa-brands fa-telegram"></i> Subscribe on Telegram
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="wl-plans-empty">Plans aren't published yet — open the bot on Telegram to ask about subscribing.</p>
+    {% endif %}
+  </section>
+
+  <!-- ── Closing CTA ── -->
+  <div class="wl-cta-banner">
+    <h2>Ready to start watching?</h2>
+    <p>Open the Telegram bot, pick a plan, and your Stremio addon link is ready in minutes.</p>
+    {% if bot_link %}
+    <a href="{{ bot_link }}" target="_blank" rel="noopener" class="wl-btn-primary">
+      <i class="fa-brands fa-telegram"></i> Start on Telegram
+    </a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

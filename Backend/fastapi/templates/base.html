@@ -301,6 +301,13 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--text); }
 
+.pub-nav-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--text-sec); font-size: 0.82rem; font-weight: 700;
+    transition: color .15s ease;
+}
+.pub-nav-link:hover { color: var(--text); }
+
 .pub-nav-signin {
     display: inline-flex; align-items: center; gap: 0.5rem;
     padding: 0.55rem 1rem;
@@ -589,13 +596,9 @@ tailwind.config = {
             </div>
 
             <a href="/admin/settings"
-               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold mb-2 transition-all"
+               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
                style="background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)">
                 <i class="fa-solid fa-gear"></i> Settings
-            </a>
-
-            <a href="/logout" class="block text-center px-4 py-2.5 rounded-xl text-sm font-bold transition-all" style="background:color-mix(in srgb, var(--d-red) 12%, transparent); color:var(--d-red)">
-                Logout
             </a>
         </div>
     </div>
@@ -669,9 +672,10 @@ tailwind.config = {
 
     <div class="flex-1"></div>
 
-    <span class="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" style="color:var(--primary)">
-        <i class="fa-solid fa-bat"></i> Dracula
-    </span>
+    <a href="/welcome" class="pub-nav-link hidden sm:inline-flex">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>How it works</span>
+    </a>
 
     <a href="/login" class="pub-nav-signin">
         <i class="fa-solid fa-arrow-right-to-bracket"></i>
