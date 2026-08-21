@@ -95,6 +95,19 @@
   .cf-btn-web { display: block; color: var(--primary); font-size: 0.8rem; font-weight: 700; text-decoration: none; text-align: center; margin-bottom: 0.6rem; }
   .cf-btn-web:hover { text-decoration: underline; }
 
+  .cf-install-row { display: flex; gap: 0.6rem; margin: 1.2rem 0 0.7rem; }
+  .cf-install-row .cf-btn-install { margin: 0; flex: 1; }
+  .cf-btn-nuvio {
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      flex: 1; background: var(--surface); border: 1px solid var(--hairline); color: var(--text);
+      font-weight: 800; font-size: 0.95rem; padding: 0.85rem 1.1rem; border-radius: 1rem;
+      cursor: pointer; text-decoration: none;
+      transition: background .2s ease, border-color .2s ease, transform .12s ease;
+  }
+  .cf-btn-nuvio:hover { background: var(--surface-2); border-color: var(--hairline-strong); }
+  .cf-btn-nuvio:active { transform: scale(.98); }
+  @media (max-width: 480px) { .cf-install-row { flex-direction: column; } }
+
   .cf-steps {
       background: var(--surface); border: 1px solid var(--hairline);
       border-radius: 0.85rem; padding: 0.85rem 1.05rem; margin: 0.9rem 0;
@@ -414,9 +427,14 @@
       <span class="cf-pill"><i class="fa-solid fa-code-branch"></i> v{{ addon_version }}</span>
     </div>
 
-    <a href="{{ web_install_url }}" class="cf-btn-install" target="_blank" style="margin-top:1.4rem">
-      <i class="fa-solid fa-bolt"></i> Install / Update in Stremio
-    </a>
+    <div class="cf-install-row">
+      <a href="{{ web_install_url }}" class="cf-btn-install" target="_blank">
+        <i class="fa-solid fa-bolt"></i> Install / Update in Stremio
+      </a>
+      <button onclick="copyForNuvio()" class="cf-btn-nuvio" id="cf-nuvio-btn">
+        <i class="fa-solid fa-mobile-screen"></i> Add to Nuvio
+      </button>
+    </div>
 
     <div class="cf-steps">
       <b>Prefer to do it manually?</b>
@@ -713,6 +731,18 @@ function copyUrl() {
         const b = document.querySelector('.cf-btn-copy');
         b.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
         setTimeout(() => b.innerHTML = '<i class="fa-solid fa-copy"></i> Copy URL', 2000);
+    });
+}
+
+/* Nuvio has no one-tap web-install link — the addon URL is pasted manually
+   under Settings → Addons → Add Addon. Copy it and tell the user where to paste it. */
+function copyForNuvio() {
+    const url = document.getElementById('murl').textContent.trim();
+    navigator.clipboard.writeText(url).then(() => {
+        const b = document.getElementById('cf-nuvio-btn');
+        b.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        setTimeout(() => b.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> Add to Nuvio', 2000);
+        if (window.showToast) showToast('Paste it in Nuvio → Settings → Addons → Add Addon', 'info', 'URL copied for Nuvio');
     });
 }
 
