@@ -230,6 +230,7 @@ async def welcome_page(request: Request):
         # its navbar choice off it); this page doesn't otherwise use it.
         "current_user": None,
         "hide_signin": True,
+        "hide_navbar": True,
         "plans": plans,
         "bot_link": bot_link,
         "total_content": total_content,

@@ -467,12 +467,16 @@ body.sidebar-compact #app-main { margin-left: var(--sidebar-w-compact); }
 /* Public pages have no sidebar — don't reserve space for one. */
 #app-main.mh-full { margin-left: 0; }
 
+/* Pages with no navbar at all (hide_navbar) — don't reserve topbar space. */
+#app-main.mh-nonav { margin-left: 0; margin-top: 0; }
+
 /* Sticky footer: fills the real visible viewport (dvh) minus the fixed
    topbar's reserved space, not the inflated 100vh mobile browsers report
    when the address bar is shown/hidden. Both variants now render a
    topbar, so both need to subtract --topbar-h from the available height. */
 #app-main.mh-app,
 #app-main.mh-full { min-height: 100vh; min-height: calc(100dvh - var(--topbar-h)); }
+#app-main.mh-nonav { min-height: 100vh; min-height: 100dvh; }
 #app-main > .app-content { flex: 1 1 auto; min-width: 0; }
 #app-main > footer { flex-shrink: 0; min-width: 0; }
 
@@ -562,6 +566,7 @@ tailwind.config = {
 
 <div id="overlay" class="fixed inset-0 z-40 opacity-0 pointer-events-none"></div>
 
+{% if not hide_navbar %}
 {% if current_user %}
 <!-- ═══════════════ Top navbar ═══════════════ -->
 <header id="topbar" class="glass-panel glass-nav">
@@ -691,8 +696,9 @@ tailwind.config = {
     {% endif %}
 </header>
 {% endif %}
+{% endif %}
 
-<main id="app-main" class="{% if current_user %}mh-app{% else %}mh-full{% endif %}">
+<main id="app-main" class="{% if hide_navbar %}mh-nonav{% elif current_user %}mh-app{% else %}mh-full{% endif %}">
     <div class="app-content w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
         {% block content %}{% endblock %}
     </div>
