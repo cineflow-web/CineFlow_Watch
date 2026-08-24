@@ -301,6 +301,13 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--text); }
 
+.pub-nav-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--text-sec); font-size: 0.82rem; font-weight: 700;
+    transition: color .15s ease;
+}
+.pub-nav-link:hover { color: var(--text); }
+
 .pub-nav-signin {
     display: inline-flex; align-items: center; gap: 0.5rem;
     padding: 0.55rem 1rem;
@@ -460,12 +467,16 @@ body.sidebar-compact #app-main { margin-left: var(--sidebar-w-compact); }
 /* Public pages have no sidebar — don't reserve space for one. */
 #app-main.mh-full { margin-left: 0; }
 
+/* Pages with no navbar at all (hide_navbar) — don't reserve topbar space. */
+#app-main.mh-nonav { margin-left: 0; margin-top: 0; }
+
 /* Sticky footer: fills the real visible viewport (dvh) minus the fixed
    topbar's reserved space, not the inflated 100vh mobile browsers report
    when the address bar is shown/hidden. Both variants now render a
    topbar, so both need to subtract --topbar-h from the available height. */
 #app-main.mh-app,
 #app-main.mh-full { min-height: 100vh; min-height: calc(100dvh - var(--topbar-h)); }
+#app-main.mh-nonav { min-height: 100vh; min-height: 100dvh; }
 #app-main > .app-content { flex: 1 1 auto; min-width: 0; }
 #app-main > footer { flex-shrink: 0; min-width: 0; }
 
@@ -555,6 +566,7 @@ tailwind.config = {
 
 <div id="overlay" class="fixed inset-0 z-40 opacity-0 pointer-events-none"></div>
 
+{% if not hide_navbar %}
 {% if current_user %}
 <!-- ═══════════════ Top navbar ═══════════════ -->
 <header id="topbar" class="glass-panel glass-nav">
@@ -589,13 +601,15 @@ tailwind.config = {
             </div>
 
             <a href="/admin/settings"
-               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold mb-2 transition-all"
+               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
                style="background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)">
                 <i class="fa-solid fa-gear"></i> Settings
             </a>
 
-            <a href="/logout" class="block text-center px-4 py-2.5 rounded-xl text-sm font-bold transition-all" style="background:color-mix(in srgb, var(--d-red) 12%, transparent); color:var(--d-red)">
-                Logout
+            <a href="/logout"
+               class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all mt-1.5"
+               style="background:color-mix(in srgb,var(--d-red) 12%,transparent);color:var(--d-red)">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
             </a>
         </div>
     </div>
@@ -669,18 +683,22 @@ tailwind.config = {
 
     <div class="flex-1"></div>
 
-    <span class="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" style="color:var(--primary)">
-        <i class="fa-solid fa-bat"></i> Dracula
-    </span>
+    <a href="/welcome" class="pub-nav-link hidden sm:inline-flex">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>How it works</span>
+    </a>
 
+    {% if not hide_signin %}
     <a href="/login" class="pub-nav-signin">
         <i class="fa-solid fa-arrow-right-to-bracket"></i>
         <span class="hidden sm:inline">Sign in</span>
     </a>
+    {% endif %}
 </header>
 {% endif %}
+{% endif %}
 
-<main id="app-main" class="{% if current_user %}mh-app{% else %}mh-full{% endif %}">
+<main id="app-main" class="{% if hide_navbar %}mh-nonav{% elif current_user %}mh-app{% else %}mh-full{% endif %}">
     <div class="app-content w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {% if current_user %}py-6{% else %}py-8{% endif %}">
         {% block content %}{% endblock %}
     </div>

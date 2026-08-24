@@ -874,7 +874,7 @@ Your server is a standard **Stremio-style addon**, so it works in any compatible
    | Platform | Source |
    | :--- | :--- |
    | Android / Android TV / Fire TV | [Google Play](https://play.google.com/store/apps/details?id=com.nuvio.app) |
-   | All platforms / latest builds | [GitHub — tapframe/NuvioStreaming](https://github.com/tapframe/NuvioStreaming) |
+   | All platforms / latest builds | [GitHub — NuvioMedia](https://github.com/NuvioMedia) |
 
 3. Open the app → **Addons** → paste your **manifest URL** → install.
 4. Done! 🎉 Your Telegram library appears in the catalog and streams directly.

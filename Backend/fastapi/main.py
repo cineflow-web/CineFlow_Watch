@@ -129,11 +129,10 @@ from Backend.fastapi.routes.template_routes import (
     login_post,
     logout,
     media_management_page,
-    public_status_page,
     settings_page,
     set_theme,
-    stremio_guide_page,
     tools_page,
+    welcome_page,
 )
 from Backend.fastapi.security.credentials import require_auth
 from Backend.pyrofork.bot import work_loads_summary
@@ -189,13 +188,9 @@ async def logout_route(request: Request):
 async def set_theme_route(request: Request, theme: str = Form(...)):
     return await set_theme(request, theme)
 
-@app.get("/status", response_class=HTMLResponse)
-async def public_status(request: Request):
-    return await public_status_page(request)
-
-@app.get("/stremio", response_class=HTMLResponse)
-async def stremio_guide(request: Request):
-    return await stremio_guide_page(request)
+@app.get("/welcome", response_class=HTMLResponse)
+async def welcome(request: Request):
+    return await welcome_page(request)
 
 @app.get("/open/{app_name}/{media_type}/{content_id}", response_class=HTMLResponse)
 async def open_in_app(app_name: str, media_type: str, content_id: str):

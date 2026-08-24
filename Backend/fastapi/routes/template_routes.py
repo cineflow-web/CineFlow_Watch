@@ -185,36 +185,57 @@ async def edit_media_page(request: Request, tmdb_id: int, db_index: int, media_t
     return templates.TemplateResponse("media_edit.html", ctx)
 
 
-#----- Public status page (no auth)
-async def public_status_page(request: Request):
+#----- Public welcome / landing page (no auth) — what CineFlow is, how it works, plans
+async def welcome_page(request: Request):
     try:
         db_stats = await db.get_database_stats()
         total_movies, total_tv_shows = db.content_totals(db_stats)
-        public_stats = {
-            "status": "operational",
-            "uptime": "99.9%",
-            "total_content": total_movies + total_tv_shows,
-            "databases_online": len(db_stats)
-        }
+        total_content = total_movies + total_tv_shows
     except Exception:
-        public_stats = {
-            "status": "maintenance",
-            "uptime": "N/A",
-            "total_content": 0,
-            "databases_online": 0
-        }
+        total_content = 0
+
+    try:
+        raw_plans = await db.get_subscription_plans()
+    except Exception:
+        raw_plans = []
+
+    currency_symbols = {"INR": "\u20b9", "USD": "$", "EUR": "\u20ac", "GBP": "\u00a3"}
+    plans = []
+    for p in raw_plans:
+        days = p.get("days", 0)
+        price = p.get("price", 0)
+        currency = (p.get("currency") or "INR").upper()
+        plans.append({
+            "days": days,
+            "price": price,
+            "currency_symbol": currency_symbols.get(currency, currency + " "),
+            "per_day": round(price / days, 2) if days else price,
+            "is_best": False,
+        })
+    if plans:
+        best = min(plans, key=lambda p: p["per_day"])
+        best["is_best"] = True
+
+    try:
+        bot_link = botmod.get_streambot_url()
+    except Exception:
+        bot_link = ""
 
     ctx = _base_context(request)
-    ctx["stats"] = public_stats
-    ctx["is_authenticated"] = is_authenticated(request)
-    return templates.TemplateResponse("public_status.html", ctx)
-
-
-#----- Stremio setup guide (no auth)
-async def stremio_guide_page(request: Request):
-    ctx = _base_context(request)
-    ctx["is_authenticated"] = is_authenticated(request)
-    return templates.TemplateResponse("stremio_guide.html", ctx)
+    ctx.update({
+        "is_authenticated": is_authenticated(request),
+        # Always render the plain public navbar on this landing page — even
+        # when logged in — so it never shows the app sidebar/hamburger/avatar
+        # chrome. Deliberately NOT setting current_user here (base.html keys
+        # its navbar choice off it); this page doesn't otherwise use it.
+        "current_user": None,
+        "hide_signin": True,
+        "hide_navbar": True,
+        "plans": plans,
+        "bot_link": bot_link,
+        "total_content": total_content,
+    })
+    return templates.TemplateResponse("welcome.html", ctx)
 
 
 #----- Subscription management shell
