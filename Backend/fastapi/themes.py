@@ -16,6 +16,21 @@ THEMES = {
             "text_secondary": "#6272A4"  # Comment
         },
         "css_classes": "theme-dracula"
+    },
+    "nord": {
+        "name": "Nord",
+        "is_dark": True,
+        "colors": {
+            "primary": "#88C0D0",        # Frost — cyan
+            "secondary": "#B48EAD",      # Aurora — purple
+            "accent": "#8FBCBB",         # Frost — teal
+            "background": "#2E3440",     # Polar Night — nord0
+            "card": "#3B4252",           # Polar Night — nord1
+            "border": "#4C566A",         # Polar Night — nord3
+            "text": "#ECEFF4",           # Snow Storm — nord6
+            "text_secondary": "#81A1C1"  # Frost — blue
+        },
+        "css_classes": "theme-nord"
     }
 }
 
