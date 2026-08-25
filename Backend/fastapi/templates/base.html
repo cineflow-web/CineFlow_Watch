@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="{{ 'dark' if theme.is_dark else '' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
 
 <style>
 :root {
-    color-scheme: dark;
+    color-scheme: {{ 'dark' if theme.is_dark else 'light' }};
     /* ── Active theme, set server-side from the user's saved choice ──────── */
     --primary: {{ theme.colors.primary }};
     --secondary: {{ theme.colors.secondary }};
@@ -584,7 +584,7 @@ tailwind.config = {
     <div class="flex-1"></div>
 
     <span class="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" style="color:var(--primary)">
-        <i class="fa-solid fa-bat"></i> Dracula
+        <i class="fa-solid fa-bat"></i> {{ theme.name }}
     </span>
 
     <div class="relative">
@@ -598,6 +598,21 @@ tailwind.config = {
                 <p class="text-[10px] text-d-green font-bold uppercase tracking-wider flex items-center gap-1" style="color:var(--d-green)">
                     <span class="w-1.5 h-1.5 rounded-full" style="background:var(--d-green)"></span> Online
                 </p>
+            </div>
+
+            <p class="text-[10px] font-bold uppercase tracking-wider mb-2" style="color:var(--text-sec)">Theme</p>
+            <div class="grid grid-cols-4 gap-2 mb-3 pb-3 border-b border-hairline">
+                {% for key, t in themes.items() %}
+                <form action="/set-theme" method="post" style="margin:0">
+                    <input type="hidden" name="theme" value="{{ key }}">
+                    <button type="submit" title="{{ t.name }}"
+                        class="w-full aspect-square rounded-xl flex items-center justify-center transition-all"
+                        style="background:{{ t.colors.background }};
+                               border:2px solid {{ 'var(--primary)' if key == current_theme else t.colors.border }};">
+                        <span style="width:60%;height:60%;border-radius:9999px;background:linear-gradient(135deg,{{ t.colors.primary }} 0 50%,{{ t.colors.secondary }} 50% 100%)"></span>
+                    </button>
+                </form>
+                {% endfor %}
             </div>
 
             <a href="/admin/settings"

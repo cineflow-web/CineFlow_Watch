@@ -280,39 +280,6 @@
         </div>
     </div>
 
-    <!-- ── Appearance ──────────────────────────────────────────────────── -->
-    <div class="settings-card">
-        <h2><i class="fa-solid fa-palette" style="color:var(--d-cyan)"></i> Appearance</h2>
-        <div style="color:var(--text-sec);font-size:0.8rem;margin-bottom:0.9rem">
-            Choose a color theme. Applies everywhere, right away.
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem">
-            {% for key, t in themes.items() %}
-            <form action="/set-theme" method="post" style="margin:0">
-                <input type="hidden" name="theme" value="{{ key }}">
-                <button type="submit"
-                    style="width:100%;text-align:left;cursor:pointer;border-radius:0.85rem;padding:0.85rem;
-                           background:{{ t.colors.card }};
-                           border:2px solid {{ 'var(--primary)' if key == current_theme else t.colors.border }};
-                           display:flex;flex-direction:column;gap:0.6rem;">
-                    <div style="display:flex;gap:0.35rem">
-                        <span style="width:16px;height:16px;border-radius:50%;background:{{ t.colors.primary }}"></span>
-                        <span style="width:16px;height:16px;border-radius:50%;background:{{ t.colors.secondary }}"></span>
-                        <span style="width:16px;height:16px;border-radius:50%;background:{{ t.colors.accent }}"></span>
-                        <span style="width:16px;height:16px;border-radius:50%;background:{{ t.colors.background }};border:1px solid {{ t.colors.border }}"></span>
-                    </div>
-                    <div style="display:flex;align-items:center;justify-content:space-between">
-                        <strong style="color:{{ t.colors.text }};font-size:0.85rem">{{ t.name }}</strong>
-                        {% if key == current_theme %}
-                        <i class="fa-solid fa-circle-check" style="color:var(--primary)"></i>
-                        {% endif %}
-                    </div>
-                </button>
-            </form>
-            {% endfor %}
-        </div>
-    </div>
-
     <!-- ── General ─────────────────────────────────────────────────────── -->
     <div class="settings-card">
         <h2><i class="fa-solid fa-sliders" style="color:var(--d-purple)"></i> General</h2>
