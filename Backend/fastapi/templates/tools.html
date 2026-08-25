@@ -72,6 +72,7 @@
 @keyframes indet { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
 
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap: 0.5rem; }
+.stat-grid > * { min-width: 0; }
 .stat-box {
     background: var(--surface);
     border: 1px solid var(--hairline); border-radius: 0.75rem;

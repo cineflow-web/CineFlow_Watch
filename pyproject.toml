@@ -1,6 +1,6 @@
 [project]
 name = "CineFlow"
-version = "1.0.2"
+version = "1.0.3"
 description = "A powerful, self-hosted CineFlow Media Server built with FastAPI, MongoDB, and PyroFork seamlessly integrated with Stremio for automated media streaming and discovery."
 readme = "README.md"
 requires-python = ">=3.11"

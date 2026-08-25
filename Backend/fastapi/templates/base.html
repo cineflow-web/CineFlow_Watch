@@ -222,8 +222,8 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 .toast.success { border-color: color-mix(in srgb, var(--d-green) 35%, var(--border)); }
 .toast.error   { border-color: color-mix(in srgb, var(--d-red) 35%, var(--border)); }
 .toast.info    { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
-.toast-title   { font-weight: 800; font-size: 0.9rem; line-height: 1.2; }
-.toast-message { margin-top: 0.15rem; font-size: 0.82rem; color: var(--text-sec); line-height: 1.35; }
+.toast-title   { font-weight: 800; font-size: 0.9rem; line-height: 1.2; overflow-wrap: anywhere; }
+.toast-message { margin-top: 0.15rem; font-size: 0.82rem; color: var(--text-sec); line-height: 1.35; overflow-wrap: anywhere; }
 @keyframes toast-in  { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes toast-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-8px) scale(0.98); } }
 @media (max-width: 640px) {

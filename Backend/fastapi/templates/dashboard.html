@@ -70,30 +70,42 @@
 
     <!-- ══════════════ Charts row ══════════════ -->
     <div class="grid lg:grid-cols-2 gap-3 mb-4">
-        <div class="surface-card p-5">
+        <div class="surface-card p-5 min-h-0" style="min-height:0">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="flex items-center gap-2 text-sm font-bold">
                     <i class="fa-solid fa-chart-column" style="color:var(--primary)"></i> Content Library
                 </h3>
                 <span class="text-[10px] font-bold text-text-secondary tabular">{{ (system_stats.movies or 0) + (system_stats.tv_shows or 0) }} total</span>
             </div>
-            <div class="relative" style="height:190px">
+            <div class="relative" style="height:190px; min-height:190px; max-height:190px">
                 <canvas id="chart-content"></canvas>
             </div>
         </div>
 
-        <div class="surface-card p-5">
+        <div class="surface-card p-5 min-h-0" style="min-height:0">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="flex items-center gap-2 text-sm font-bold">
                     <i class="fa-solid fa-server" style="color:var(--d-cyan)"></i> Storage by Node
                 </h3>
                 <span class="text-[10px] font-bold text-text-secondary tabular">{{ system_stats.total_databases or 0 }} nodes</span>
             </div>
-            <div class="relative" style="height:190px">
+            <div class="relative" style="height:190px; min-height:190px; max-height:190px">
                 <canvas id="chart-storage"></canvas>
             </div>
         </div>
     </div>
+    <style>
+        /* Grid items default to min-height:auto, which lets a Chart.js canvas
+           in a resize-observer feedback loop keep growing the whole row
+           (canvas grows -> item stretches to match since it can't shrink
+           below content -> observer sees bigger box -> canvas grows again)
+           until the chart card balloons to fill the screen. Forcing
+           min-height:0, plus a hard max-height on the canvas wrapper, breaks
+           the loop and keeps the box pinned to 190px. */
+        .grid.lg\:grid-cols-2 > .surface-card { min-height: 0; }
+        #chart-content, #chart-storage { max-height: 190px !important; }
+    </style>
+
 
     <div class="grid lg:grid-cols-3 gap-3">
         <div class="lg:col-span-2 space-y-3">
@@ -392,6 +404,10 @@
     @media (min-width: 640px) {
         .home-stat-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
     }
+    /* Grid items default to min-width:auto, which lets long values (e.g. the
+       uptime string) refuse to shrink and blow out the column instead of
+       truncating. Force them shrinkable so `.truncate` actually clips. */
+    .home-stat-grid > * { min-width: 0; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -664,9 +680,26 @@
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = tickColor;
 
+        // Chart.js only opens tooltips on touchstart/touchmove — there's no
+        // touch equivalent of "mouseout" to close them again, so on mobile
+        // the last tooltip you touched stays stuck on screen after you lift
+        // your finger. Track every chart we create and force-close all of
+        // their tooltips on touchend/scroll/tap-elsewhere.
+        const dashboardCharts = [];
+        const dismissDashboardTooltips = () => {
+            dashboardCharts.forEach(chart => {
+                if (!chart) return;
+                chart.setActiveElements([]);
+                chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
+                chart.update();
+            });
+        };
+        document.addEventListener('touchend', () => setTimeout(dismissDashboardTooltips, 50), { passive: true });
+        document.addEventListener('scroll', dismissDashboardTooltips, { passive: true });
+
         const contentCtx = document.getElementById('chart-content');
         if (contentCtx) {
-            new Chart(contentCtx, {
+            dashboardCharts.push(new Chart(contentCtx, {
                 type: 'bar',
                 data: {
                     labels: ['Movies', 'TV Shows'],
@@ -686,7 +719,7 @@
                         y: { beginAtZero: true, grid: { color: gridColor }, ticks: { precision: 0 } }
                     }
                 }
-            });
+            }));
         }
 
         const storageCtx = document.getElementById('chart-storage');
@@ -696,7 +729,7 @@
             const values = dbData.map(d => +( (d.storageSize || 0) / 1024 / 1024 ).toFixed(1));
             const palette = [v('--primary'), v('--d-cyan'), v('--d-pink'), v('--d-green'), v('--d-orange'), v('--d-yellow')];
 
-            new Chart(storageCtx, {
+            dashboardCharts.push(new Chart(storageCtx, {
                 type: 'bar',
                 data: {
                     labels: labels.length ? labels : ['No nodes'],
@@ -720,7 +753,7 @@
                         y: { grid: { display: false }, ticks: { font: { weight: 700 } } }
                     }
                 }
-            });
+            }));
         }
     })();
 </script>

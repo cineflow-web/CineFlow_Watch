@@ -11,6 +11,10 @@
   @media (min-width: 640px) {
     .home-stat-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
   }
+  /* Grid items default to min-width:auto, which lets long values (e.g. the
+     uptime string) refuse to shrink and blow out the column instead of
+     truncating. Force them shrinkable so `.truncate` actually clips. */
+  .home-stat-grid > * { min-width: 0; }
 
   /* ── Compact section card (matches Settings / Tools / Tokens) ─────────── */
   .admin-card {

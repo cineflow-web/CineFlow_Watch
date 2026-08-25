@@ -183,6 +183,7 @@
 
 /* ── Stats grid (compact, home-page style tiles) ────────────────────────── */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px,1fr)); gap: 0.5rem; }
+.stat-grid > * { min-width: 0; }
 .stat-box {
     background: var(--surface);
     border: 1px solid var(--hairline); border-radius: 0.75rem;
