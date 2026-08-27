@@ -2,7 +2,7 @@ name: Deploy to Hugging Face Space
 
 on:
   push:
-    branches: [CineFlow]
+    branches: [hf-branch]
   workflow_dispatch:
 
 jobs:
