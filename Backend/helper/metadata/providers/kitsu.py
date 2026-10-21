@@ -338,7 +338,9 @@ async def _tvdb_episode_fields(tvdb_id: int, season: int, episode: int, absolute
         if absolute_hint and (season is None or int(season) < 1):
             ep = await tvdb_mod.episode_by_absolute(int(tvdb_id), int(absolute_hint))
         if ep is None:
-            ep = await tvdb_mod.episode_by_number(int(tvdb_id), int(season or 1), int(episode))
+            ep = await tvdb_mod.episode_by_number(
+                int(tvdb_id), int(1 if season is None else season), int(episode)
+            )
         if not ep:
             return {}
         name = (ep.get("name") or "").strip()
@@ -530,7 +532,7 @@ async def _resolve_episode_meta(
             tmdb_id_int = int(tmdb_id)
         except (TypeError, ValueError):
             tmdb_id_int = None
-        if tmdb_id_int and int(season_number or 0) > 0:
+        if tmdb_id_int and season_number is not None and int(season_number) >= 0:
             tm = await _tmdb_episode_fields(tmdb_id_int, season_number, episode_number)
             title = _merge_field(title, tm.get("episode_title") or "")
             overview = _merge_field(overview, tm.get("episode_overview") or "")
@@ -733,6 +735,24 @@ def _find_anizip_episode(episodes: dict, season, episode, absolute: bool) -> dic
     if not episodes:
         return {}
     ep_num = int(episode)
+
+    # Specials (season 0): ani.zip files them under "S<n>" keys (seasonNumber 0).
+    # Must never fall through to the regular-episode matching below, which would
+    # return main-series episode <n> for "S00E<n>".
+    if season is not None and not absolute and int(season) == 0:
+        hit = episodes.get(f"S{ep_num}")
+        if hit:
+            return hit
+        for candidate in episodes.values():
+            try:
+                if (
+                    int(candidate.get("seasonNumber") if candidate.get("seasonNumber") is not None else -1) == 0
+                    and int(candidate.get("episodeNumber") or candidate.get("episode") or -1) == ep_num
+                ):
+                    return candidate
+            except (TypeError, ValueError):
+                continue
+        return {}
 
     # When looking up by absolute number, prefer the entry that actually
     # carries absoluteEpisodeNumber (these are the ones with season/episode).

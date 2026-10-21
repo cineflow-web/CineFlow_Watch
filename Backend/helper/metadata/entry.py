@@ -92,7 +92,14 @@ async def metadata(
     year = parsed.get("year")
     quality = parsed.get("quality")
 
-    if season_hint is not None and episode and not season and not isinstance(episode, list):
+    # Specials (S00E<N>) carry an explicit season 0 — never let a hint override it.
+    special_ep = parsed.get("special_episode")
+    is_special = special_ep is not None and not combined
+
+    if (
+        season_hint is not None and episode and not season
+        and not is_special and not isinstance(episode, list)
+    ):
         season = season_hint
 
     # GuessIt sometimes yields season=0 for absolute anime releases — treat as no season
@@ -104,6 +111,8 @@ async def metadata(
 
     if combined:
         season, episode = combined["season"], combined["start"] or 1
+    elif is_special:
+        season, episode = 0, int(special_ep)
     elif isinstance(season, list) or isinstance(episode, list):
         LOGGER.warning(f"Invalid season/episode format for {filename}: {parsed}")
         return None
@@ -114,7 +123,9 @@ async def metadata(
     # Absolute / orphan episode (e.g. "One Piece 1223 720.mkv",
     # "Naruto Shippuden - 016 480p ...", "[Judas] One Piece - 1172.mkv")
     absolute = False
-    if episode is None and not season:
+    if is_special:
+        pass  # explicit S00E<N>: never an absolute/orphan episode
+    elif episode is None and not season:
         abs_ep = extract_absolute_episode(filename, parsed)
         if abs_ep is not None:
             episode = abs_ep
@@ -174,7 +185,7 @@ async def metadata(
 
     try:
         # TV path: classic SxxExx, or absolute/orphan episode on anime channels
-        is_tv = bool(season and episode) or (absolute and episode and anime_channel)
+        is_tv = is_special or bool(season and episode) or (absolute and episode and anime_channel)
         if is_tv:
             if absolute:
                 LOGGER.info(f"Fetching TV metadata (absolute): {title} E{int(episode)} (year={year})")
@@ -202,6 +213,10 @@ async def metadata(
                     result["episode_number"] = int(episode)
             if result is not None and combined:
                 apply_combined_override(result, combined)
+            elif result is not None and is_special:
+                result["season_number"] = 0
+                result["episode_number"] = int(special_ep)
+                result["absolute_episode"] = None
         else:
             LOGGER.info(f"Fetching Movie metadata: {title} (year={year})")
             result = None

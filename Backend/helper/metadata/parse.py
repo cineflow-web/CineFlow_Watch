@@ -26,6 +26,21 @@ _EXPLICIT_SXXEXX_RE = re.compile(r"(?i)\bs\d{1,2}[._\s-]*e\d{1,3}\b")
 _EXPLICIT_NXNN_RE = re.compile(r"(?i)\b\d{1,2}x\d{2,3}\b")
 _EXPLICIT_SEASON_WORD_RE = re.compile(r"(?i)\b(?:season|series)\s*0*\d{1,2}\b")
 
+# --- Specials (season 0) -----------------------------------------------
+# "Show (2013) S00E01 - Ilse's Notebook 1080p.mkv" is a Specials/OVA entry.
+# Season 0 must NOT be collapsed to "no season", otherwise the file is
+# mistaken for a movie (or an absolute-numbered episode) downstream.
+_SPECIAL_SXXEXX_RE = re.compile(r"(?i)\bs0+[._\s-]*e(?:p)?0*(\d{1,3})\b")
+
+
+def detect_special_episode(name: str) -> int | None:
+    """Return N for a Specials-season name (S00E<N>), else None."""
+    m = _SPECIAL_SXXEXX_RE.search(name or "")
+    if not m:
+        return None
+    n = int(m.group(1))
+    return n if n >= 1 else None
+
 
 def parse_media_name(name: str) -> dict:
     try:
@@ -75,7 +90,17 @@ def parse_media_name(name: str) -> dict:
         except Exception as e:
             LOGGER.warning(f"GuessIt parsing failed for {name}: {e}")
 
-    # Normalize season 0 → None (specials folder only, not a real season for routing)
+    # Specials: S00E<N>. Record it explicitly *before* season 0 is normalised
+    # away, and pin the episode number from the filename itself so PTN/GuessIt
+    # quirks (lists, titles containing digits) cannot change it.
+    special_ep = detect_special_episode(name)
+    parsed["special_episode"] = special_ep
+    parsed["is_special"] = special_ep is not None
+    if special_ep is not None:
+        parsed["episode"] = special_ep
+
+    # Normalize season 0 → None for legacy callers (subtitles, manual_add).
+    # Callers that care about specials read parsed["is_special"] instead.
     try:
         if parsed.get("season") is not None and int(parsed["season"]) == 0:
             parsed["season"] = None
