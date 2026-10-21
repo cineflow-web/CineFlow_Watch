@@ -36,6 +36,7 @@ pinned: false
 * [📤 Adding Files by Forwarding (filename rules)](#-adding-files-by-forwarding-filename-rules)
   * [🎥 Movies](#-movies)
   * [📺 TV Shows](#-tv-shows)
+  * [⭐ Specials / OVAs (Season 0)](#-specials--ovas-season-0)
   * [🧩 Split Files (`.001`, `.002` …)](#-split-files-001-002-)
   * [🎞️ Combined / Season-Pack Files](#️-combined--season-pack-files)
 * [🖐️ Adding Files Manually (Goa trip, lectures, One Piece)](#️-adding-files-manually-goa-trip-lectures-one-piece)
@@ -207,6 +208,34 @@ Panchayat S03E05 Hindi 1080p.mkv
 | Quality | `720p` | ✅ |
 
 > 💡 Files that only have an **episode number and no season** (e.g. anime like `One Piece - 1142 (1080p).mkv`) can't be auto-forwarded — use the **[Manual Upload Session](#️-adding-files-manually-goa-trip-lectures-one-piece)** with a fallback season.
+
+## ⭐ Specials / OVAs (Season 0)
+
+Specials, OVAs and extras are detected from the **`S00E<N>`** pattern and filed under the show's **Specials** season (season 0) — *not* as a movie, and not as part of a regular season.
+
+**✅ Good examples**
+```
+[Anime Time] Attack on Titan (2013) S00E01 - Ilse's Notebook 1080p BluRay.mkv
+[Anime Time] Attack on Titan (2013) S00E04 - No Regrets Part 1 1080p BluRay.mkv
+Loki.S00E02.Special.720p.mkv
+```
+
+| Part | Example | Needed? |
+| :--- | :--- | :---: |
+| Title | `Attack on Titan` | ✅ |
+| Season | `S00` | ✅ (must be `S00`) |
+| Episode | `E01` | ✅ |
+| Quality | `1080p` | ✅ |
+| Episode title | `- Ilse's Notebook` | optional |
+
+**How it works**
+* The special's number comes **from the filename** (`S00E06` → Specials, episode 6). The title after the number is ignored for matching.
+* The episode name, description and thumbnail are then looked up for that special (Kitsu → TVDB → TMDb). If no provider has that special, it is still added with a fallback name like `S00E06`.
+* Works on **Anime** channels and regular **TV Shows** channels.
+* Files with `Part 1` / `Part 2` **inside the name** (e.g. `No Regrets Part 1 1080p.mkv`) are fine — they are separate episodes. Only names that *end* in `Part 01.mkv` / `CD01.mkv` are skipped (see [Split Files](#-split-files-001-002-)).
+
+> 💡 Only the `S00E<N>` style is recognised. Names like `OVA 01` or `SP01` are not detected — rename them to `S00E01`.
+> 💡 Files added **before** this was supported were filed as movies. Delete them and forward / re-scan them to move them into Specials.
 
 ## 🧩 Split Files (`.001`, `.002` …)
 
