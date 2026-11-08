@@ -307,5 +307,6 @@ def stremio_subtitle_entries(subs: list, token: str, base_url: str) -> list:
             "id": f"tg-{sub.get('msg_id')}",
             "url": f"{base_url}/sub/{token}/{sub.get('encoded')}/subtitle{ext}",
             "lang": lang,
+            "name": sub.get("name") or "",   # original file name (the web player shows it in the subtitle list)
         })
     return entries
