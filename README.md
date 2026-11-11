@@ -126,6 +126,7 @@ The app is great for personal, single-user use, but it's intentionally lighter t
 - 📚 **Auto & custom catalogs** (organize by language, platform, or your own lists)
 - 🔐 **Private / exclusive catalogs** for premium content
 - 💳 **Subscriptions & access control** built in
+- 📲 **Installable web app**: add the dashboard to your home screen (Chrome: ⋮ → Install app) and it opens in its own window with its own icon
 - 🧩 **Split-file & multi-part playback** as one stream (incl. `.zip.001` split archives)
 - 🌀 **Anime-aware** metadata for anime channels
 - 🔍 **Global Search** across extra channels (now streams split & `.zip` archives too)

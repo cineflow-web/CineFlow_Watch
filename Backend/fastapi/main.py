@@ -2,7 +2,7 @@ import asyncio
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -158,6 +158,30 @@ try:
     app.mount("/static", StaticFiles(directory="Backend/fastapi/static"), name="static")
 except Exception:
     pass
+
+
+#----- Web app manifest (lets the dashboard be installed from the browser)
+@app.get("/manifest.webmanifest", include_in_schema=False)
+async def pwa_manifest():
+    return JSONResponse(
+        {
+            "name": "CineFlow Watch",
+            "short_name": "CineFlow",
+            "description": "CineFlow media server dashboard: library, catalogs, access and settings.",
+            "start_url": "/",
+            "scope": "/",
+            "display": "standalone",
+            "background_color": "#282A36",
+            "theme_color": "#282A36",
+            "icons": [
+                {"src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+                {"src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+                {"src": "/static/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+            ],
+        },
+        media_type="application/manifest+json",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
 
 
 @app.on_event("startup")
