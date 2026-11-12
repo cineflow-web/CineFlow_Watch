@@ -1150,7 +1150,7 @@ async def remove_subtitle_api(payload: dict) -> dict:
     msg_id = payload.get("msg_id")
     if chat_id in (None, "") or msg_id in (None, ""):
         raise HTTPException(status_code=400, detail="chat_id and msg_id are required.")
-    if not await remove_subtitle(chat_id, msg_id):
+    if not await remove_subtitle(chat_id, msg_id, delete_telegram=True):
         raise HTTPException(status_code=404, detail="Subtitle not found.")
     return {"status": "success", "message": "Subtitle removed."}
 

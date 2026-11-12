@@ -1,4 +1,5 @@
 import re
+from asyncio import create_task
 from datetime import datetime
 
 from Backend import db
@@ -11,6 +12,7 @@ from Backend.helper.metadata import (
     parse_media_name,
 )
 from Backend.helper.pyro import clean_filename
+from Backend.helper.task_manager import delete_message
 from Backend.logger import LOGGER
 
 SUBTITLE_EXTS = (".srt", ".vtt", ".ass", ".ssa", ".sub")
@@ -279,10 +281,17 @@ async def get_subtitles_for(imdb_id: str, media_type: str, season, episode):
     return [doc async for doc in db.dbs["tracking"]["subtitles"].find(query)]
 
 
-async def remove_subtitle(channel, msg_id) -> bool:
+#----- delete_telegram=True also deletes the subtitle file message from the channel
+async def remove_subtitle(channel, msg_id, delete_telegram: bool = False) -> bool:
+    chat_id = int(str(channel).replace("-100", ""))
     result = await db.dbs["tracking"]["subtitles"].delete_one(
-        {"chat_id": int(channel), "msg_id": int(msg_id)}
+        {"chat_id": chat_id, "msg_id": int(msg_id)}
     )
+    if result.deleted_count > 0 and delete_telegram:
+        try:
+            create_task(delete_message(int(f"-100{chat_id}"), int(msg_id)))
+        except Exception as e:
+            LOGGER.error(f"[SUBTITLE] Failed to queue Telegram deletion for {msg_id}: {e}")
     return result.deleted_count > 0
 
 
